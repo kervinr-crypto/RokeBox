@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PhoneBox Settings</title>
+<title>RokeBox Settings</title>
 <link rel="icon" href="/favicon.ico">
 <style>
 :root {
@@ -487,7 +487,7 @@ nav a.on::before { color: var(--accent); }
 <body>
 <header id="hdr">
   <img src="/favicon.ico" alt="" width="28" height="28">
-  <h1>PhoneBox</h1><span class="ver" id="ver"></span>
+  <h1>RokeBox</h1><span class="ver" id="ver"></span>
   <span class="pill" id="phone"><i></i><span data-i18n="s.phoneStatus">Phone…</span></span>
   <button class="btn sm upd-top" id="updTop" hidden></button>
   <div class="spacer"></div>
@@ -647,7 +647,7 @@ nav a.on::before { color: var(--accent); }
           <label class="check"><input type="checkbox" data-bind="photos.subfolders"> <span data-i18n="s.photos.subfolders">Include subfolders</span></label>
         </div>
         <div id="photosImmichBox" hidden>
-          <p class="hint" style="margin:0 0 12px" data-i18n="s.photos.immichHint">PhoneBox reads the album from your Immich server and shows the preview-size pictures Immich makes. A read-only API key is enough: it needs the album.read, asset.read and asset.view permissions (Immich › Account Settings › API Keys). The address and key stay on this computer; only this server is contacted.</p>
+          <p class="hint" style="margin:0 0 12px" data-i18n="s.photos.immichHint">RokeBox reads the album from your Immich server and shows the preview-size pictures Immich makes. A read-only API key is enough: it needs the album.read, asset.read and asset.view permissions (Immich › Account Settings › API Keys). The address and key stay on this computer; only this server is contacted.</p>
           <div class="field"><label data-i18n="s.photos.immichUrl">Immich address</label>
             <input type="text" data-bind="photos.immichUrl" placeholder="http://192.168.1.10:2283" spellcheck="false" autocomplete="off"></div>
           <div class="field"><label data-i18n="s.photos.immichKey">API key</label>
@@ -697,7 +697,7 @@ nav a.on::before { color: var(--accent); }
       <div class="card">
         <h3 data-i18n="s.discord.title">Discord</h3>
         <div class="row" style="margin-bottom:8px"><label class="switch"><input type="checkbox" data-bind="discord.enabled"><span></span></label> <span data-i18n="s.discord.enable">Connect to the Discord app on this PC (for the Discord widget)</span></div>
-        <p class="hint" style="margin:0 0 12px" data-i18n="s.discord.hint">Create an application at discord.com/developers/applications, add the redirect http://127.0.0.1 under OAuth2, and copy its client ID and secret here. Discord asks you to approve PhoneBox once. If it refuses the login, add your account under the application's App Testers. Step by step: docs/DISCORD.md.</p>
+        <p class="hint" style="margin:0 0 12px" data-i18n="s.discord.hint">Create an application at discord.com/developers/applications, add the redirect http://127.0.0.1 under OAuth2, and copy its client ID and secret here. Discord asks you to approve RokeBox once. If it refuses the login, add your account under the application's App Testers. Step by step: docs/DISCORD.md.</p>
         <div class="grid2">
           <div class="field"><label data-i18n="s.discord.clientId">Client ID</label><input type="text" data-bind="discord.clientId" autocomplete="off" spellcheck="false"></div>
           <div class="field"><label data-i18n="s.discord.clientSecret">Client secret</label><input type="password" data-bind="discord.clientSecret" autocomplete="off"></div>
@@ -705,9 +705,9 @@ nav a.on::before { color: var(--accent); }
         <div class="row" style="margin:12px 0 4px"><label class="switch"><input type="checkbox" data-bind="discord.allowControl" aria-labelledby="discordAllowControlLabel"><span></span></label> <span id="discordAllowControlLabel" data-i18n="s.discord.allowControl">Let shortcuts and custom widgets control Discord, without a Discord widget</span></div>
         <p class="hint" style="margin:0" data-i18n="s.discord.allowControlHint">For the agent's /api/discord actions: mute, deafen, input mode, leave and join. Off: they work only while a Discord widget with Control on is on an enabled page. On: they work without one. Either way, anything that can call the agent can use them, not only the widget: the paired phone (USB or Wi-Fi) and programs on this computer.</p>
         <div class="row" style="margin:12px 0 4px"><label class="switch"><input type="checkbox" data-bind="discord.screenShare" aria-labelledby="discordScreenShareLabel"><span></span></label> <span id="discordScreenShareLabel" data-i18n="s.discord.screenShare">Start and stop Discord screen shares from the phone</span></div>
-        <p class="hint" style="margin:0" data-i18n="s.discord.screenShareHint">Asks Discord for permission to start screen shares, so Discord asks you to approve PhoneBox once more. While the share view is open on the phone, PhoneBox lists the apps with a window on this computer (names only). Discord decides what it can share directly; for anything else use its picker on the computer. Also needs a Discord widget with Control on.</p>
+        <p class="hint" style="margin:0" data-i18n="s.discord.screenShareHint">Asks Discord for permission to start screen shares, so Discord asks you to approve RokeBox once more. While the share view is open on the phone, RokeBox lists the apps with a window on this computer (names only). Discord decides what it can share directly; for anything else use its picker on the computer. Also needs a Discord widget with Control on.</p>
         <div class="row" style="margin:12px 0 4px"><label class="switch"><input type="checkbox" data-bind="discord.chat" aria-labelledby="discordChatLabel"><span></span></label> <span id="discordChatLabel" data-i18n="s.discord.chat">Show Discord chat and new-message dots on the phone (read-only)</span></div>
-        <p class="hint" style="margin:0" data-i18n="s.discord.chatHint">Sends the text of the channels you open in the widget to the phone. Asks Discord for permission to read messages, so Discord asks you to approve PhoneBox once more. The text stays in memory only (never in a file or the log) and is gone when Discord disconnects or this is turned off. If you decline, only the chat stays off.</p>
+        <p class="hint" style="margin:0" data-i18n="s.discord.chatHint">Sends the text of the channels you open in the widget to the phone. Asks Discord for permission to read messages, so Discord asks you to approve RokeBox once more. The text stays in memory only (never in a file or the log) and is gone when Discord disconnects or this is turned off. If you decline, only the chat stays off.</p>
       </div>
 
       <div class="card">
@@ -777,7 +777,7 @@ nav a.on::before { color: var(--accent); }
           <select data-bind="display.orientation"><option value="landscape" data-i18n="s.display.orientation.landscape">Landscape</option><option value="portrait" data-i18n="s.display.orientation.portrait">Portrait</option><option value="auto" data-i18n="s.display.orientation.auto">Follow the phone</option></select>
           <span class="hint" data-i18n="s.display.orientationHint">You design pages in landscape; in portrait the panel arranges the widgets by itself, top to bottom. Tablets use the same pages, just bigger.</span></div>
         <label class="check"><input type="checkbox" data-bind="display.tabletRows" id="tabletRowsOpt"> <span data-i18n="s.display.tabletRows">More rows on a tablet</span></label>
-        <span class="hint" style="display:block;margin:-4px 0 10px" data-i18n="s.display.tabletRowsHint">A landscape tablet keeps the 12 columns and gets more rows (about 8 to 10, from its screen), so a page holds more widgets; upright, it packs 12 across. Widgets below the top 6 rows show only on a tablet: a phone leaves them out without a sign. Update the PhoneBox app on the tablet first, as an older app squeezes those widgets onto extra rows.</span>
+        <span class="hint" style="display:block;margin:-4px 0 10px" data-i18n="s.display.tabletRowsHint">A landscape tablet keeps the 12 columns and gets more rows (about 8 to 10, from its screen), so a page holds more widgets; upright, it packs 12 across. Widgets below the top 6 rows show only on a tablet: a phone leaves them out without a sign. Update the RokeBox app on the tablet first, as an older app squeezes those widgets onto extra rows.</span>
         <div class="field" style="max-width:420px"><label for="weekStart" data-i18n="s.display.weekStart">First day of the week</label>
           <select id="weekStart" data-bind="display.weekStart"><option value="monday" data-i18n="s.display.weekStart.monday">Monday</option><option value="sunday" data-i18n="s.display.weekStart.sunday">Sunday</option><option value="auto" data-i18n="s.display.weekStart.auto">Follow the display language</option></select></div>
           <div class="field" style="max-width:460px">
@@ -787,7 +787,7 @@ nav a.on::before { color: var(--accent); }
               <option value="power" data-i18n="s.display.standby.power">Sleep when USB charge is cut</option>
               <option value="data" data-i18n="s.display.standby.data">Sleep when the agent stops answering</option>
             </select>
-            <span class="hint" data-i18n="s.display.standbyHint">When the computer comes back, PhoneBox wakes the phone and opens the panel. A swipe-only lock screen is dismissed automatically. If the phone is protected by a PIN or pattern, you must still unlock it yourself. While standby is on, PhoneBox turns off Android's stay-awake-while-charging setting and restores it when standby is turned off. Standby only acts on the phone named under Phone connection › Phone to use; with no phone chosen it does nothing.</span>
+            <span class="hint" data-i18n="s.display.standbyHint">When the computer comes back, RokeBox wakes the phone and opens the panel. A swipe-only lock screen is dismissed automatically. If the phone is protected by a PIN or pattern, you must still unlock it yourself. While standby is on, RokeBox turns off Android's stay-awake-while-charging setting and restores it when standby is turned off. Standby only acts on the phone named under Phone connection › Phone to use; with no phone chosen it does nothing.</span>
           </div>
           <div class="field" style="max-width:170px">
             <label data-i18n="s.display.standbyGrace">Standby grace (s)</label>
@@ -848,15 +848,15 @@ nav a.on::before { color: var(--accent); }
         <label class="check"><input type="checkbox" data-bind="display.pin"> <span data-i18n="s.kiosk.pin">Pin the panel: Home and Recents stay on it (Android asks once; hold Back and Overview together to unpin)</span></label>
         <label class="check"><input type="checkbox" data-bind="display.homeScreen"> <span data-i18n="s.kiosk.homeScreen">Use the panel as the phone's home screen: it starts after a reboot and Home returns to it (turn off to get your launcher back)</span></label>
         <label class="check"><input type="checkbox" data-bind="display.keepAwake"> <span data-i18n="s.kiosk.keepAwake">Keep the phone awake: turn off Android's screen saver (it starts on the charger) and keep the screen on while plugged in (set over USB)</span></label>
-        <label class="check"><input type="checkbox" data-bind="display.openOnConnect"> <span data-i18n="s.kiosk.openOnConnect">Open PhoneBox when the phone is plugged in: wake the phone and bring the panel to the front whenever it connects over USB (turn off to open it yourself, for a phone you also use for app testing)</span></label>
-        <label class="check"><input type="checkbox" data-bind="display.wakeOnUnlock"> <span data-i18n="s.kiosk.wakeOnUnlock">Wake and unlock: when PhoneBox opens over USB, step over a swipe-only lock screen (a PIN, pattern or password is never passed)</span></label>
-        <label class="check" id="followComputerLockOption" style="display:none"><input type="checkbox" data-bind="display.followComputerLock"> <span data-i18n="s.kiosk.followLock">Follow the computer lock: turn the phone screen off when macOS locks; wake it and open PhoneBox when macOS unlocks (ADB required; unlock phones secured by a PIN or password manually)</span></label>
+        <label class="check"><input type="checkbox" data-bind="display.openOnConnect"> <span data-i18n="s.kiosk.openOnConnect">Open RokeBox when the phone is plugged in: wake the phone and bring the panel to the front whenever it connects over USB (turn off to open it yourself, for a phone you also use for app testing)</span></label>
+        <label class="check"><input type="checkbox" data-bind="display.wakeOnUnlock"> <span data-i18n="s.kiosk.wakeOnUnlock">Wake and unlock: when RokeBox opens over USB, step over a swipe-only lock screen (a PIN, pattern or password is never passed)</span></label>
+        <label class="check" id="followComputerLockOption" style="display:none"><input type="checkbox" data-bind="display.followComputerLock"> <span data-i18n="s.kiosk.followLock">Follow the computer lock: turn the phone screen off when macOS locks; wake it and open RokeBox when macOS unlocks (ADB required; unlock phones secured by a PIN or password manually)</span></label>
         <label class="check"><input type="checkbox" data-bind="display.lockPhoneWithShortcut"> <span data-i18n="s.kiosk.lockPhoneWithShortcut">Sleep the phone with the Lock shortcut: also turn the phone screen off whenever the Lock shortcut is run (ADB required)</span></label>
       </div>
 
       <div class="card">
         <h3 data-i18n="s.battery.title">Battery care</h3>
-        <p class="hint" style="margin:0 0 12px"><span data-i18n="s.battery.leadHead">A phone that is plugged in all the time wears its battery out. PhoneBox can keep it between two</span>
+        <p class="hint" style="margin:0 0 12px"><span data-i18n="s.battery.leadHead">A phone that is plugged in all the time wears its battery out. RokeBox can keep it between two</span>
           <span data-i18n="s.battery.leadMid">levels by switching the phone's power on and off. Phones cannot stop charging by themselves without root, so the power is switched</span>
           <span data-i18n-html="s.battery.leadTail">where it comes from: a <b>smart plug in Home Assistant</b> (the phone on its own charger), or two <b>shortcuts</b>, for example
           <code>uhubctl</code> for a USB hub with switchable ports. Without USB power the panel keeps running over Wi-Fi.</span></p>
@@ -889,9 +889,9 @@ nav a.on::before { color: var(--accent); }
 
       <div class="card" id="bridgeCard" style="display:none">
         <h3 data-i18n="s.bridge.title">Phone bridge</h3>
-        <p class="hint" style="margin:0 0 12px" data-i18n="s.bridge.hint">Share what you copy between this Mac and the paired phone (off by default). The text goes only to your own phone over the PhoneBox link and is not stored. The PhoneBox app has its own Phone bridge switch, and both must be on.</p>
+        <p class="hint" style="margin:0 0 12px" data-i18n="s.bridge.hint">Share what you copy between this Mac and the paired phone (off by default). The text goes only to your own phone over the RokeBox link and is not stored. The RokeBox app has its own Phone bridge switch, and both must be on.</p>
         <div class="row" style="margin-bottom:8px"><label class="switch"><input type="checkbox" data-bind="bridge.clipboard" aria-labelledby="bridgeClipboardLabel"><span></span></label> <span id="bridgeClipboardLabel" data-i18n="s.bridge.clipboard">Share the clipboard with the phone (plain text, both ways)</span></div>
-        <p id="bridgeRefused" hidden style="margin:4px 0 8px;font-size:13px;color:var(--warn)" data-i18n="s.bridge.refused">macOS gave PhoneBox no text from the clipboard, so what you copy is not reaching the phone. Allow PhoneBox to paste in System Settings › Privacy &amp; Security.</p>
+        <p id="bridgeRefused" hidden style="margin:4px 0 8px;font-size:13px;color:var(--warn)" data-i18n="s.bridge.refused">macOS gave RokeBox no text from the clipboard, so what you copy is not reaching the phone. Allow RokeBox to paste in System Settings › Privacy &amp; Security.</p>
         <div class="row" style="margin-bottom:8px"><label class="switch"><input type="checkbox" id="bridgeNotifications" data-bind="bridge.notifications" aria-labelledby="bridgeNotificationsLabel"><span></span></label> <span id="bridgeNotificationsLabel" data-i18n="s.bridge.notifications">Show phone notifications on this Mac (calls, messages and the apps you choose on the phone)</span></div>
         <label class="check"><input type="checkbox" id="bridgeCopyCodes" data-bind="bridge.copyCodes"> <span data-i18n="s.bridge.copyCodes">Copy one-time codes from messages to this Mac's clipboard</span></label>
         <div class="row" style="margin-top:8px"><button class="btn sm" id="bridgeTest" onclick="bridgeTest()" data-i18n="s.bridge.test">Send a test notification</button></div>
@@ -901,7 +901,7 @@ nav a.on::before { color: var(--accent); }
         <h3 data-i18n="s.approvals.title">AI coding agent permission prompts</h3>
         <p class="hint" style="margin:0 0 12px" data-i18n-html="s.approvals.hint">When Codex or Claude Code asks for permission, the phone shows the request with <b>Allow</b> and <b>Deny</b>. Install the hook for each agent you use; existing hook files are preserved and backed up.</p>
         <div class="row" style="margin-bottom:8px"><b style="min-width:92px" data-i18n="s.approvals.codex">Codex</b><button class="btn" id="codexHookBtn" data-i18n="s.claude.installHook">Install hook</button><span class="hint" id="codexHookState"></span></div>
-        <p class="hint" id="codexHookTrust" style="display:none;margin:-2px 0 12px 100px" data-i18n-html="s.approvals.codexTrust">Required once: start a new Codex session, then trust the PhoneBox hook in <b>Settings › Hooks</b> (desktop) or <code>/hooks</code> (CLI).</p>
+        <p class="hint" id="codexHookTrust" style="display:none;margin:-2px 0 12px 100px" data-i18n-html="s.approvals.codexTrust">Required once: start a new Codex session, then trust the RokeBox hook in <b>Settings › Hooks</b> (desktop) or <code>/hooks</code> (CLI).</p>
         <div class="row" style="margin-bottom:12px"><b style="min-width:92px" data-i18n="s.approvals.claude">Claude Code</b><button class="btn" id="claudeHookBtn" data-i18n="s.claude.installHook">Install hook</button><span class="hint" id="claudeHookState"></span></div>
         <div class="hint" id="claudeHookTargets" style="margin:-6px 0 12px" hidden></div>
         <div class="row" style="margin-bottom:8px"><label class="switch"><input type="checkbox" data-bind="claude.phoneApprovals"><span></span></label> <span data-i18n="s.claude.askOnPhone">Ask on the phone</span></div>
@@ -944,7 +944,7 @@ nav a.on::before { color: var(--accent); }
             <label class="check"><input type="checkbox" id="cb_antigravity"> Antigravity</label>
             <label class="check"><input type="checkbox" id="cb_grok"> Grok</label>
           </div>
-          <span class="hint" data-i18n="s.quotas.grokHint">Grok uses the Grok CLI sign-in on this computer (grok login). PhoneBox reads that token without refreshing it, and asks Grok only while an enabled page shows Grok quotas.</span>
+          <span class="hint" data-i18n="s.quotas.grokHint">Grok uses the Grok CLI sign-in on this computer (grok login). RokeBox reads that token without refreshing it, and asks Grok only while an enabled page shows Grok quotas.</span>
         </div>
         <div class="field" style="margin-top:10px">
           <label class="check"><input type="checkbox" data-bind="codexBar.rotate"> <span data-i18n="s.quotas.rotate">Rotate providers automatically</span></label>
@@ -2426,7 +2426,7 @@ async function pairOverWifi() {
     h('div', { class: 'pair-qrs' },
       h('div', { class: 'pair-qr' },
         h('b', {}, t('s.wifi.step1')),
-        h('img', { src: svg(r.appQr), alt: t('s.pair.downloadQr') }),
+        r.appQr ? h('img', { src: svg(r.appQr), alt: t('s.pair.downloadQr') }) : '',
         h('small', { class: 'hint' }, t('s.wifi.step1Hint'))),
       pairBox),
     h('p', { class: 'hint', style: 'margin:0' }, r.hosts.length
@@ -3171,7 +3171,7 @@ setInterval(pollCharge, 5000);
 
 // ---------------------------------------------------------------- webhooks
 function renderWebhooks(lan) {
-  const local = `http://127.0.0.1:${location.port || 8765}`;
+  const local = `http://127.0.0.1:${location.port || 8775}`;
   const host = lan?.active && lan.hosts?.length ? `https://${lan.hosts[0]}:${lan.port}` : null;
   const token = cfg.lan?.webhookToken || '';
   const ex = [
@@ -4076,7 +4076,7 @@ async function loadInfo() {
     $('usbProblem').replaceChildren(...(i.usbProblem ? [icon('warn', 'm'), i.usbProblem] : []));
     $('webviewProblem').hidden = !i.webviewProblem;
     $('webviewProblem').replaceChildren(...(i.webviewProblem ? [icon('warn', 'm'), i.webviewProblem] : []));
-    if (i.appMissing?.length) $('appMissingText').textContent = tcv('{names} has no PhoneBox app yet', { names: i.appMissing.join(', ') });
+    if (i.appMissing?.length) $('appMissingText').textContent = tcv('{names} has no RokeBox app yet', { names: i.appMissing.join(', ') });
     const sel = $('serial');
     const cur = cfg.deviceSerial || '';
     const opts = [['', t('s.conn.allDevices')], ...i.devices.map((d) => [d, d])];
@@ -4220,7 +4220,7 @@ $('openPhone').onclick = async () => {
 $('cityBtn').onclick = searchCity;
 function renderUpdate(u) {
   const s = u.status;
-  $('updRepo').textContent = cfg.updates?.repo || 'ersinkoc/phonebox';
+  $('updRepo').textContent = cfg.updates?.repo || '— (RokeBox: no update channel set, updates.repo is empty)';
   const line = (k, v) => [h('dt', {}, k), h('dd', {}, v)];
   $('updInfo').replaceChildren(
     ...line(t('s.adv.agent'), s.agentVersion + (s.agentUpdate ? ` → ${s.latest}` : ' ' + t('s.adv.upToDate')) + (u.installed ? '' : ' · ' + t('s.adv.notInstalledCopy'))),
@@ -4338,7 +4338,7 @@ $('modalClose').onclick = closeModal;
 $('lanPair').onclick = pairOverWifi;
 $('modal').onclick = (e) => { if (e.target.id === 'modal') closeModal(); };
 const whTry = (fn, ok) => async () => { try { await fn(); toast(tc(ok)); loadPushed(); } catch (e) { toast(e.message, true); } };
-$('whNotify').onclick = whTry(() => postJson('/api/notify', { title: 'PhoneBox', text: tc('Hello from the settings page'), level: 'ok' }), 'Sent — look at the phone');
+$('whNotify').onclick = whTry(() => postJson('/api/notify', { title: 'RokeBox', text: tc('Hello from the settings page'), level: 'ok' }), 'Sent — look at the phone');
 $('whPush').onclick = whTry(() => postJson('/api/push/demo', { value: Math.round(Math.random() * 100), unit: '%', sub: tc('sent ') + new Date().toLocaleTimeString() }), 'Pushed "demo"');
 $('whRefresh').onclick = whTry(() => postJson('/api/refresh'), 'The panel refreshes');
 $('whReload').onclick = whTry(() => postJson('/api/refresh?reload=1'), 'The panel reloads');

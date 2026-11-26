@@ -1,4 +1,4 @@
-// PhoneBox interface translations for the "night" rule action. See docs/DEVELOPMENT.md for the locale checks.
+// RokeBox interface translations for the "night" rule action. See docs/DEVELOPMENT.md for the locale checks.
 // Merged deeply into the other packs: a plain top-level assign would replace whole language entries, and this file
 // loads last among the locale-*.js files (check-release.py parses the literal below).
 function pbNightMerge(prev, extra) {

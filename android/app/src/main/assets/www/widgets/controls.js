@@ -73,7 +73,7 @@ async function micsOn() {
   let r;
   try { r = await deckCommand('mics-on'); }
   catch (e) { if (!e.result?.mics) throw e; r = e.result; }
-  const text = r.mics === 'unmuted' ? tp('Microphones unmuted') : r.mics === 'none' ? tp('No microphone muted by PhoneBox to unmute')
+  const text = r.mics === 'unmuted' ? tp('Microphones unmuted') : r.mics === 'none' ? tp('No microphone muted by RokeBox to unmute')
     : tp('A microphone could not be unmuted');
   toast(text, r.ok ? 'ok' : 'err', '', 4);
 }

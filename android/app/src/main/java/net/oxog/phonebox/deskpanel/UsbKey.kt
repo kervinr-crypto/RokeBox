@@ -11,11 +11,11 @@ import android.util.Base64
 import java.security.SecureRandom
 
 /**
- * The key this app sends on the USB connection. "adb reverse" opens 127.0.0.1:8765 on the phone to every app on it, so
+ * The key this app sends on the USB connection. "adb reverse" opens 127.0.0.1:8775 on the phone to every app on it, so
  * the agent's USB port answers only requests that carry this key. The app makes it once and keeps it; the agent reads it
  * over adb from [UsbKeyProvider], which only the adb shell may read.
  * The agent writes its TLS certificate's fingerprint (the pin) the same way. USB requests are TLS to that certificate
- * only, so an app that took the phone's port 8765 before the tunnel was set up never gets the key.
+ * only, so an app that took the phone's port 8775 before the tunnel was set up never gets the key.
  */
 object UsbKey {
     private const val PREFS = "usb"
@@ -64,7 +64,7 @@ object UsbKey {
 }
 
 /**
- * Hands [UsbKey] to the computer: "adb shell content query --uri content://net.oxog.phonebox.deskpanel.usb/key", and
+ * Hands [UsbKey] to the computer: "adb shell content query --uri content://com.syroke.rokebox.usb/key", and
  * takes the agent's certificate fingerprint: "adb shell content insert --uri content://…usb/pin --bind fp:s:<sha256>".
  * The manifest guards both with android.permission.DUMP, which the adb shell holds and no installed app can get, so
  * other apps on the phone can neither read the key nor set the pin. (call() is not used: Android doesn't check the

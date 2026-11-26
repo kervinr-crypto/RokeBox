@@ -120,22 +120,26 @@ public class UsbLinkTests
         Assert.Null(UsbLink.ParseKey($"Row: 0 key={Key} extra\n"));
     }
 
-    private const string Owned = "Packages:\n  Package [net.oxog.phonebox.deskpanel] (1a2b3c):\n    versionName=0.9.24\n"
-        + "ContentProvider Authorities:\n  [net.oxog.phonebox.deskpanel.usb]:\n    Provider{3ec2f24 net.oxog.phonebox.deskpanel/.UsbKeyProvider}\n"
-        + "      applicationInfo=ApplicationInfo{a39b11a net.oxog.phonebox.deskpanel}\n";
+    // RokeBox: the applicationId differs from the Kotlin package, so Android prints the provider class in full
+    private const string Owned = "Packages:\n  Package [com.syroke.rokebox] (1a2b3c):\n    versionName=0.9.24\n"
+        + "ContentProvider Authorities:\n  [com.syroke.rokebox.usb]:\n    Provider{3ec2f24 com.syroke.rokebox/net.oxog.phonebox.deskpanel.UsbKeyProvider}\n"
+        + "      applicationInfo=ApplicationInfo{a39b11a com.syroke.rokebox}\n";
 
     [Fact]
     public void TheKeyIsTrustedOnlyFromTheAppsOwnProvider()
     {
         Assert.True(UsbLink.OwnsKeyProvider(Owned));
         Assert.True(UsbLink.OwnsKeyProvider(Owned.Replace("\n", "\r\n")));
-        Assert.True(UsbLink.OwnsKeyProvider(Owned.Replace("/.UsbKeyProvider", "/net.oxog.phonebox.deskpanel.UsbKeyProvider")));
-        // an older PhoneBox without the provider: the name may belong to another app, so no key is read
-        Assert.False(UsbLink.OwnsKeyProvider("Packages:\n  Package [net.oxog.phonebox.deskpanel] (1a2b3c):\n    versionName=0.9.23\n"));
+        Assert.True(UsbLink.OwnsKeyProvider(Owned.Replace("/net.oxog.phonebox.deskpanel.UsbKeyProvider", "/.UsbKeyProvider")));
+        // an older app without the provider: the name may belong to another app, so no key is read
+        Assert.False(UsbLink.OwnsKeyProvider("Packages:\n  Package [com.syroke.rokebox] (1a2b3c):\n    versionName=0.9.23\n"));
         // another package's provider under the same name, or another class
-        Assert.False(UsbLink.OwnsKeyProvider(Owned.Replace("Provider{3ec2f24 net.oxog.phonebox.deskpanel/", "Provider{3ec2f24 com.evil.app/")));
+        Assert.False(UsbLink.OwnsKeyProvider(Owned.Replace("Provider{3ec2f24 com.syroke.rokebox/", "Provider{3ec2f24 com.evil.app/")));
         Assert.False(UsbLink.OwnsKeyProvider(Owned.Replace("UsbKeyProvider}", "Other}")));
-        Assert.False(UsbLink.OwnsKeyProvider(Owned.Replace("[net.oxog.phonebox.deskpanel.usb]", "[net.oxog.phonebox.deskpanel.usb2]")));
+        Assert.False(UsbLink.OwnsKeyProvider(Owned.Replace("[com.syroke.rokebox.usb]", "[com.syroke.rokebox.usb2]")));
+        // upstream PhoneBox's own listing (installed beside RokeBox) is not RokeBox's provider
+        Assert.False(UsbLink.OwnsKeyProvider("Packages:\n  Package [net.oxog.phonebox.deskpanel] (1a2b3c):\n    versionName=0.9.30\n"
+            + "ContentProvider Authorities:\n  [net.oxog.phonebox.deskpanel.usb]:\n    Provider{c7956a8 net.oxog.phonebox.deskpanel/.UsbKeyProvider}\n"));
         Assert.False(UsbLink.OwnsKeyProvider(""));
     }
 

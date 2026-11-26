@@ -319,7 +319,9 @@ app.MapPost("/api/pair/start", (ConfigStore cfg, PairingCodes codes) =>
     var hosts = Lan.Addresses();
     var fingerprint = Lan.Fingerprint(lanCert);
     var link = PairingCodes.Link(Environment.MachineName, fingerprint, lanCfg.Port, hosts, code);
-    var apk = $"https://github.com/ersinkoc/phonebox/releases/download/v{AppPaths.Version}/PhoneBox-{AppPaths.Version}.apk";
+    var releaseRepo = cfg.Get().Updates.Repo;
+    var apk = string.IsNullOrWhiteSpace(releaseRepo) ? ""
+        : $"https://github.com/{releaseRepo}/releases/download/v{AppPaths.Version}/RokeBox-{AppPaths.Version}.apk";
     return Results.Json(new
     {
         enabled = true,
@@ -333,7 +335,7 @@ app.MapPost("/api/pair/start", (ConfigStore cfg, PairingCodes codes) =>
         link,
         qr = PairingCodes.Svg(link),
         app = apk,
-        appQr = PairingCodes.Svg(apk),
+        appQr = apk.Length > 0 ? PairingCodes.Svg(apk) : "",
     });
 });
 app.MapPost("/api/pair/cancel", (long attempt, PairingCodes codes) => { codes.Cancel(attempt); return Results.Ok(); });
@@ -1311,7 +1313,7 @@ public partial class Program
                 collides = false;
                 if (prop.Value.ValueKind != JsonValueKind.Object) continue;
                 var enabled = false;
-                var port = 8766;
+                var port = 8776;
                 foreach (var lp in prop.Value.EnumerateObject())
                 {
                     if (lp.Name.Equals("enabled", StringComparison.OrdinalIgnoreCase) && lp.Value.ValueKind is JsonValueKind.True or JsonValueKind.False)

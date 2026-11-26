@@ -37,10 +37,10 @@
         <value>Телефон не подключён</value>
     </data>
     <data xml:space="preserve" name="tooltipConnected">
-        <value>PhoneBox — телефон подключён</value>
+        <value>RokeBox — телефон подключён</value>
     </data>
     <data xml:space="preserve" name="tooltipWaiting">
-        <value>PhoneBox — ожидание телефона</value>
+        <value>RokeBox — ожидание телефона</value>
     </data>
     <data xml:space="preserve" name="autostartError">
         <value>Не удалось изменить ярлык запуска: {0}</value>

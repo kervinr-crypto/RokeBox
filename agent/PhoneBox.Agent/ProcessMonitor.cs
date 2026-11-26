@@ -36,7 +36,7 @@ public sealed class ProcessMonitor(ILogger<ProcessMonitor> log, SessionMonitor s
         "Memory Compression", "Secure System", "LsaIso", "conhost", "dllhost", "WUDFHost", "SearchHost",
         "StartMenuExperienceHost", "ShellExperienceHost", "TextInputHost", "LockApp", "SecurityHealthService",
         "MsMpEng", "NisSrv", "smartscreen", "RuntimeBroker", "ApplicationFrameHost", "SystemSettingsBroker",
-        "PhoneBoxAgent", "adb", "dotnet",
+        "RokeBoxAgent", "adb", "dotnet",
     };
 #endif
 

@@ -40,7 +40,7 @@ public sealed partial class DiscordMonitor
     private static readonly HashSet<string> ShareSkip = new(StringComparer.OrdinalIgnoreCase)
     {
         "discord", "discordptb", "discordcanary", "explorer", "textinputhost", "shellexperiencehost", "searchhost",
-        "startmenuexperiencehost", "lockapp", "applicationframehost", "systemsettings", "phoneboxagent",
+        "startmenuexperiencehost", "lockapp", "applicationframehost", "systemsettings", "phoneboxagent", "rokeboxagent",
     };
 
     // guarded by _lock

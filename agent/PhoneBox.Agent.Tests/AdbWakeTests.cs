@@ -154,7 +154,7 @@ public sealed class AdbWakeTests : IDisposable
     private const string MiuiLocked = "\nKeyguardServiceDelegate state (from context):\n  showing=true\n  showingAndNotOccluded=true\n  secure=false\n  mShowingDream=false mDreamingLockscreen=true mDreamingSleepToken=null\n  mStatusBar=Window{be0e0e9 u0 StatusBar} isStatusBarKeyguard=true\n  mCurrentFocus=Window{be0e0e9 u0 StatusBar}\n";
 
     /// <summary>The same phone with the panel on screen: MIUI writes "showing=false" and "mDreamingLockscreen" goes false too.</summary>
-    private const string MiuiUnlocked = "\nKeyguardServiceDelegate state (from context):\n  showing=false\n  secure=false\n  mShowingDream=false mDreamingLockscreen=false mDreamingSleepToken=null\n  mStatusBar=Window{be0e0e9 u0 StatusBar} isStatusBarKeyguard=false\n  mCurrentFocus=Window{3a94cfc u0 net.oxog.phonebox.deskpanel/net.oxog.phonebox.deskpanel.MainActivity}\n";
+    private const string MiuiUnlocked = "\nKeyguardServiceDelegate state (from context):\n  showing=false\n  secure=false\n  mShowingDream=false mDreamingLockscreen=false mDreamingSleepToken=null\n  mStatusBar=Window{be0e0e9 u0 StatusBar} isStatusBarKeyguard=false\n  mCurrentFocus=Window{3a94cfc u0 com.syroke.rokebox/net.oxog.phonebox.deskpanel.MainActivity}\n";
 
     /// <summary>
     /// A window service that names no keyguard state at all, which the parser reads as "not locked": a phone that
@@ -215,9 +215,9 @@ public sealed class AdbWakeTests : IDisposable
     {
         var fake = FakeAdb(MiuiLocked); // the phone the feature was asked for, locked, MIUI: only "showing=" names the keyguard
         var calls = await RunUntil(fake, Settings(fake, wakeOnUnlock),
-            c => c.Contains("-s FAKE1 shell am start -n net.oxog.phonebox.deskpanel/.MainActivity"));
+            c => c.Contains("-s FAKE1 shell am start -n com.syroke.rokebox/net.oxog.phonebox.deskpanel.MainActivity"));
 
-        var opened = Array.IndexOf(calls, "-s FAKE1 shell am start -n net.oxog.phonebox.deskpanel/.MainActivity");
+        var opened = Array.IndexOf(calls, "-s FAKE1 shell am start -n com.syroke.rokebox/net.oxog.phonebox.deskpanel.MainActivity");
         Assert.True(opened >= 0, "the panel is opened:\n" + string.Join("\n", calls));
         Assert.Contains("-s FAKE1 shell input keyevent KEYCODE_WAKEUP", calls);
         var asked = Array.IndexOf(calls, "-s FAKE1 shell dumpsys window");
@@ -244,12 +244,12 @@ public sealed class AdbWakeTests : IDisposable
     {
         var fake = FakeAdb(MiuiUnlocked);
         var calls = await RunUntil(fake, Settings(fake, true),
-            c => c.Contains("-s FAKE1 shell am start -n net.oxog.phonebox.deskpanel/.MainActivity"));
+            c => c.Contains("-s FAKE1 shell am start -n com.syroke.rokebox/net.oxog.phonebox.deskpanel.MainActivity"));
 
         Assert.Contains("-s FAKE1 shell input keyevent KEYCODE_WAKEUP", calls);
         Assert.Contains("-s FAKE1 shell dumpsys window", calls);
         Assert.DoesNotContain("-s FAKE1 shell wm dismiss-keyguard", calls);
-        Assert.Contains("-s FAKE1 shell am start -n net.oxog.phonebox.deskpanel/.MainActivity", calls);
+        Assert.Contains("-s FAKE1 shell am start -n com.syroke.rokebox/net.oxog.phonebox.deskpanel.MainActivity", calls);
     }
 
     /// <summary>
@@ -261,11 +261,11 @@ public sealed class AdbWakeTests : IDisposable
     {
         var fake = FakeAdb("error: device offline");
         var calls = await RunUntil(fake, Settings(fake, true),
-            c => c.Contains("-s FAKE1 shell am start -n net.oxog.phonebox.deskpanel/.MainActivity"));
+            c => c.Contains("-s FAKE1 shell am start -n com.syroke.rokebox/net.oxog.phonebox.deskpanel.MainActivity"));
 
         Assert.Contains("-s FAKE1 shell dumpsys window", calls);
         Assert.DoesNotContain("-s FAKE1 shell wm dismiss-keyguard", calls);
-        Assert.Contains("-s FAKE1 shell am start -n net.oxog.phonebox.deskpanel/.MainActivity", calls);
+        Assert.Contains("-s FAKE1 shell am start -n com.syroke.rokebox/net.oxog.phonebox.deskpanel.MainActivity", calls);
     }
 
     /// <summary>
@@ -282,7 +282,7 @@ public sealed class AdbWakeTests : IDisposable
 
         Assert.DoesNotContain("-s FAKE1 shell input keyevent KEYCODE_WAKEUP", calls);
         Assert.DoesNotContain("-s FAKE1 shell wm dismiss-keyguard", calls);
-        Assert.DoesNotContain("-s FAKE1 shell am start -n net.oxog.phonebox.deskpanel/.MainActivity", calls);
+        Assert.DoesNotContain("-s FAKE1 shell am start -n com.syroke.rokebox/net.oxog.phonebox.deskpanel.MainActivity", calls);
     }
 
     /// <summary>
@@ -298,11 +298,11 @@ public sealed class AdbWakeTests : IDisposable
         if (OperatingSystem.IsMacOS()) return;
         var fake = FakeAdb(MiuiLocked);
         var calls = await RunUntil(fake, Settings(fake, false, followComputerLock: true),
-            c => c.Contains("-s FAKE1 shell am start -n net.oxog.phonebox.deskpanel/.MainActivity"));
+            c => c.Contains("-s FAKE1 shell am start -n com.syroke.rokebox/net.oxog.phonebox.deskpanel.MainActivity"));
 
         Assert.Contains("-s FAKE1 shell input keyevent KEYCODE_WAKEUP", calls);
         Assert.DoesNotContain("-s FAKE1 shell wm dismiss-keyguard", calls);
-        Assert.Contains("-s FAKE1 shell am start -n net.oxog.phonebox.deskpanel/.MainActivity", calls);
+        Assert.Contains("-s FAKE1 shell am start -n com.syroke.rokebox/net.oxog.phonebox.deskpanel.MainActivity", calls);
     }
 
     /// <summary>
@@ -318,10 +318,10 @@ public sealed class AdbWakeTests : IDisposable
     {
         var fake = FakeAdb(windowDump);
         var calls = await RunUntil(fake, Settings(fake, wakeOnUnlock: true),
-            c => c.Contains("-s FAKE1 shell am start -n net.oxog.phonebox.deskpanel/.MainActivity"));
+            c => c.Contains("-s FAKE1 shell am start -n com.syroke.rokebox/net.oxog.phonebox.deskpanel.MainActivity"));
         Assert.Contains("-s FAKE1 shell dumpsys window", calls);
         Assert.Equal(expectDismissed, calls.Contains("-s FAKE1 shell wm dismiss-keyguard"));
-        Assert.Contains("-s FAKE1 shell am start -n net.oxog.phonebox.deskpanel/.MainActivity", calls);
+        Assert.Contains("-s FAKE1 shell am start -n com.syroke.rokebox/net.oxog.phonebox.deskpanel.MainActivity", calls);
     }
 
     /// <summary>

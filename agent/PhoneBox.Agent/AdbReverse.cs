@@ -4,16 +4,16 @@ using System.Text.Json;
 namespace PhoneBox.Agent;
 
 /// <summary>
-/// While a phone is connected over USB, keeps an "adb reverse tcp:8765 tcp:&lt;USB port&gt;" rule in place so that
-/// 127.0.0.1:8765 on the phone reaches this agent's USB port, and reads the key the phone's app sends there (see
+/// While a phone is connected over USB, keeps an "adb reverse tcp:8775 tcp:&lt;USB port&gt;" rule in place so that
+/// 127.0.0.1:8775 on the phone reaches this agent's USB port, and reads the key the phone's app sends there (see
 /// <see cref="UsbLink"/>). When a phone is newly plugged in, wakes it and opens the panel
 /// (unless Settings › Display › open on connect is off).
 /// </summary>
 public sealed class AdbReverse(ConfigStore cfg, ILogger<AdbReverse> log, AgentEndpoint? endpoint = null, UsbLink? usb = null,
     IHostApplicationLifetime? lifetime = null) : BackgroundService
 {
-    public const string PanelActivity = "net.oxog.phonebox.deskpanel/.MainActivity";
-    private const string HomeAlias = "net.oxog.phonebox.deskpanel/.HomeAlias";
+    public const string PanelActivity = "com.syroke.rokebox/net.oxog.phonebox.deskpanel.MainActivity";
+    private const string HomeAlias = "com.syroke.rokebox/net.oxog.phonebox.deskpanel.HomeAlias";
     private readonly HashSet<string> _homeSet = [];
     private readonly HashSet<string> _awakeSet = [];
     /// <summary>Phones this agent process has already woken since it started (see LightPanel).</summary>
@@ -22,8 +22,8 @@ public sealed class AdbReverse(ConfigStore cfg, ILogger<AdbReverse> log, AgentEn
 
     /// <summary>Connected phones that do not have the PhoneBox app yet (installed from Settings, e.g. after winget / Scoop).</summary>
     public string[] MissingApp => _missingApp;
-    private const string Rule = "tcp:8765";
-    private string TargetRule => $"tcp:{usb?.Port ?? endpoint?.Port ?? 8765}";
+    private const string Rule = "tcp:8775";
+    private string TargetRule => $"tcp:{usb?.Port ?? endpoint?.Port ?? 8775}";
     private readonly Dictionary<string, long> _keyTriedAt = []; // serial -> when its key was last asked for (Ensure only)
     private readonly HashSet<string> _oldApp = [];              // phones already told that their app is too old
     private readonly HashSet<string> _reverseSet = [];          // phones whose reverse rule this agent set (read only for Android 5 and 6)
@@ -814,7 +814,7 @@ public sealed class AdbReverse(ConfigStore cfg, ILogger<AdbReverse> log, AgentEn
                 continue;
             }
             // is the app there at all? (the agent may have been installed on its own, with winget or Scoop)
-            var installed = (await Adb(adb, ["-s", d, "shell", "pm", "path", "net.oxog.phonebox.deskpanel"], ct, anyExit: true)).Contains("package:");
+            var installed = (await Adb(adb, ["-s", d, "shell", "pm", "path", UsbLink.Package], ct, anyExit: true)).Contains("package:");
             _missingApp = installed ? _missingApp.Where(x => x != d).ToArray() : _missingApp.Union([d]).ToArray();
             if (!installed) { Report($"{d}: the PhoneBox app is not installed (Settings › General › Install the phone app)"); continue; }
             if (!keyed) await ReadKeyAsync(adb, d, ct);
@@ -982,13 +982,13 @@ public sealed class AdbReverse(ConfigStore cfg, ILogger<AdbReverse> log, AgentEn
         dumpsysWindow.Contains("isKeyguardShowing=true", StringComparison.Ordinal) ||
         dumpsysWindow.Split('\n').Any(line => line.Trim() == "showing=true");
 
-    /// <summary>True when "reverse --list" has any rule for the phone's tcp:8765, whatever it points at.</summary>
+    /// <summary>True when "reverse --list" has any rule for the phone's tcp:8775, whatever it points at.</summary>
     internal static bool HasAnyRule(string list) => list.Split('\n')
         .Select(l => l.Split([' ', '\t', '\r'], StringSplitOptions.RemoveEmptyEntries))
         .Any(p => p.Length >= 2 && p[^2] == Rule);
 
     /// <summary>
-    /// True when "reverse --list" has this agent's rule: phone tcp:8765 to this agent's port. A rule left by an agent on
+    /// True when "reverse --list" has this agent's rule: phone tcp:8775 to this agent's port. A rule left by an agent on
     /// another port (--port) points the phone at a dead port; lines read "&lt;transport&gt; &lt;phone&gt; &lt;computer&gt;".
     /// </summary>
     private bool HasOwnRule(string list) => list.Split('\n')

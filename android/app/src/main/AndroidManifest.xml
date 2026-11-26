@@ -32,7 +32,7 @@
     <application
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher"
-        android:label="PhoneBox"
+        android:label="RokeBox"
         android:networkSecurityConfig="@xml/network_security_config"
         android:supportsRtl="true"
         android:localeConfig="@xml/locales_config"
@@ -42,7 +42,7 @@
              be granted to an installed app, so no other app on the phone can read it. -->
         <provider
             android:name=".UsbKeyProvider"
-            android:authorities="net.oxog.phonebox.deskpanel.usb"
+            android:authorities="${applicationId}.usb"
             android:exported="true"
             android:readPermission="android.permission.DUMP"
             android:writePermission="android.permission.DUMP" />
@@ -57,19 +57,13 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- Pairing without USB: the QR code on the computer's settings page. Android 12+ opens unverified https
-                 links in the browser; that page then offers phonebox://pair (the second filter). -->
+            <!-- Pairing without USB: the QR code on the computer's settings page holds a rokebox://pair link.
+                 RokeBox has no hosted https pairing page yet (see ROKEBOX.md). -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="ersinkoc.github.io" android:pathPrefix="/phonebox/pair" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="phonebox" android:host="pair" />
+                <data android:scheme="rokebox" android:host="pair" />
             </intent-filter>
         </activity>
 
@@ -190,7 +184,7 @@
             android:enabled="@bool/quick_settings_tile"
             android:exported="true"
             android:icon="@drawable/ic_tile"
-            android:label="PhoneBox"
+            android:label="RokeBox"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
             tools:targetApi="n">
             <intent-filter>

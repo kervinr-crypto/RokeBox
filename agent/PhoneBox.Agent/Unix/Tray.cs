@@ -12,7 +12,7 @@ public sealed class Tray(ILogger<Tray> log, AgentEndpoint endpoint) : IHostedSer
     {
         // inside PhoneBox.app the menu bar icon opens them (MacMenuBar); elsewhere there is nothing on screen to click
         if (UpdateService.RunningInBundle) log.LogInformation("settings: {Url}  (also from the phone icon in the menu bar)", endpoint.SettingsUrl);
-        else log.LogInformation("settings: {Url}  (no tray icon on this system; run PhoneBoxAgent again to open the settings)", endpoint.SettingsUrl);
+        else log.LogInformation("settings: {Url}  (no tray icon on this system; run RokeBoxAgent again to open the settings)", endpoint.SettingsUrl);
         return Task.CompletedTask;
     }
 

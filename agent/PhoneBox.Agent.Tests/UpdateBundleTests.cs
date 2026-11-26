@@ -31,16 +31,16 @@ public class UpdateBundleTests : IDisposable
     {
         using var doc = JsonDocument.Parse("""
             { "tag_name": "v1.2.0", "html_url": "https://example.invalid", "assets": [
-              { "name": "PhoneBox-1.2.0.apk", "browser_download_url": "https://example.invalid/PhoneBox-1.2.0.apk" },
-              { "name": "PhoneBox-1.2.0-osx-arm64.dmg", "browser_download_url": "https://example.invalid/PhoneBox-1.2.0-osx-arm64.dmg" },
-              { "name": "PhoneBox-1.2.0-osx-x64.dmg", "browser_download_url": "https://example.invalid/PhoneBox-1.2.0-osx-x64.dmg" },
-              { "name": "PhoneBoxAgent-1.2.0-osx-arm64.zip", "browser_download_url": "https://example.invalid/PhoneBoxAgent-1.2.0-osx-arm64.zip" } ] }
+              { "name": "RokeBox-1.2.0.apk", "browser_download_url": "https://example.invalid/RokeBox-1.2.0.apk" },
+              { "name": "RokeBox-1.2.0-osx-arm64.dmg", "browser_download_url": "https://example.invalid/RokeBox-1.2.0-osx-arm64.dmg" },
+              { "name": "RokeBox-1.2.0-osx-x64.dmg", "browser_download_url": "https://example.invalid/RokeBox-1.2.0-osx-x64.dmg" },
+              { "name": "RokeBoxAgent-1.2.0-osx-arm64.zip", "browser_download_url": "https://example.invalid/RokeBoxAgent-1.2.0-osx-arm64.zip" } ] }
             """);
         var arm = UpdateService.SelectAssets(doc.RootElement, "osx-arm64");
-        Assert.Equal("PhoneBox-1.2.0-osx-arm64.dmg", UpdateService.AssetName(arm.AgentDmg!));
-        Assert.Equal("PhoneBoxAgent-1.2.0-osx-arm64.zip", UpdateService.AssetName(arm.AgentZip!));
-        Assert.Equal("PhoneBox-1.2.0.apk", UpdateService.AssetName(arm.Apk!)); // a .dmg is never taken for the phone app
-        Assert.Equal("PhoneBox-1.2.0-osx-x64.dmg", UpdateService.AssetName(UpdateService.SelectAssets(doc.RootElement, "osx-x64").AgentDmg!));
+        Assert.Equal("RokeBox-1.2.0-osx-arm64.dmg", UpdateService.AssetName(arm.AgentDmg!));
+        Assert.Equal("RokeBoxAgent-1.2.0-osx-arm64.zip", UpdateService.AssetName(arm.AgentZip!));
+        Assert.Equal("RokeBox-1.2.0.apk", UpdateService.AssetName(arm.Apk!)); // a .dmg is never taken for the phone app
+        Assert.Equal("RokeBox-1.2.0-osx-x64.dmg", UpdateService.AssetName(UpdateService.SelectAssets(doc.RootElement, "osx-x64").AgentDmg!));
         Assert.Null(UpdateService.SelectAssets(doc.RootElement, "linux-x64").AgentDmg);
     }
 
@@ -49,7 +49,7 @@ public class UpdateBundleTests : IDisposable
     {
         using var doc = JsonDocument.Parse("""
             { "tag_name": "v0.9.9", "html_url": "https://example.invalid", "assets": [
-              { "name": "PhoneBoxAgent-0.9.9-osx-arm64.zip", "browser_download_url": "https://example.invalid/PhoneBoxAgent-0.9.9-osx-arm64.zip" } ] }
+              { "name": "RokeBoxAgent-0.9.9-osx-arm64.zip", "browser_download_url": "https://example.invalid/RokeBoxAgent-0.9.9-osx-arm64.zip" } ] }
             """);
         Assert.Null(UpdateService.SelectAssets(doc.RootElement, "osx-arm64").AgentDmg);
     }
@@ -58,7 +58,7 @@ public class UpdateBundleTests : IDisposable
     {
         var app = Path.Combine(_root, folder, "PhoneBox.app");
         Directory.CreateDirectory(Path.Combine(app, "Contents", "MacOS"));
-        File.WriteAllText(Path.Combine(app, "Contents", "MacOS", "PhoneBoxAgent"), marker);
+        File.WriteAllText(Path.Combine(app, "Contents", "MacOS", "RokeBoxAgent"), marker);
         return app;
     }
 
@@ -73,7 +73,7 @@ public class UpdateBundleTests : IDisposable
 
         UpdateService.SwapBundle(app, stagingInParent);
 
-        Assert.Equal("new", File.ReadAllText(Path.Combine(app, "Contents", "MacOS", "PhoneBoxAgent")));
+        Assert.Equal("new", File.ReadAllText(Path.Combine(app, "Contents", "MacOS", "RokeBoxAgent")));
         Assert.Equal([app], Directory.GetDirectories(parent));
     }
 
@@ -85,7 +85,7 @@ public class UpdateBundleTests : IDisposable
 
         Assert.ThrowsAny<IOException>(() => UpdateService.SwapBundle(app, missing));
 
-        Assert.Equal("old", File.ReadAllText(Path.Combine(app, "Contents", "MacOS", "PhoneBoxAgent")));
+        Assert.Equal("old", File.ReadAllText(Path.Combine(app, "Contents", "MacOS", "RokeBoxAgent")));
     }
 
     [Fact]
@@ -105,7 +105,7 @@ public class UpdateBundleTests : IDisposable
         Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
         await UpdateService.ExtractAppAsync(dmg, destination, CancellationToken.None);
 
-        Assert.Equal("from-the-image", File.ReadAllText(Path.Combine(destination, "Contents", "MacOS", "PhoneBoxAgent")));
+        Assert.Equal("from-the-image", File.ReadAllText(Path.Combine(destination, "Contents", "MacOS", "RokeBoxAgent")));
         var mounted = Process.Start(new ProcessStartInfo("/sbin/mount") { RedirectStandardOutput = true })!;
         var listing = await mounted.StandardOutput.ReadToEndAsync();
         Assert.DoesNotContain("PhoneBoxTest", listing);
@@ -136,7 +136,7 @@ public class UpdateBundleSigningTests
     [Fact]
     public void TheRequirementIsReadFromCodesignsOutput()
     {
-        var output = "Executable=/Applications/PhoneBox.app/Contents/MacOS/PhoneBoxAgent\n# designated => something old\ndesignated => " + Certificate + "\n";
+        var output = "Executable=/Applications/PhoneBox.app/Contents/MacOS/RokeBoxAgent\n# designated => something old\ndesignated => " + Certificate + "\n";
         Assert.Equal(Certificate, UpdateService.ParseDesignatedRequirement(output));
         Assert.Null(UpdateService.ParseDesignatedRequirement("code object is not signed at all"));
     }
@@ -163,8 +163,8 @@ public class UpdateBundleSigningTests
     [Fact]
     public void TheRestartPathCanBeReadBeforeTheAppMoves()
     {
-        AppRestart.Executable = "/Applications/PhoneBox.app/Contents/MacOS/PhoneBoxAgent";
-        try { Assert.Equal("/Applications/PhoneBox.app/Contents/MacOS/PhoneBoxAgent", AppRestart.Executable); }
+        AppRestart.Executable = "/Applications/PhoneBox.app/Contents/MacOS/RokeBoxAgent";
+        try { Assert.Equal("/Applications/PhoneBox.app/Contents/MacOS/RokeBoxAgent", AppRestart.Executable); }
         finally { AppRestart.Executable = null; }
     }
 }

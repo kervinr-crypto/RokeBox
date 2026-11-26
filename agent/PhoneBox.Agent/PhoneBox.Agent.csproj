@@ -8,9 +8,9 @@
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">net10.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyName>PhoneBoxAgent</AssemblyName>
+    <AssemblyName>RokeBoxAgent</AssemblyName>
     <RootNamespace>PhoneBox.Agent</RootNamespace>
-    <Product>PhoneBox</Product>
+    <Product>RokeBox</Product>
     <Company>PhoneBox</Company>
     <Description>PhoneBox desktop agent: feeds the PhoneBox Android desk panel over USB or Wi-Fi.</Description>
     <Version>0.9.30</Version>

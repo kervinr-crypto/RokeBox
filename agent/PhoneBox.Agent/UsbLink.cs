@@ -6,12 +6,12 @@ using System.Text.RegularExpressions;
 namespace PhoneBox.Agent;
 
 /// <summary>
-/// The phone's USB connection. "adb reverse" makes 127.0.0.1:8765 on the phone reach the computer, but that address on
+/// The phone's USB connection. "adb reverse" makes 127.0.0.1:8775 on the phone reach the computer, but that address on
 /// the phone is open to every app there, not only PhoneBox. So the tunnel ends on a port of its own (not the local port
 /// the settings page, the tray and the hooks use), and every request on it must carry the key the PhoneBox app made.
 /// The agent reads that key over adb from a content provider that only the adb shell may read (it needs the DUMP
 /// permission, which no installed app can hold), and writes the fingerprint of its certificate there the same way.
-/// The app talks TLS to the tunnel and pins that certificate, so an app that took the phone's port 8765 before the
+/// The app talks TLS to the tunnel and pins that certificate, so an app that took the phone's port 8775 before the
 /// tunnel never sees the key. Before both, the agent checks that the provider belongs to the PhoneBox app: an app
 /// that claimed the same provider name first must not be able to choose the key.
 /// With the key, the phone reaches the same paths as over Wi-Fi, plus the two only USB has: the Wi-Fi pairing data and
@@ -25,11 +25,11 @@ public sealed partial class UsbLink(int port, string pin)
     /// <summary>SHA-256 of the tunnel's TLS certificate (lower-case hex), which the app pins.</summary>
     public string Pin { get; } = pin;
 
-    public const string Package = "net.oxog.phonebox.deskpanel";
+    public const string Package = "com.syroke.rokebox";
     /// <summary>The content provider in the PhoneBox app that hands its USB key to the adb shell.</summary>
-    public const string KeyUri = "content://net.oxog.phonebox.deskpanel.usb/key";
+    public const string KeyUri = "content://com.syroke.rokebox.usb/key";
     /// <summary>Where the agent writes its certificate's fingerprint (insert, also DUMP only).</summary>
-    public const string PinUri = "content://net.oxog.phonebox.deskpanel.usb/pin";
+    public const string PinUri = "content://com.syroke.rokebox.usb/pin";
 
     private readonly ConcurrentDictionary<string, string> _keys = new(); // adb serial -> the key its app made
     private int _unknownKey;
@@ -85,13 +85,15 @@ public sealed partial class UsbLink(int port, string pin)
         KeyRow().Match(output) is { Success: true } m ? m.Groups[1].Value : null;
 
     /// <summary>
-    /// True when "dumpsys package net.oxog.phonebox.deskpanel" lists the key provider as the app's own. Another app
+    /// True when "dumpsys package com.syroke.rokebox" lists the key provider as the app's own. Another app
     /// could have taken the provider name while an older PhoneBox without it was installed; the name can belong to one
     /// app only, so the app's own listing settles it. Output in any other shape counts as not the app's.
     /// </summary>
     internal static bool OwnsKeyProvider(string dumpsys) => OwnedProvider().IsMatch(dumpsys);
 
-    [GeneratedRegex(@"^\s*\[net\.oxog\.phonebox\.deskpanel\.usb\]:\s*\r?\n\s*Provider\{[0-9a-f]+ net\.oxog\.phonebox\.deskpanel/(?:\.|net\.oxog\.phonebox\.deskpanel\.)UsbKeyProvider\}", RegexOptions.Multiline)]
+    // RokeBox: the applicationId (com.syroke.rokebox) differs from the Kotlin package, so Android lists the provider's
+    // class with its full name: Provider{hash com.syroke.rokebox/net.oxog.phonebox.deskpanel.UsbKeyProvider}
+    [GeneratedRegex(@"^\s*\[com\.syroke\.rokebox\.usb\]:\s*\r?\n\s*Provider\{[0-9a-f]+ com\.syroke\.rokebox/(?:\.|net\.oxog\.phonebox\.deskpanel\.)UsbKeyProvider\}", RegexOptions.Multiline)]
     private static partial Regex OwnedProvider();
 
     /// <summary>The app's versionName in "dumpsys package" output, or null.</summary>

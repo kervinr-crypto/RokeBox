@@ -1,4 +1,4 @@
-// PhoneBox desk panel: core, pages, navigation and data from the agent. The widgets live in widgets/*.js;
+// RokeBox desk panel: core, pages, navigation and data from the agent. The widgets live in widgets/*.js;
 // they import what they need from here, so this module must not run code that needs them while it loads
 // (the start section at the end runs after every module has loaded).
 import { designGrid, gridForViewport, placeWidget, widgetsOnGrid } from './grid.js';
@@ -20,9 +20,9 @@ import './widgets/spectrum.js';
 import './widgets/steam-library.js';
 import './widgets/lyrics.js';
 
-// PhoneBox desk panel. Pages are grids of widgets, designed in the agent's settings page.
+// RokeBox desk panel. Pages are grids of widgets, designed in the agent's settings page.
 // A phone is 12 × 6. A tablet keeps the 12 columns and adds rows, so the page holds more widgets.
-// The panel talks to the PhoneBox agent through "/agent/*", which the Android shell proxies over USB
+// The panel talks to the RokeBox agent through "/agent/*", which the Android shell proxies over USB
 // (adb reverse) or Wi-Fi to the computer.
 
 export const API = '/agent/api';

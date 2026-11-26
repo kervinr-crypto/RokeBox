@@ -443,7 +443,7 @@ public sealed partial class ControlDeck : BackgroundService
             var mics = audio.Devices.Where(d => d.CanControl && d.Direction == "input" && _micsToReopen.Contains(d.Id)).ToArray();
             // microphones that are gone are forgotten, so they are not opened if they come back later
             _micsToReopen.IntersectWith(mics.Select(m => m.Id));
-            if (mics.Length == 0) return new(false, "No microphone muted by PhoneBox to unmute", Mics: "none");
+            if (mics.Length == 0) return new(false, "No microphone muted by RokeBox to unmute", Mics: "none");
             var all = true;
             foreach (var mic in mics)
             {

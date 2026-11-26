@@ -9,23 +9,23 @@
     <string name="pair_done">Paired with %1$s</string>
     <string name="pair_failed_title">Pairing did not work</string>
     <!-- %1$s is the computer's name, %2$s its addresses. -->
-    <string name="pair_failed_unreachable">Could not reach %1$s at %2$s. The phone and the computer must be on the same network (or both on Tailscale), and the computer\'s firewall must allow PhoneBox.</string>
+    <string name="pair_failed_unreachable">Could not reach %1$s at %2$s. The phone and the computer must be on the same network (or both on Tailscale), and the computer\'s firewall must allow RokeBox.</string>
     <string name="pair_failed_code">%1$s did not accept the code: it works once and for 5 minutes. Start pairing again on the computer.</string>
     <string name="pair_failed_answer">%1$s answered %2$d.</string>
     <string name="pair_failed_certificate">The computer has a different certificate than the QR code. Start pairing again.</string>
     <string name="ok">OK</string>
     <!-- Shown instead of the panel when Android cannot start its WebView (#385). -->
-    <string name="webview_failed">The panel can\'t run on this phone: Android could not start its WebView. Some Android 5 phones can\'t run the WebView versions PhoneBox needs.</string>
+    <string name="webview_failed">The panel can\'t run on this phone: Android could not start its WebView. Some Android 5 phones can\'t run the WebView versions RokeBox needs.</string>
     <!-- Phone bridge (clipboard sharing with the paired Mac): the screen, the service's notification and the send results. -->
     <string name="bridge_title">Phone bridge</string>
     <string name="bridge_clipboard_switch">Share the clipboard with the Mac</string>
-    <string name="bridge_clipboard_help">Text you copy on the Mac appears on this phone. To send text to the Mac, select it and tap \"Send to Mac\", use Share › Send to Mac, or the Send to Mac tile in Quick Settings. The Mac\'s own Phone bridge switch (in PhoneBox settings on the computer) must be on too.</string>
+    <string name="bridge_clipboard_help">Text you copy on the Mac appears on this phone. To send text to the Mac, select it and tap \"Send to Mac\", use Share › Send to Mac, or the Send to Mac tile in Quick Settings. The Mac\'s own Phone bridge switch (in RokeBox settings on the computer) must be on too.</string>
     <string name="bridge_state_off">Off</string>
     <string name="bridge_state_waiting">Waiting for the Mac…</string>
     <string name="bridge_state_running">Connected to the Mac</string>
     <string name="bridge_state_mac_off">The Mac\'s clipboard switch is off (Settings › Phone bridge on the computer)</string>
     <string name="bridge_notification_channel">Clipboard sharing</string>
-    <string name="bridge_notification_title">PhoneBox is sharing the clipboard</string>
+    <string name="bridge_notification_title">RokeBox is sharing the clipboard</string>
     <string name="bridge_send_to_mac">Send to Mac</string>
     <string name="bridge_sent">Sent to the Mac</string>
     <string name="bridge_send_off">The Mac\'s clipboard switch is off</string>
@@ -36,8 +36,8 @@
     <string name="bridge_notifications_help">Calls, messages and app notifications appear on the Mac with their text. Choose individual apps or turn on All apps. Turn on phone notifications in the Mac’s Phone bridge settings too.</string>
     <string name="bridge_media_switch">Show the phone’s music in Now playing</string>
     <string name="bridge_media_help">The song playing on this phone appears in the Now playing widget when the computer plays nothing, and the widget’s buttons control it. It never leaves the phone. Needs notification access.</string>
-    <string name="bridge_access_missing">Notification access is not allowed yet. PhoneBox needs it to see your notifications.</string>
-    <string name="bridge_access_idle">Notification access is allowed, but Android has not started the listener yet. Open this screen again, or check PhoneBox\'s battery setting.</string>
+    <string name="bridge_access_missing">Notification access is not allowed yet. RokeBox needs it to see your notifications.</string>
+    <string name="bridge_access_idle">Notification access is allowed, but Android has not started the listener yet. Open this screen again, or check RokeBox\'s battery setting.</string>
     <string name="bridge_access_granted">Notification access is allowed.</string>
     <string name="bridge_access_button">Allow notification access</string>
     <string name="bridge_restricted_help">If the switch is greyed out (Android 13 and later): open App info, tap ⋮ at the top right, choose Allow restricted settings, then come back and try again.</string>
@@ -48,8 +48,8 @@
     <string name="bridge_last_ok">Last notification reached the Mac</string>
     <string name="bridge_last_off">Last notification: the Mac\'s notification switch is off</string>
     <string name="bridge_last_failed">Last notification could not reach the Mac; it is kept for two minutes</string>
-    <string name="bridge_state_unsupported">This computer can\'t share the clipboard: the phone bridge needs the PhoneBox agent on a Mac</string>
-    <string name="bridge_state_stopped">Stopped by Android. Open this screen again, or restart PhoneBox, to reconnect</string>
+    <string name="bridge_state_unsupported">This computer can\'t share the clipboard: the phone bridge needs the RokeBox agent on a Mac</string>
+    <string name="bridge_state_stopped">Stopped by Android. Open this screen again, or restart RokeBox, to reconnect</string>
     <!-- Phone bridge: the confirmation before Send to Mac from another app (Share, text selection), a key the Mac no longer
          accepts (401), and a send whose answer was lost (the text may be on the Mac). -->
     <string name="bridge_confirm_title">Send this text to the Mac\'s clipboard?</string>

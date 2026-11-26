@@ -37,10 +37,10 @@
         <value>لا يوجد هاتف متصل</value>
     </data>
     <data xml:space="preserve" name="tooltipConnected">
-        <value>⁦PhoneBox⁩ — الهاتف متصل</value>
+        <value>⁦RokeBox⁩ — الهاتف متصل</value>
     </data>
     <data xml:space="preserve" name="tooltipWaiting">
-        <value>⁦PhoneBox⁩ — بانتظار اتصال الهاتف</value>
+        <value>⁦RokeBox⁩ — بانتظار اتصال الهاتف</value>
     </data>
     <data xml:space="preserve" name="autostartError">
         <value>تعذّر تغيير اختصار بدء التشغيل: ⁨{0}⁩</value>

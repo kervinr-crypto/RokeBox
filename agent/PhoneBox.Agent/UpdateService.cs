@@ -12,7 +12,7 @@ public sealed record UpdateStatus(string AgentVersion, string? AppVersion, strin
 
 /// <summary>
 /// Keeps the agent and the phone app up to date from GitHub releases (PhoneBox-&lt;v&gt;.apk and
-/// PhoneBoxAgent-&lt;v&gt;-&lt;rid&gt;.zip, rid = win-x64, win-arm64, linux-x64, linux-arm64, osx-arm64 or osx-x64):
+/// RokeBoxAgent-&lt;v&gt;-&lt;rid&gt;.zip, rid = win-x64, win-arm64, linux-x64, linux-arm64, osx-arm64 or osx-x64):
 ///  - phone: installed with "adb install -r" while the phone is on USB (no prompt on the phone). Android refuses
 ///    an APK signed with a different key, and the agent never uninstalls to force it.
 ///  - agent: files are swapped in place (running files are renamed to *.old, which Windows allows) and the agent
@@ -22,7 +22,7 @@ public sealed record UpdateStatus(string AgentVersion, string? AppVersion, strin
 public sealed class UpdateService(ConfigStore cfg, AdbReverse adb, IHostApplicationLifetime life, ILogger<UpdateService> log) : BackgroundService
 {
     private static readonly string InstallDir = AppPaths.InstallDir;
-    private static readonly string ExeName = OperatingSystem.IsWindows() ? "PhoneBoxAgent.exe" : "PhoneBoxAgent";
+    private static readonly string ExeName = OperatingSystem.IsWindows() ? "RokeBoxAgent.exe" : "RokeBoxAgent";
     private static readonly string Downloads = Path.Combine(AppPaths.LocalDir, "updates");
     internal string DownloadsDir { get; init; } = Downloads;
     private readonly HttpClient _http = new() { Timeout = TimeSpan.FromMinutes(5) };
@@ -129,6 +129,8 @@ public sealed class UpdateService(ConfigStore cfg, AdbReverse adb, IHostApplicat
         {
             _state = "checking";
             var repo = cfg.Get().Updates.Repo;
+            // RokeBox: no release channel configured yet, so there is nothing to check (and never upstream PhoneBox)
+            if (string.IsNullOrWhiteSpace(repo)) { _error = null; _state = "idle"; return; }
             using var doc = JsonDocument.Parse(await ApiStringAsync($"https://api.github.com/repos/{repo}/releases/latest", ct));
             var r = doc.RootElement;
             foreach (var a in r.GetProperty("assets").EnumerateArray())
@@ -462,7 +464,7 @@ public sealed class UpdateService(ConfigStore cfg, AdbReverse adb, IHostApplicat
     private async Task UpdateAgentAsync(CancellationToken ct)
     {
         _state = "updating agent";
-        var zip = await VerifiedDownloadAsync(_latest!.AgentZip!, $"PhoneBoxAgent-{_latest.Version}.zip", ct);
+        var zip = await VerifiedDownloadAsync(_latest!.AgentZip!, $"RokeBoxAgent-{_latest.Version}.zip", ct);
         var staging = Path.Combine(DownloadsDir, "agent-" + _latest.Version);
         if (Directory.Exists(staging)) Directory.Delete(staging, true);
         ZipFile.ExtractToDirectory(zip, staging);
@@ -595,7 +597,7 @@ public sealed class UpdateService(ConfigStore cfg, AdbReverse adb, IHostApplicat
     /// </summary>
     internal static readonly string[] FrameworkDependentFiles =
     [
-        "PhoneBoxAgent.dll", "PhoneBoxAgent.deps.json", "PhoneBoxAgent.runtimeconfig.json",
+        "RokeBoxAgent.dll", "RokeBoxAgent.deps.json", "RokeBoxAgent.runtimeconfig.json",
         "NAudio.dll", "NAudio.Core.dll", "NAudio.Midi.dll", "NAudio.Wasapi.dll", "NAudio.WinMM.dll",
         "WinRT.Runtime.dll", "Microsoft.Windows.SDK.NET.dll", "System.Numerics.Tensors.dll",
     ];
@@ -632,7 +634,7 @@ public sealed class UpdateService(ConfigStore cfg, AdbReverse adb, IHostApplicat
 
     /// <summary>
     /// The phone app, this machine's agent zip and disk image and the checksum file of a GitHub release
-    /// (PhoneBox-&lt;v&gt;.apk, PhoneBoxAgent-&lt;v&gt;-&lt;rid&gt;.zip, PhoneBox-&lt;v&gt;-&lt;rid&gt;.dmg, SHA256SUMS-&lt;v&gt;.txt, as release.yml names them).
+    /// (PhoneBox-&lt;v&gt;.apk, RokeBoxAgent-&lt;v&gt;-&lt;rid&gt;.zip, PhoneBox-&lt;v&gt;-&lt;rid&gt;.dmg, SHA256SUMS-&lt;v&gt;.txt, as release.yml names them).
     /// </summary>
     internal static Release SelectAssets(JsonElement release, string rid)
     {
@@ -641,9 +643,9 @@ public sealed class UpdateService(ConfigStore cfg, AdbReverse adb, IHostApplicat
         {
             var name = a.GetProperty("name").GetString() ?? "";
             var url = a.GetProperty("browser_download_url").GetString();
-            if (name.StartsWith("PhoneBox-", StringComparison.OrdinalIgnoreCase) && name.EndsWith(".apk", StringComparison.OrdinalIgnoreCase)) apk = url;
-            if (name.StartsWith("PhoneBoxAgent-", StringComparison.OrdinalIgnoreCase) && name.EndsWith($"-{rid}.zip", StringComparison.OrdinalIgnoreCase)) zip = url;
-            if (name.StartsWith("PhoneBox-", StringComparison.OrdinalIgnoreCase) && name.EndsWith($"-{rid}.dmg", StringComparison.OrdinalIgnoreCase)) dmg = url;
+            if (name.StartsWith("RokeBox-", StringComparison.OrdinalIgnoreCase) && name.EndsWith(".apk", StringComparison.OrdinalIgnoreCase)) apk = url;
+            if (name.StartsWith("RokeBoxAgent-", StringComparison.OrdinalIgnoreCase) && name.EndsWith($"-{rid}.zip", StringComparison.OrdinalIgnoreCase)) zip = url;
+            if (name.StartsWith("RokeBox-", StringComparison.OrdinalIgnoreCase) && name.EndsWith($"-{rid}.dmg", StringComparison.OrdinalIgnoreCase)) dmg = url;
             if (name.StartsWith("SHA256SUMS-", StringComparison.OrdinalIgnoreCase) && name.EndsWith(".txt", StringComparison.OrdinalIgnoreCase)) sums = url;
         }
         var tag = release.GetProperty("tag_name").GetString() ?? "";
@@ -674,7 +676,7 @@ public sealed class UpdateService(ConfigStore cfg, AdbReverse adb, IHostApplicat
     /// <summary>"dumpsys package" for the app; empty when the phone does not answer (the install then goes ahead).</summary>
     private static async Task<string> InstalledDumpAsync(string adbExe, string serial, CancellationToken ct)
     {
-        try { return await Run(adbExe, ["-s", serial, "shell", "dumpsys", "package", "net.oxog.phonebox.deskpanel"], ct, TimeSpan.FromSeconds(20)); }
+        try { return await Run(adbExe, ["-s", serial, "shell", "dumpsys", "package", UsbLink.Package], ct, TimeSpan.FromSeconds(20)); }
         catch (Exception ex) when (ex is not OperationCanceledException || !ct.IsCancellationRequested) { return ""; }
     }
 
