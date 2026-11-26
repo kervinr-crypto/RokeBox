@@ -167,9 +167,10 @@ public sealed class AgentConfig
 
 public sealed class WeatherConfig
 {
-    public string City { get; set; } = "Tallinn";
-    public double Lat { get; set; } = 59.437;
-    public double Lon { get; set; } = 24.745;
+    /// <summary>RokeBox: empty until the place is chosen in Settings › Weather (no forecast for a made-up place).</summary>
+    public string City { get; set; } = "";
+    public double Lat { get; set; }
+    public double Lon { get; set; }
     /// <summary>
     /// "celsius" or "fahrenheit": how the panel shows temperatures. The forecast is always fetched in °C and converted
     /// on the phone, so a change applies to the cached forecast too and Custom HTML widgets keep Open-Meteo's values.
@@ -271,10 +272,10 @@ public sealed class DisplayConfig
     /// page holds more widgets. Off by default: turning it on changes how an arranged tablet looks.
     /// </summary>
     public bool TabletRows { get; set; }
-    /// <summary>default, amoled, midnight, warm or graphite.</summary>
-    public string Theme { get; set; } = "default";
-    /// <summary>Accent colour (background glow, page dots), e.g. "#2dd4bf".</summary>
-    public string Accent { get; set; } = "#2dd4bf";
+    /// <summary>rokebox (RokeBox's default), default, amoled, midnight, warm or graphite.</summary>
+    public string Theme { get; set; } = "rokebox";
+    /// <summary>Accent colour (background glow, page dots), e.g. "#2dd4bf". RokeBox's rose by default.</summary>
+    public string Accent { get; set; } = "#fb7185";
     /// <summary>Tint the background with the album art's colour while music plays.</summary>
     public bool ArtTint { get; set; } = true;
     /// <summary>Screen brightness follows the room (the phone's light sensor).</summary>

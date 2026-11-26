@@ -126,6 +126,8 @@ public static class Lan
         // the Steam library widget: the list of installed games, an installed game's cover (the tiles' <img>), and starting a
         // game (off unless the asking widget, on an enabled page, allows it). /api/steam/games, the settings page's picker, stays local.
         || path == "/api/steam/library" || path == "/api/steam/cover" || path == "/api/steam/launch"
+        // RokeBox: the Gaming widget (the game being played and what it uses; read-only)
+        || path == "/api/gaming"
         || path.StartsWithSegments("/api/widget") || path.StartsWithSegments("/api/calendar") || path.StartsWithSegments("/api/feeds") || path.StartsWithSegments("/api/photos") || path == "/api/camera" || path == "/api/spectrum" || path.StartsWithSegments("/api/docker") || path.StartsWithSegments("/api/obs") || path.StartsWithSegments("/api/discord") || path == "/api/steam" || path == "/api/steam/avatar" || path.StartsWithSegments("/api/batteries") || path.StartsWithSegments("/api/ha/states") || path.StartsWithSegments("/api/ha/toggle") || path.StartsWithSegments("/api/approvals") || path.StartsWithSegments("/api/rules/pause") || path.StartsWithSegments("/api/phone/battery") || path.StartsWithSegments("/api/stream") || path.StartsWithSegments("/api/trackpad") || path == "/api/pair/claim" || path == "/api/wake/macs" || path == "/api/bridge/clipboard" || path == "/api/bridge/stream" || path == "/api/bridge/notification" || IsWebhook(path);
 
     /// <summary>

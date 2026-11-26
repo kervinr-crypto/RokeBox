@@ -143,6 +143,7 @@ AddMonitor<ObsMonitor>(builder.Services);
 AddMonitor<DiscordMonitor>(builder.Services);
 AddMonitor<SteamMonitor>(builder.Services);
 builder.Services.AddSingleton<SteamLibrary>();
+builder.Services.AddSingleton<GamingMonitor>(); // RokeBox: the Gaming widget
 builder.Services.AddSingleton(sp => new LyricsService(sp.GetRequiredService<ConfigStore>(), sp.GetRequiredService<ILogger<LyricsService>>()));
 AddMonitor<BatteryMonitor>(builder.Services);
 AddMonitor<RuleEngine>(builder.Services);
@@ -810,6 +811,9 @@ app.MapGet("/api/steam/avatar", async (string id, SteamMonitor steam, Cancellati
 // Steam library from Steam's own files on this computer (no API key, no account): installed games, covers, the game
 // being played. Nothing is read while no Steam library widget is on an enabled page.
 app.MapGet("/api/steam/library", (SteamLibrary library) => Results.Json(library.View()));
+// RokeBox: the Gaming widget, the Steam game being played and what its processes use (read only while the widget is on an
+// enabled page; read-only, no ids from the phone).
+app.MapGet("/api/gaming", (GamingMonitor gaming) => Results.Json(gaming.View()));
 // The installed games (id and name) for the widget's favorites picker in settings. Not in Lan.cs: the computer only.
 app.MapGet("/api/steam/games", (SteamLibrary library) => Results.Json(library.Installed()));
 // A cover from Steam's appcache/librarycache, for an installed app id only (SteamLibrary.FindCover checks the path).

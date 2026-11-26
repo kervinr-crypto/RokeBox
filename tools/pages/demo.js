@@ -25,7 +25,7 @@
     ['screenoff', 'Screen Off', '🌙', '#8b5cf6'], ['lock', 'Lock', '🔒', '#ef4444'], ['settings', 'Settings', '⚙️', '#94a3b8'],
   ].map(([id, label, icon, color]) => ({ id, label, icon, color, cmd: id === 'mute' ? 'builtin:mute' : 'demo', args: null, toggle: false }));
   const PAGES = ['home', 'dashboard', 'ai', 'work', 'system', 'procs', 'deck', 'music', 'status', 'ambient', 'world', 'daily', 'markets', 'feeds', 'focus', 'calm', 'clock', 'automation', 'planner', 'nightstand', 'weekend', 'focuswork',
-    'codexbar', 'devops', 'audio-deck', 'stream-deck', 'meeting-deck', 'development-deck', 'music-deck', 'system-deck'];
+    'codexbar', 'devops', 'audio-deck', 'stream-deck', 'meeting-deck', 'development-deck', 'music-deck', 'system-deck', 'gaming'];
 
   let catalog = null;
   async function loadCatalog() {
@@ -64,9 +64,9 @@
         spotifyToken: null, spotifyDevice: null, mixerExecutable: null, mixerLibrary: null, spotifyClientId: null, spotifyRefreshToken: null,
         plexUrl: null, plexToken: null, plexPlayerUrl: 'http://127.0.0.1:32500' },
       deviceSerial: null, adbPath: null,
-      weather: { city: 'Tallinn', lat: 59.437, lon: 24.745, unit: 'celsius', model: '' },
+      weather: { city: 'Erechim', lat: -27.6346, lon: -52.2754, unit: 'celsius', model: '' },
       night: { enabled: false, start: '00:30', end: '07:30', brightness: 0.02 },
-      display: { appearance: null, showSeconds: true, hour12: false, idleReturnSec: 0, vibrate: true, volumeKeys: true, orientation: 'landscape', theme: 'default', accent: '#2dd4bf',
+      display: { appearance: null, showSeconds: true, hour12: false, idleReturnSec: 0, vibrate: true, volumeKeys: true, orientation: 'landscape', theme: 'rokebox', accent: '#fb7185',
         pixelShift: false, idleDimMin: 0,
         artTint: true, autoBrightness: false, nightWhenDark: false, nightWhenUnreachable: false, unreachableNightDelayMin: 5, proximityWake: true, pin: false, homeScreen: false, keepAwake: true, openOnConnect: true, followComputerLock: false,
         homePage: null, switchCountdownSec: 3, touchGraceSec: 20, minDwellSec: 15, holdMaxMin: 30 },
@@ -726,6 +726,18 @@
       return json({ enabled: mine.length > 0, found: true, error: null, running: '900010',
         games: DEMO_GAMES.map(([id, name, hoursAgo, state, progress]) => ({ id, name, lastPlayed: hoursAgo == null ? 0 : Math.floor(now() / 1000) - hoursAgo * 3600,
           sizeGb: 12.5, state, progress, cover: true })) });
+    }
+    // RokeBox: the Gaming widget, with the demo's running game and made-up readings that move
+    if (path === '/api/gaming') {
+      const c = await config();
+      const on = shownWidgets(c).some((w) => w.type === 'gaming');
+      const ago = (h) => (h == null ? 0 : Math.floor(now() / 1000) - h * 3600);
+      return json({ enabled: on, found: true, error: null, installed: DEMO_GAMES.length, libraryGb: 1489,
+        game: { id: '900010', name: 'Harbor Lights', sizeGb: 64.3, drive: 'D:', driveFreeGb: 412, startedAt: START - 47 * 60e3, processes: 3,
+          cpu: wave(9, 22, 38, 0, 2), gpu: wave(7, 78, 96, 1, 2), vramGb: wave(30, 6.1, 6.8), ramGb: wave(40, 7.4, 8.1),
+          diskReadBps: wave(5, 2e6, 3.4e7, 0, 1e6), diskWriteBps: wave(11, 1e5, 2e6), netDownBps: wave(6, 1.1e5, 4.2e5), netUpBps: wave(6, 3e4, 9e4),
+          sessionDownMb: 182.4, sessionUpMb: 41.7, lastUpdated: ago(30), cover: true },
+        recent: DEMO_GAMES.slice(1, 7).map(([id, name, h]) => ({ id, name, sizeGb: 12.5, lastPlayed: ago(h), cover: true })) });
     }
     if (path === '/api/steam/games') return json(DEMO_GAMES.map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)));
     if (path === '/api/steam/launch' && method === 'POST') {

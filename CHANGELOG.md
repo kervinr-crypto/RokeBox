@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.9.30.1 — 2026-11-26
+
+RokeBox's own release (PhoneBox 0.9.30 underneath):
+
+- **Gaming** widget and template: the Steam game being played with what its own processes use (CPU, GPU, video
+  memory, RAM, disk reads and writes), its size on disk and the drive's free space, how long it has been running, and
+  the computer's network with the data used since the game started (Windows cannot split network traffic by process
+  without administrator rights). The recently played games and the library's size while nothing runs.
+- **RokeBox theme**, the new default: a violet and rose aurora, glass cards with a gradient hairline, quieter labels
+  and a glowing page dot. The other themes stay in Settings › Display.
+- Weather: no city until one is chosen (it was the upstream author's Tallinn); the widgets say where to choose it.
+
 ## Unreleased
 
 - Pages: a dimmed **photo background** per page, from the Photo frame's source (a folder or an Immich album). A new

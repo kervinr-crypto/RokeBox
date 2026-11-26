@@ -1,0 +1,142 @@
+/* RokeBox: the RokeBox theme (Settings › Display › Theme, the default) and the Gaming widget. RokeBox's own file, so
+   merges from PhoneBox never touch it; style.css stays PhoneBox's. The theme only changes cards that keep the
+   default surface: a surface, border or shadow picked in Settings › Appearance still wins. */
+
+/* ---------------------------------------------------------------- RokeBox theme */
+body[data-theme="rokebox"] {
+  --bg: #09070f;
+  --card: rgba(255, 255, 255, 0.05);
+  --card-hi: rgba(255, 255, 255, 0.085);
+  --line: rgba(255, 255, 255, 0.075);
+  --text: #f5f2fb;
+  --muted: #a49cb8;
+  --dim: #6c6584;
+  /* the metric colours (--cpu, --gpu, --ram, --net…) stay the panel's own: widgets read them when they are built,
+     which can be before the theme applies, so a theme that changed them would leave two palettes on screen */
+  --rk-rose: 251, 113, 133;
+  --rk-violet: 139, 92, 246;
+}
+
+/* an aurora in RokeBox's colours; the accent (or the album art's tint) keeps its glow in the top corner */
+body[data-theme="rokebox"]::before {
+  background:
+    radial-gradient(55% 75% at 88% 8%, rgba(var(--ambient), 0.15), transparent 70%),
+    radial-gradient(65% 85% at -5% 105%, rgba(var(--rk-violet), 0.2), transparent 70%),
+    radial-gradient(45% 55% at 50% 120%, rgba(var(--rk-rose), 0.09), transparent 70%);
+}
+
+/* glass cards: a soft gradient face, a hairline that catches the light at the top and fades into violet */
+body[data-theme="rokebox"] .card:not([data-widget-surface]) {
+  background:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.028) 42%, rgba(255, 255, 255, 0.035)) padding-box,
+    linear-gradient(165deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.04) 35%, rgba(var(--rk-violet), 0.22)) border-box;
+  border: 1px solid transparent;
+  box-shadow: 0 14px 34px -20px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* numbers: a touch heavier and tighter; labels quieter */
+body[data-theme="rokebox"] .t-val b { font-weight: 600; letter-spacing: -0.03em; }
+body[data-theme="rokebox"] .t-label { letter-spacing: .16em; }
+body[data-theme="rokebox"] .w-stat canvas { opacity: .65; }
+
+/* page dots: the current page glows in the accent */
+body[data-theme="rokebox"] #dots i.on { box-shadow: 0 0 10px rgba(var(--ambient), 0.65); }
+body[data-theme="rokebox"] #dots.pagebar .dot.on {
+  background: linear-gradient(135deg, rgba(var(--ambient), 0.3), rgba(var(--rk-violet), 0.25));
+}
+
+/* ---------------------------------------------------------------- Gaming widget */
+.w-gaming { display: flex; padding: clamp(8px, 3.2cqmin, 16px); }
+.w-gaming [hidden] { display: none !important; }
+
+.gm-playing { display: flex; gap: clamp(8px, 3.4cqmin, 18px); width: 100%; min-width: 0; min-height: 0; }
+.gm-art { flex: none; height: 100%; aspect-ratio: 2 / 3; max-width: 30cqw; min-height: 0; }
+.gm-cover, .gm-tile-art {
+  position: relative; overflow: hidden;
+  background: linear-gradient(160deg, rgba(var(--rk-violet, 139, 92, 246), 0.5), rgba(var(--rk-rose, 251, 113, 133), 0.35));
+}
+.gm-cover {
+  width: 100%; height: 100%; border-radius: clamp(8px, 3cqmin, 16px);
+  box-shadow: 0 18px 36px -16px rgba(0, 0, 0, 0.9), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+.gm-cover img, .gm-tile-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.gm-initials {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: clamp(16px, 10cqmin, 46px); font-weight: 700; color: rgba(255, 255, 255, 0.85);
+}
+.has-art > .gm-initials { display: none; }
+
+.gm-main { flex: 1; display: flex; flex-direction: column; gap: clamp(6px, 2.4cqmin, 12px); min-width: 0; min-height: 0; }
+.gm-name {
+  font-size: clamp(16px, 7.4cqmin, 34px); font-weight: 700; letter-spacing: -0.015em; line-height: 1.12;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.gm-status {
+  display: flex; align-items: center; gap: 7px; margin-top: 3px;
+  font-size: clamp(11px, 3.5cqmin, 15px); font-weight: 600; color: var(--ok); white-space: nowrap; overflow: hidden;
+}
+.gm-live { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); animation: gm-pulse 2s infinite; }
+@keyframes gm-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.55); }
+  70% { box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+}
+.gm-dim { color: var(--muted); font-weight: 500; }
+.gm-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: clamp(5px, 1.8cqmin, 9px); max-height: 2.4em; overflow: hidden; }
+.gm-chip {
+  font-size: clamp(10px, 2.9cqmin, 13px); line-height: 1.5; padding: 1px 10px; border-radius: 999px; white-space: nowrap;
+  background: rgba(255, 255, 255, 0.07); border: 1px solid var(--line); color: var(--text);
+}
+.gm-chip-steam { background: linear-gradient(135deg, #1b2838, #2a475e); border-color: rgba(102, 192, 244, 0.35); color: #c7d5e0; font-weight: 600; }
+
+.gm-metrics { flex: 1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(6px, 2cqmin, 10px); min-height: 0; }
+.gm-metric {
+  position: relative; overflow: hidden; display: flex; flex-direction: column; min-width: 0; min-height: 0;
+  padding: clamp(6px, 2.2cqmin, 12px); border-radius: clamp(8px, 2.6cqmin, 14px);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.02)); border: 1px solid var(--line);
+}
+.gm-metric canvas { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 62%; pointer-events: none; }
+.gm-label { position: relative; font-size: clamp(9px, 2.7cqmin, 12px); font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.gm-cpu .gm-label { color: var(--cpu); }
+.gm-gpu .gm-label { color: var(--gpu); }
+.gm-ram .gm-label { color: var(--ram); }
+.gm-net .gm-label { color: var(--net); }
+.gm-val { position: relative; margin-top: 2px; white-space: nowrap; }
+.gm-val b { font-size: clamp(20px, 13cqmin, 56px); font-weight: 650; letter-spacing: -0.035em; line-height: 1.05; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8); }
+.gm-val small { margin-inline-start: 3px; font-size: clamp(10px, 3.8cqmin, 17px); color: var(--muted); }
+.gm-sub { position: relative; font-size: clamp(9.5px, 2.9cqmin, 13px); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9); }
+
+.gm-foot { display: flex; flex-wrap: wrap; gap: 3px clamp(10px, 3.4cqmin, 20px); font-size: clamp(10px, 2.9cqmin, 13px); color: var(--text); white-space: nowrap; }
+.gm-foot em { font-style: normal; color: var(--muted); }
+
+/* nothing running: a message, the recently played games and the library's size */
+.gm-idle { width: 100%; display: flex; flex-direction: column; gap: clamp(6px, 2.2cqmin, 12px); min-width: 0; min-height: 0; }
+.gm-idle-head { display: flex; align-items: center; gap: clamp(8px, 3cqmin, 14px); }
+.gm-idle-head b { display: block; font-size: clamp(14px, 5cqmin, 24px); font-weight: 700; }
+.gm-idle-head span { color: var(--muted); font-size: clamp(11px, 3.2cqmin, 14px); }
+.gm-empty-ic {
+  flex: none; display: flex; align-items: center; justify-content: center; aspect-ratio: 1; height: clamp(34px, 13cqmin, 60px);
+  border-radius: 28%; font-size: clamp(18px, 7cqmin, 32px);
+  background: linear-gradient(135deg, rgba(var(--rk-violet, 139, 92, 246), 0.4), rgba(var(--rk-rose, 251, 113, 133), 0.32));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+.gm-recent-label { margin-top: 2px; }
+.gm-tiles { flex: 1; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(6px, 2.2cqmin, 12px); min-height: 0; }
+.gm-tile { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.gm-tile-art { flex: 1; min-height: 0; border-radius: clamp(6px, 2.4cqmin, 12px); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
+.gm-tile-art .gm-initials { font-size: clamp(14px, 6cqmin, 28px); }
+.gm-tile-name { margin-top: 5px; font-size: clamp(10px, 3cqmin, 13px); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gm-tile-sub, .gm-lib { font-size: clamp(9.5px, 2.8cqmin, 12px); color: var(--muted); }
+.gm-empty { margin: auto; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; color: var(--muted); }
+.gm-empty b { color: var(--text); }
+
+/* a small Gaming widget: no cover, two metrics per row */
+@container (max-width: 460px) {
+  .gm-art { display: none; }
+  .gm-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gm-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .gm-tile:nth-child(n + 4) { display: none; }
+}
+@container (max-height: 230px) {
+  .gm-foot, .gm-chips { display: none; }
+}

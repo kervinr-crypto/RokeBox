@@ -1,4 +1,4 @@
-import { $, D, DEFAULT_CFG, LOCALE, cfg, fmtDur, fmtHM, h, en, t, tick, tp, tpv } from '../main.js';
+import { $, D, DEFAULT_CFG, LOCALE, cfg, fmtDur, fmtHM, h, en, t, tick, tp, tpv, wxEmpty } from '../main.js';
 import { W } from '../registry.js';
 import { cached, every } from './helpers.js';
 
@@ -49,7 +49,7 @@ W.sun = {
             for (const selector of ['.sr', '.ss', '.w-sub', '.moon']) q(selector).textContent = '';
           }
           sun.style.display = 'none';
-          q('.sl').textContent = D.weather === null ? t('w.loading') : t('w.weatherUnavailable');
+          q('.sl').textContent = wxEmpty();
           return;
         }
         const now = new Date();

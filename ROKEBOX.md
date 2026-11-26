@@ -26,6 +26,9 @@ cambia a propósito.
 | Actualizaciones | releases de `ersinkoc/phonebox` | releases de `kervinr-crypto/RokeBox` |
 | Enlace de emparejamiento Wi-Fi | `https://ersinkoc.github.io/phonebox/pair/#…` | `https://kervinr-crypto.github.io/RokeBox/pair/#…` |
 | Variables de firma del APK | `PHONEBOX_STORE_FILE`, … | `ROKEBOX_STORE_FILE`, … |
+| Tema por defecto | `default` (turquesa) | `rokebox` (aurora violeta y rosa, tarjetas de cristal) |
+| Ciudad del clima por defecto | Tallinn (la del autor) | ninguna: el panel pide elegirla en Ajustes › Clima |
+| Widget y plantilla **Gaming** | no existe | el juego de Steam en curso y lo que consume |
 
 Pendiente de adaptar:
 
@@ -34,6 +37,24 @@ Pendiente de adaptar:
 - **Linux, macOS e iOS:** los releases de RokeBox solo incluyen Windows x64; los identificadores de bundle de macOS
   e iOS siguen siendo los de PhoneBox.
 - Algunos textos que el agente genera en C# (errores de Discord, cabeceras User-Agent) siguen diciendo PhoneBox.
+
+## Pestaña Gaming
+
+El widget `gaming` (y la plantilla del mismo nombre) muestra el juego de Steam que está en marcha. Los datos salen del
+propio PC, sin cuentas ni servicios externos:
+
+| Dato | De dónde sale |
+|---|---|
+| Juego, tamaño en disco, carpeta | `RunningAppID` del registro de Steam y su `appmanifest_<id>.acf` |
+| Portada | la caché local de Steam (`appcache/librarycache`), la misma que usa el widget Biblioteca de Steam |
+| Procesos del juego | los programas que se ejecutan desde la carpeta del juego |
+| CPU, RAM, disco del juego | `GetProcessTimes`, `GetProcessMemoryInfo` y `GetProcessIoCounters` de esos procesos |
+| GPU y VRAM del juego | contadores de Windows `GPU Engine` y `GPU Process Memory` filtrados por PID |
+| Red | **la del PC entero** (los adaptadores que cuenta el medidor de red) y lo descargado y subido desde que empezó el juego |
+
+Límites: Windows no permite medir la red de un solo proceso sin permisos de administrador, por eso la red es la del
+PC. Los FPS no se miden (harían falta PresentMon o ETW). Solo Steam: los juegos de otras tiendas no se detectan.
+El agente solo lee todo esto mientras un widget Gaming está en una página activa.
 
 ## Convivencia con PhoneBox
 
@@ -46,6 +67,10 @@ frente: desactívala o cierra PhoneBox mientras usas RokeBox.
 llame a `127.0.0.1:<puerto>/api/hooks/…`, sea cual sea el puerto. Instalarlos desde RokeBox sustituye los de PhoneBox
 (y al revés). Instálalos solo desde uno de los dos agentes. Ninguno de los dos los instala sin que pulses el botón en
 Ajustes.
+
+**adb:** cierra los agentes desde el icono de la bandeja, no a la fuerza. Un agente cerrado a la fuerza a mitad de una
+orden puede dejar colgado el servidor adb; al minuto, el vigilante de adb del otro agente lo reinicia y cualquier
+instalación en curso falla (basta con repetirla).
 
 ## Herramientas
 
@@ -136,4 +161,5 @@ Por orden de impacto:
    sin tocar el núcleo.
 5. **Español como idioma de referencia** y revisión de los textos en español.
 6. **Releases para Linux** (el agente ya compila para `linux-x64` y `linux-arm64`).
-7. **Minificar los assets JS** en la compilación (manteniendo la sintaxis compatible con Chromium 83).
+7. **FPS en la pestaña Gaming** (con PresentMon) y soporte de otras tiendas.
+8. **Minificar los assets JS** en la compilación (manteniendo la sintaxis compatible con Chromium 83).

@@ -19,6 +19,7 @@ import './widgets/camera.js';
 import './widgets/spectrum.js';
 import './widgets/steam-library.js';
 import './widgets/lyrics.js';
+import './widgets/roke-gaming.js';
 
 // RokeBox desk panel. Pages are grids of widgets, designed in the agent's settings page.
 // A phone is 12 × 6. A tablet keeps the 12 columns and adds rows, so the page holds more widgets.
@@ -82,7 +83,7 @@ export const FALLBACK_PAGES = [{
 }];
 
 export const DEFAULT_CFG = {
-  weather: { city: 'Tallinn', lat: 59.437, lon: 24.745, unit: 'celsius', model: '' },
+  weather: { city: '', lat: 0, lon: 0, unit: 'celsius', model: '' },
   night: { enabled: true, start: '00:30', end: '07:30', brightness: 0.02 },
   display: { showSeconds: true, idleReturnSec: 90, vibrate: true, finishToast: true, finishSound: false, approvalSound: false, finishSoundVolume: 70, volumeKeys: true, nightWhenUnreachable: false, unreachableNightDelayMin: 5, pageBar: 'dots', pageBarSide: 'bottom' },
   opencode: { alwaysCountdownSec: 10 },
@@ -691,6 +692,8 @@ export async function loadWeather(force = false) {
   // only while a page shows the weather (PRIVACY.md): no widget, no request with the location;
   // also wait for the first agent config when no cached config exists, so FALLBACK_PAGES never leaks default coordinates
   if (!anyNeeds('weather') || (!PREVIEW && cfgVersion === null && !store.get('cfg', null))) return;
+  // RokeBox: no place chosen yet (Settings › Weather): say so instead of showing some other city's forecast
+  if (!(cfg.weather || DEFAULT_CFG.weather).city) { D.weather = false; weatherFor = key; emit('weather'); return; }
   try {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
       '&current=temperature_2m,apparent_temperature,weather_code,is_day' +
@@ -715,6 +718,10 @@ export async function loadWeather(force = false) {
     if (!weatherRetry) weatherRetry = setTimeout(() => { weatherRetry = 0; loadWeather(); }, 2 * 60_000);
   }
 }
+
+/** What a weather widget says without a forecast: loading, no city chosen yet (RokeBox), or unavailable. */
+export const wxEmpty = () => (D.weather === null ? t('w.loading')
+  : !(cfg.weather || DEFAULT_CFG.weather).city ? t('w.weatherNoCity') : t('w.weatherUnavailable'));
 
 export function wxLines() {
   const w = D.weather;
@@ -747,7 +754,7 @@ export function wxBlock() {
       e.querySelector('.wx-icon').textContent = '·';
       e.querySelector('.wx-temp').textContent = '--°';
       e.querySelector('.wx-range').textContent = '';
-      e.querySelector('.wx-desc').textContent = D.weather === null ? t('w.loading') : t('w.weatherUnavailable');
+      e.querySelector('.wx-desc').textContent = wxEmpty();
       return;
     }
     e.querySelector('.wx-icon').replaceChildren(emo(l.icon));
@@ -1575,7 +1582,7 @@ export function handleEvent(e) {
   else if (e.kind === 'reload') location.reload();
 }
 
-export const WIDGET_ICONS = { camera: '📹', dictate: '🎙️', spectrum: '📶', 'app-console': '🎛️', discord: '💬', 'discord-bar': '🔊', steam: '👥', 'steam-activity': '🔔', rules: '⚡', chargecare: '🔋', nextup: '⏭️', moon: '🌙', wordclock: '🔤', clock: '🕒', weather: '⛅', forecast: '🌦️', media: '🎵', lyrics: '🎤', stat: '📈', gauge: '⏲️', chart: '📊', meters: '💾', gpu: '🎮', quotas: '✳️', sessions: '🤖',
+export const WIDGET_ICONS = { gaming: '🎮', camera: '📹', dictate: '🎙️', spectrum: '📶', 'app-console': '🎛️', discord: '💬', 'discord-bar': '🔊', steam: '👥', 'steam-activity': '🔔', rules: '⚡', chargecare: '🔋', nextup: '⏭️', moon: '🌙', wordclock: '🔤', clock: '🕒', weather: '⛅', forecast: '🌦️', media: '🎵', lyrics: '🎤', stat: '📈', gauge: '⏲️', chart: '📊', meters: '💾', gpu: '🎮', quotas: '✳️', sessions: '🤖',
   github: '🐙', processes: '⚙️', shortcuts: '🎛️', button: '🔘', worldclock: '🌍', calendar: '📅', pomodoro: '🍅', focushistory: '📈', countdown: '⏳', note: '📝', command: '💻',
   push: '📡', inbox: '📬', label: '🔤', analog: '🕰️', progress: '📆', stopwatch: '⏱️', timer: '⏲️', counter: '🔢', breathe: '🫁', quote: '💬',
   checklist: '✅', battery: '🔋', topprocs: '🔥', quotaring: '🎯', volume: '🔊', sun: '🌅', air: '🍃', hackernews: '📰', feeds: '🗞️', photos: '🖼️', exchange: '💱', crypto: '🪙', image: '🖼️', pcswitch: '🖥️', pagebuttons: '🧭', 'plex-queue': '🎛️', 'plex-playlists': '🎶' };
@@ -2765,7 +2772,7 @@ export function applyDisplay() {
   LOCALE = I18n ? I18n.getLocale() : 'en-GB';
   I18n?.applyDom();
   // theme and accent apply in the preview and the browser too
-  document.body.dataset.theme = ['amoled', 'midnight', 'warm', 'graphite'].includes(d.theme) ? d.theme : 'default';
+  document.body.dataset.theme = ['rokebox', 'amoled', 'midnight', 'warm', 'graphite'].includes(d.theme) ? d.theme : 'default';
   const accent = hexToRgb(d.accent);
   const before = DEFAULT_AMBIENT;
   DEFAULT_AMBIENT = accent || '45, 212, 191';

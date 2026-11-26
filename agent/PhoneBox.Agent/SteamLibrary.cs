@@ -180,7 +180,7 @@ public sealed class SteamLibrary(ConfigStore config, ILogger<SteamLibrary> log)
     /// <summary>How many manifests were parsed (tests: an unchanged file is not read again).</summary>
     internal int ManifestReads { get; private set; }
 
-    public bool Wanted() => config.Get().Widgets(enabledPagesOnly: true).Any(w => w.Type == "steam-library");
+    public bool Wanted() => config.Get().Widgets(enabledPagesOnly: true).Any(w => w.Type is "steam-library" or "gaming");
 
     /// <summary>
     /// Starting games is opt-in per widget: <paramref name="widget"/> ("pageId/widgetId", or "pageId/stackId:cardId" for a
