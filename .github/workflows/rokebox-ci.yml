@@ -1,0 +1,57 @@
+# RokeBox's CI. Upstream PhoneBox's workflows stay in the repository so merges from upstream stay simple, but they are
+# disabled on GitHub (Actions › the workflow › Disable): their installer, macOS packaging and UI checks still expect
+# PhoneBox's names. This workflow runs the checks that apply to RokeBox.
+name: rokebox-ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  metadata:
+    name: Metadata
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: python3 tools/check-release.py
+
+  android:
+    name: Android (lint, build, unit tests)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+      - name: Lint, build and test
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew lintDebug assembleDebug testDebugUnitTest --no-daemon --console=plain
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: rokebox-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7
+
+  agent:
+    name: Agent tests (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          dotnet-version: 10.0.x
+      - name: Unit tests
+        run: dotnet test agent/PhoneBox.Agent.Tests --nologo

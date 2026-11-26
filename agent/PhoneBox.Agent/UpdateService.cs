@@ -129,8 +129,6 @@ public sealed class UpdateService(ConfigStore cfg, AdbReverse adb, IHostApplicat
         {
             _state = "checking";
             var repo = cfg.Get().Updates.Repo;
-            // RokeBox: no release channel configured yet, so there is nothing to check (and never upstream PhoneBox)
-            if (string.IsNullOrWhiteSpace(repo)) { _error = null; _state = "idle"; return; }
             using var doc = JsonDocument.Parse(await ApiStringAsync($"https://api.github.com/repos/{repo}/releases/latest", ct));
             var r = doc.RootElement;
             foreach (var a in r.GetProperty("assets").EnumerateArray())

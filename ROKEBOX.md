@@ -4,10 +4,13 @@ RokeBox es un fork de [PhoneBox](https://github.com/ersinkoc/phonebox) (licencia
 de copyright de `LICENSE` debe conservarse). Convierte un teléfono Android en un panel de escritorio para el PC:
 una app Android (Kotlin + WebView con widgets en JavaScript) y un agente de escritorio (.NET 10).
 
-Esta rama (`rokebox`) cambia solo la **identidad** de la app, para que RokeBox y PhoneBox se puedan instalar y usar a la
-vez y para que traer mejoras del proyecto original siga siendo barato. El código interno (espacios de nombres
-`PhoneBox.Agent`, paquete Kotlin `net.oxog.phonebox.deskpanel`, API `window.phonebox` de los widgets HTML) no cambia a
-propósito.
+- Repositorio: <https://github.com/kervinr-crypto/RokeBox> (rama `main`; el remoto `upstream` es PhoneBox).
+- Demo y página de emparejamiento Wi-Fi: <https://kervinr-crypto.github.io/RokeBox/>.
+
+RokeBox cambia solo la **identidad** de la app, para que RokeBox y PhoneBox se puedan instalar y usar a la vez y para
+que traer mejoras del proyecto original siga siendo barato. El código interno (espacios de nombres `PhoneBox.Agent`,
+paquete Kotlin `net.oxog.phonebox.deskpanel`, API `window.phonebox` de los widgets HTML, cabeceras `X-PhoneBox-*`) no
+cambia a propósito.
 
 ## Qué cambia respecto a PhoneBox
 
@@ -20,26 +23,24 @@ propósito.
 | Puerto Wi-Fi | 8766 | 8776 |
 | Configuración y registros | `%APPDATA%\PhoneBox`, `%LOCALAPPDATA%\PhoneBox` | `%APPDATA%\RokeBox`, `%LOCALAPPDATA%\RokeBox` |
 | Ejecutable / instancia única | `PhoneBoxAgent.exe`, `Local\PhoneBox.Agent` | `RokeBoxAgent.exe`, `Local\RokeBox.Agent` |
-| Actualizaciones automáticas | releases de `ersinkoc/phonebox` | desactivadas; sin canal hasta que `updates.repo` apunte a los releases de RokeBox |
-| Enlace de emparejamiento Wi-Fi | `https://ersinkoc.github.io/phonebox/pair/#…` | `rokebox://pair?…` |
+| Actualizaciones | releases de `ersinkoc/phonebox` | releases de `kervinr-crypto/RokeBox` |
+| Enlace de emparejamiento Wi-Fi | `https://ersinkoc.github.io/phonebox/pair/#…` | `https://kervinr-crypto.github.io/RokeBox/pair/#…` |
 | Variables de firma del APK | `PHONEBOX_STORE_FILE`, … | `ROKEBOX_STORE_FILE`, … |
 
-Limitaciones conocidas de esta primera fase:
+Pendiente de adaptar:
 
-- **iOS y macOS** no están adaptados (identificadores de bundle, `IosUsbBridge` usa el puerto 8765 del teléfono).
-- **Emparejamiento Wi-Fi por QR:** el QR contiene `rokebox://pair?…`. Algunos lectores de QR no abren enlaces
-  con esquema propio. Para que funcione como en PhoneBox hay que publicar una página de emparejamiento propia
-  (copia de `tools/pages/pair.html`) en GitHub Pages y volver a añadir el filtro `https` en el manifiesto. Por USB
-  no hace falta nada de esto.
-- Algunos textos que el agente genera en C# (mensajes de error de Discord, cabeceras User-Agent) siguen diciendo
-  PhoneBox.
+- **Instaladores** `setup.ps1` / `setup.sh` e instalador de Windows: siguen instalando PhoneBox.
+- **Tests de interfaz** (`tools/ui-tests`, Playwright): varios esperan textos con "PhoneBox".
+- **Linux, macOS e iOS:** los releases de RokeBox solo incluyen Windows x64; los identificadores de bundle de macOS
+  e iOS siguen siendo los de PhoneBox.
+- Algunos textos que el agente genera en C# (errores de Discord, cabeceras User-Agent) siguen diciendo PhoneBox.
 
 ## Convivencia con PhoneBox
 
 Las dos apps se instalan una al lado de la otra en el teléfono, y los dos agentes pueden ejecutarse a la vez en el PC
 porque usan puertos, carpetas e instancia única distintos. Cada agente solo gestiona su propia regla `adb reverse`.
 Si el agente de PhoneBox tiene activada la opción de abrir el panel al conectar el cable, puede traer PhoneBox al
-frente: desactívala o cierra PhoneBox mientras pruebas RokeBox.
+frente: desactívala o cierra PhoneBox mientras usas RokeBox.
 
 **Hooks de aprobación (Claude Code, Codex, Cursor, WorkBuddy):** cada agente reconoce como suyo cualquier hook que
 llame a `127.0.0.1:<puerto>/api/hooks/…`, sea cual sea el puerto. Instalarlos desde RokeBox sustituye los de PhoneBox
@@ -53,8 +54,8 @@ Ajustes.
 | Compilar el APK | JDK 17 + Android SDK (plataforma 35) | Gradle 8.11 no funciona con el JDK 25 de Android Studio: instala `winget install EclipseAdoptium.Temurin.17.JDK` o elige un JDK 17 en Android Studio › Settings › Build Tools › Gradle › Gradle JDK. Gradle descarga la plataforma 35 por sí mismo. |
 | Instalar y depurar en el teléfono | `adb` (Android SDK platform-tools) | Depuración USB activada en el teléfono. |
 | Compilar y probar el agente | .NET 10 SDK | `winget install Microsoft.DotNet.SDK.10` |
+| Publicar releases | GitHub CLI | `winget install GitHub.cli` y `gh auth login` |
 | Vista previa del panel sin teléfono | Python 3 | `python tools/demo-server.py` |
-| Tests de navegador | Node.js 22 + Playwright | `tools/ui-tests` |
 
 No hacen falta `apktool`, `jadx` ni editores de APK: esas herramientas sirven para apps sin código fuente. Aquí el
 APK se compila desde `android/`.
@@ -72,10 +73,10 @@ Elige el ciclo más corto para cada tipo de cambio:
    cd android
    .\gradlew.bat assembleDebug
    adb install -r app\build\outputs\apk\debug\app-debug.apk
-   adb logcat --pid=$(adb shell pidof com.syroke.rokebox)
    ```
 
-   En compilaciones debug, el WebView se puede inspeccionar desde Chrome en el PC: `chrome://inspect`.
+   Un APK debug no se instala encima de uno de release (firmas distintas): para probarlo, desinstala antes RokeBox
+   del teléfono. En compilaciones debug, el WebView se puede inspeccionar desde Chrome en el PC: `chrome://inspect`.
 3. **Agente de PC**: ejecútalo desde el código.
 
    ```powershell
@@ -85,29 +86,28 @@ Elige el ciclo más corto para cada tipo de cambio:
 
    Los ajustes quedan en <http://127.0.0.1:8775>.
 
-Antes de publicar, ejecuta también `.\gradlew.bat lintDebug`: marca como error las llamadas que harían fallar la app en
-Android antiguos. El panel debe seguir funcionando en Chromium 83, así que evita sintaxis moderna como `||=`
-(`tools/ui-tests/syntax-level.spec.js` lo comprueba).
+Antes de subir cambios, ejecuta también `.\gradlew.bat lintDebug` y `python tools/check-release.py`. El panel debe
+seguir funcionando en Chromium 83, así que evita sintaxis moderna como `||=`.
 
-## Firma del APK de release
+El CI de RokeBox (`.github/workflows/rokebox-ci.yml`) ejecuta esas comprobaciones, la compilación de Android y los
+tests del agente en cada push. Los workflows del original siguen en el repositorio pero están desactivados en GitHub.
 
-Sin clave propia, `assembleRelease` firma con la clave debug sin avisar. Crea una clave una sola vez y guárdala fuera
-del repositorio (si la pierdes, no podrás actualizar la app instalada sin desinstalarla):
+## Firma y publicación
 
-```powershell
-keytool -genkeypair -v -keystore $HOME\keys\rokebox-release.jks -alias rokebox -keyalg RSA -keysize 4096 -validity 10000
-```
+La clave de firma está en `C:\Users\SyRoke\keys\rokebox-release.jks` y su contraseña en
+`C:\Users\SyRoke\.gradle\gradle.properties` (`ROKEBOX_*`), fuera del repositorio. **Haz una copia de las dos cosas**
+(por ejemplo en un gestor de contraseñas): sin ellas no podrás publicar actualizaciones que se instalen encima de la
+app actual.
 
-Y en `%USERPROFILE%\.gradle\gradle.properties`:
+Para publicar una versión nueva:
 
-```properties
-ROKEBOX_STORE_FILE=C:/Users/<tú>/keys/rokebox-release.jks
-ROKEBOX_STORE_PASSWORD=…
-ROKEBOX_KEY_ALIAS=rokebox
-ROKEBOX_KEY_PASSWORD=…
-```
+1. Sube la versión en `agent/PhoneBox.Agent/PhoneBox.Agent.csproj` (`<Version>`) y en
+   `android/app/build.gradle.kts` (`versionCode` +1 y `versionName`), haz commit y `git push`.
+2. Ejecuta `.\scripts\rokebox-release.ps1 -Publish`. Compila el APK firmado y el agente de Windows, genera
+   `SHA256SUMS-<versión>.txt` y crea el release `v<versión>`. El script se detiene si el APK está firmado con la
+   clave debug.
 
-`.\scripts\build.ps1` genera `dist/RokeBox-<versión>.apk` y los zips `RokeBoxAgent-<versión>-<rid>.zip`.
+Los agentes instalados buscan releases cada 6 horas y actualizan la app del teléfono por USB y a sí mismos.
 
 ## Traer mejoras de PhoneBox
 
@@ -119,8 +119,9 @@ git merge upstream/main
 ```
 
 Para que estas fusiones sigan siendo fáciles, pon lo propio de RokeBox en archivos nuevos (por ejemplo
-`widgets/roke-*.js`) y evita reordenar o reformatear archivos del original. Si un merge trae textos nuevos con
-"PhoneBox", vuelve a pasar el script de cambio de marca o corrígelos a mano.
+`widgets/roke-*.js`) y evita reordenar o reformatear archivos del original. En un conflicto en `README.md`, quédate
+con el de RokeBox. Si un merge trae textos nuevos con "PhoneBox", cámbialos a mano. Cuando el original suba de
+versión, publica la misma versión de RokeBox.
 
 ## Hoja de ruta
 
@@ -129,11 +130,10 @@ Por orden de impacto:
 1. **Cargar solo el idioma activo.** Los diccionarios ocupan 4,0 MB de los 4,8 MB del panel, e `index.html` carga
    los 12 archivos de idioma más `i18n.js` en cada arranque. En un teléfono modesto (por ejemplo un Galaxy A10s) ese
    análisis de JavaScript retrasa la apertura del panel. Cargarlos bajo demanda acortaría el arranque.
-2. **Que la release falle sin clave propia** en lugar de firmar con la clave debug sin avisar.
-3. **Canal de releases propio:** repositorio de GitHub para RokeBox, `updates.repo` apuntando a él y el workflow
-   `release.yml` adaptado a los nombres `RokeBox-*.apk` / `RokeBoxAgent-*.zip`.
-4. **Página de emparejamiento Wi-Fi propia** en GitHub Pages, para que el QR abra la app con cualquier lector.
-5. **Widgets propios** para tus otros proyectos mediante la API push (`/api/push/<clave>`) o el widget Custom HTML,
+2. **Adaptar los tests de interfaz** a los textos de RokeBox y añadirlos al CI.
+3. **Instalador propio** (`setup.ps1`) que descargue los releases de RokeBox.
+4. **Widgets propios** para tus otros proyectos mediante la API push (`/api/push/<clave>`) o el widget Custom HTML,
    sin tocar el núcleo.
-6. **Español como idioma de referencia** y revisión de los textos en español.
+5. **Español como idioma de referencia** y revisión de los textos en español.
+6. **Releases para Linux** (el agente ya compila para `linux-x64` y `linux-arm64`).
 7. **Minificar los assets JS** en la compilación (manteniendo la sintaxis compatible con Chromium 83).

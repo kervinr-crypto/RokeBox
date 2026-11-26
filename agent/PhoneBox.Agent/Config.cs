@@ -341,9 +341,9 @@ public sealed class LanConfig
 public sealed class UpdateConfig
 {
     /// <summary>Install new GitHub releases automatically (phone app over USB, agent in place).</summary>
-    public bool Auto { get; set; }
-    /// <summary>GitHub "owner/name" of RokeBox's releases. Empty = no update channel (never upstream PhoneBox).</summary>
-    public string Repo { get; set; } = "";
+    public bool Auto { get; set; } = true;
+    /// <summary>GitHub "owner/name" of the releases: RokeBox's own, never upstream PhoneBox's.</summary>
+    public string Repo { get; set; } = "kervinr-crypto/RokeBox";
 }
 
 public sealed class ClaudeConfig
@@ -954,7 +954,7 @@ public sealed partial class ConfigStore(string path)
         c.Bridge ??= new(); // a hand-edited "bridge": null must not break /api/config or the clipboard poll
         c.OpenCode.TimeoutSec = Math.Clamp(c.OpenCode.TimeoutSec, 10, 3600);
         c.OpenCode.AlwaysCountdownSec = Math.Clamp(c.OpenCode.AlwaysCountdownSec, 0, 60);
-        c.Updates.Repo = c.Updates.Repo?.Trim() ?? "";
+        if (string.IsNullOrWhiteSpace(c.Updates.Repo)) c.Updates.Repo = "kervinr-crypto/RokeBox";
         c.Lan.Port = Math.Clamp(c.Lan.Port, 1024, 65535);
         if (string.IsNullOrWhiteSpace(c.Lan.Token)) c.Lan.Token = NewToken();
         if (string.IsNullOrWhiteSpace(c.Lan.WebhookToken)) c.Lan.WebhookToken = NewToken();

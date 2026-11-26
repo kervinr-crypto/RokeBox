@@ -629,12 +629,14 @@ class AgentLink(private val context: Context) {
             }
 
             /**
-             * Reads rokebox://pair?v=1&... (the QR code on the computer's settings page).
+             * Reads https://kervinr-crypto.github.io/RokeBox/pair/#v=1&... (the QR code; the data is in the fragment so it
+             * never reaches a web server) or rokebox://pair?v=1&... (the "Open in RokeBox" button on that page).
              * Anything malformed returns null.
              */
             fun parse(uri: Uri?): PairLink? {
                 if (uri == null) return null
                 val raw = when {
+                    uri.scheme == "https" && uri.host == "kervinr-crypto.github.io" && uri.path?.startsWith("/RokeBox/pair") == true -> uri.encodedFragment
                     uri.scheme == "rokebox" && uri.host == "pair" -> uri.encodedQuery
                     else -> null
                 } ?: return null

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PhoneBox — live demo</title>
+<title>RokeBox — live demo</title>
 <meta name="description" content="Turn an old Android phone into a desk panel for your computer. Try the panel and the layout editor in your browser.">
 <link rel="icon" href="favicon.ico">
 <style>
@@ -60,14 +60,14 @@ footer { margin-top: 40px; text-align: center; color: var(--muted); font-size: 1
 <div class="wrap">
   <header>
     <img src="favicon.ico" alt="">
-    <h1>PhoneBox</h1>
-    <a class="gh" href="https://github.com/ersinkoc/phonebox">★ <span>GitHub</span></a>
+    <h1>RokeBox</h1>
+    <a class="gh" href="https://github.com/kervinr-crypto/RokeBox">★ <span>GitHub</span></a>
   </header>
   <p class="lead">Turn an old Android phone into a <b>desk panel for your computer</b> (Windows, Linux or macOS): {{widgets}} widgets, a visual layout editor,
-    AI coding sessions and quotas, music, a Control Deck, webhooks and rules. This is the real panel of PhoneBox {{version}} running in your browser
+    AI coding sessions and quotas, music, a Control Deck, webhooks and rules. This is the real panel of RokeBox {{version}} running in your browser
     with made-up data — swipe it, tap it.</p>
 
-  <div class="stage"><div class="phone"><div class="screen"><iframe id="panel" src="panel/" title="PhoneBox panel"></iframe></div></div></div>
+  <div class="stage"><div class="phone"><div class="screen"><iframe id="panel" src="panel/" title="RokeBox panel"></iframe></div></div></div>
 
   <div class="controls">
     <button id="prev">◀ Previous page</button>
@@ -84,27 +84,28 @@ footer { margin-top: 40px; text-align: center; color: var(--muted); font-size: 1
     <div class="card"><h3>AI coding at a glance</h3><p>Claude, Codex and Antigravity quotas with a burn-rate forecast, Claude Code, Codex and OpenCode sessions, GitHub reviews, and Allow / Deny for permission prompts from Claude Code and OpenCode right on the phone.</p></div>
     <div class="card"><h3>Control Deck</h3><p>App and device volume, microphone, media, OBS, tasks, dev servers and display brightness as touch controls. The phone sends IDs only; commands stay on the computer. The native audio and display controls are Windows-only.</p></div>
     <div class="card"><h3>Webhooks and rules</h3><p>Scripts, CI and Home Assistant push values and notifications with one <code>curl</code>; rules switch pages calmly when a call, music or a waiting AI session needs the screen.</p></div>
-    <div class="card"><h3>USB or Wi-Fi, no cloud</h3><p>Over the USB cable, or over Wi-Fi / Tailscale with a pinned certificate and a key. No accounts, no telemetry: see the <a href="https://github.com/ersinkoc/phonebox/blob/main/PRIVACY.md">privacy policy</a>.</p></div>
+    <div class="card"><h3>USB or Wi-Fi, no cloud</h3><p>Over the USB cable, or over Wi-Fi / Tailscale with a pinned certificate and a key. No accounts, no telemetry: see the <a href="https://github.com/kervinr-crypto/RokeBox/blob/main/PRIVACY.md">privacy policy</a>.</p></div>
   </div>
 
   <div class="cta">
-    <p>Install on Windows (PowerShell, not as administrator):<br><code>irm https://raw.githubusercontent.com/ersinkoc/phonebox/main/setup.ps1 | iex</code></p>
-    <p>On Linux and macOS:<br><code>curl -fsSL https://raw.githubusercontent.com/ersinkoc/phonebox/main/setup.sh | bash</code></p>
-    <p>Setup checks the download, installs adb if it is missing and can put the app on the phone. See the
-      <a href="https://github.com/ersinkoc/phonebox#quick-start">quick start</a> for what it does and its warnings, or download a
-      <a href="https://github.com/ersinkoc/phonebox/releases/latest">release</a>.</p>
+    <p>Download <b>RokeBoxAgent-&lt;version&gt;-win-x64.zip</b> and <b>RokeBox-&lt;version&gt;.apk</b> from the
+      <a href="https://github.com/kervinr-crypto/RokeBox/releases/latest">latest release</a>. Unzip and run <code>RokeBoxAgent.exe</code>,
+      enable USB debugging on the phone and plug it in: the agent installs nothing by itself, so install the APK with
+      <code>adb install RokeBox-&lt;version&gt;.apk</code> or from the phone. Settings: <code>http://127.0.0.1:8775</code>.</p>
   </div>
 
-  <section class="policy" id="code-signing-policy">
-    <h2>Code signing policy</h2>
-    <p>Free code signing provided by <a href="https://about.signpath.io/">SignPath.io</a>, certificate by <a href="https://signpath.org/">SignPath Foundation</a>.</p>
+  <section class="policy" id="about">
+    <h2>About</h2>
     <ul>
-      <li>The Windows agent (<code>PhoneBoxAgent.exe</code>) is built from the <a href="https://github.com/ersinkoc/phonebox">source repository</a> on GitHub Actions and every signing request is approved by hand. SignPath Foundation accepted the project and test signing works; releases stay unsigned until its release certificate is issued.</li>
-      <li>Committers and reviewers: <a href="https://github.com/ersinkoc">ersinkoc</a>. Approvers: <a href="https://github.com/ersinkoc">ersinkoc</a>.</li>
-      <li>Privacy: PhoneBox has no accounts and no telemetry. The <a href="https://github.com/ersinkoc/phonebox/blob/main/PRIVACY.md">privacy policy</a> lists every connection it makes.</li>
+      <li>RokeBox is a fork of <a href="https://github.com/ersinkoc/phonebox">PhoneBox</a> by Ersin KOÇ (MIT license), with its
+        own app id, ports and settings, so both run side by side.</li>
+      <li>Releases are built from <a href="https://github.com/kervinr-crypto/RokeBox">kervinr-crypto/RokeBox</a> and are not code-signed on Windows,
+        so SmartScreen may warn.</li>
+      <li>Privacy: no accounts and no telemetry. The <a href="https://github.com/kervinr-crypto/RokeBox/blob/main/PRIVACY.md">privacy policy</a>
+        lists the connections it makes.</li>
     </ul>
   </section>
-  <footer>PhoneBox {{version}} · MIT licensed · <a href="https://github.com/ersinkoc/phonebox">github.com/ersinkoc/phonebox</a> · <a href="https://github.com/ersinkoc/phonebox/blob/main/CHANGELOG.md">changelog</a> · <a href="https://github.com/ersinkoc/phonebox/blob/main/PRIVACY.md">privacy</a> · <a href="#code-signing-policy">code signing policy</a></footer>
+  <footer>RokeBox {{version}} · MIT licensed · <a href="https://github.com/kervinr-crypto/RokeBox">github.com/kervinr-crypto/RokeBox</a> · <a href="https://github.com/kervinr-crypto/RokeBox/blob/main/CHANGELOG.md">changelog</a> · <a href="https://github.com/kervinr-crypto/RokeBox/blob/main/PRIVACY.md">privacy</a> · <a href="#about">about</a></footer>
 </div>
 
 <script>

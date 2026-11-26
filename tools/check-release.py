@@ -23,7 +23,7 @@ sys.dont_write_bytecode=True
 spec=importlib.util.spec_from_file_location('pages_build',root/'tools/pages/build.py');build=importlib.util.module_from_spec(spec);spec.loader.exec_module(build)
 site=build.landing_html()
 assert f'**{len(widgets)} widgets**' in readme and f'**{len(templates)} templates**' in readme,'README catalog counts differ'
-assert f'{len(widgets)} widgets, {len(templates)} templates' in site and f'PhoneBox {version}' in site,'Demo catalog counts or version differ'
+assert f'{len(widgets)} widgets, {len(templates)} templates' in site and f'RokeBox {version}' in site,'Demo catalog counts or version differ'
 # the landing page takes its numbers from the sources; a number typed by hand would go stale
 assert not re.search(r'\d+ (widgets|templates)',(root/'tools/pages/index.html').read_text(encoding='utf-8')),'Hard-coded catalog count in the landing page'
 demo=(root/'tools/pages/demo.js').read_text(encoding='utf-8')
@@ -105,7 +105,7 @@ def check_languages():
     assert set((root / 'docs').glob('README.*.md')) == set(readmes.values()) - {readmes['en']}
     for code, path in readmes.items():
         content = path.read_text(encoding='utf-8')
-        first_links = re.search(r'<h1[^>]*>PhoneBox</h1>\s*<p[^>]*>(.*?)</p>', content, re.S)[1]
+        first_links = re.search(r'<h1[^>]*>(?:PhoneBox|RokeBox)</h1>\s*<p[^>]*>(.*?)</p>', content, re.S)[1]
         links = {(path.parent / href).resolve() for href in re.findall(r'href="([^"]+)"', first_links)}
         assert links == set(readmes.values()) - {path}, (code, links)
     print(f'PASS: {len(codes)} interface variants; Android, Windows, and README language lists and native placeholders')

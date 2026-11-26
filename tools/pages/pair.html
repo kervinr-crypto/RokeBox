@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex">
-<title>Pair PhoneBox</title>
+<title>Pair RokeBox</title>
 <link rel="icon" href="../favicon.ico">
 <style>
 :root { --bg: #07090d; --panel: #10141b; --line: #232a35; --text: #eef2f6; --muted: #8a94a3; --accent: #2dd4bf; --warn: #f59e0b; color-scheme: dark; }
@@ -27,32 +27,32 @@ code { font-size: 13px; }
 </head>
 <body>
 <div class="wrap">
-  <header><img src="../favicon.ico" alt=""><h1>Pair PhoneBox</h1></header>
+  <header><img src="../favicon.ico" alt=""><h1>Pair RokeBox</h1></header>
 
   <div class="card" id="ok" hidden>
     <h2>Pair this phone with a computer?</h2>
     <p class="muted">“<span id="pc"></span>” at <span id="hosts"></span>. Check that the computer's pairing window shows the code
       <b id="check"></b>, and continue only if you started pairing there.</p>
-    <a class="btn primary" id="open" href="#">Open in PhoneBox</a>
+    <a class="btn primary" id="open" href="#">Open in RokeBox</a>
     <p class="muted" id="plainWrap" hidden style="margin-top:10px">Did a store open instead? Some browsers send app links there;
       <a id="plain" href="#" style="color:var(--accent)">open the pairing link directly</a>. If Android then asks which app to
-      open it with, choose PhoneBox: another app that accepts these links would get the pairing code.</p>
+      open it with, choose RokeBox: another app that accepts these links would get the pairing code.</p>
     <p class="muted" style="margin-top:10px">The pairing code works once, for 5 minutes. If it expired, start pairing again on the computer.</p>
   </div>
 
   <div class="card" id="bad" hidden>
     <h2 class="warn">This pairing link is incomplete</h2>
-    <p class="muted">Scan the QR code again from PhoneBox on the computer: Settings › General › Wi-Fi &amp; Tailscale › Pair a phone over Wi-Fi.</p>
+    <p class="muted">Scan the QR code again from RokeBox on the computer: Settings › General › Wi-Fi &amp; Tailscale › Pair a phone over Wi-Fi.</p>
   </div>
 
   <div class="card" id="cannotOpen" hidden>
-    <h2 class="warn">The PhoneBox app didn't open</h2>
-    <p class="muted">If PhoneBox isn't installed yet, use the download button below, then scan the QR code again.
+    <h2 class="warn">The RokeBox app didn't open</h2>
+    <p class="muted">If RokeBox isn't installed yet, use the download button below, then scan the QR code again.
       If it's already installed, try one of these options:</p>
     <ul class="muted" style="margin:8px 0 0 18px;padding:0">
       <li>scan the code with the phone's camera, or open the pairing page in Chrome, which hands app links to the app
         reliably;</li>
-      <li>or use the direct pairing link the pairing page shows under <b>Open in PhoneBox</b>;</li>
+      <li>or use the direct pairing link the pairing page shows under <b>Open in RokeBox</b>;</li>
       <li>or skip Wi-Fi pairing: plug the phone in once over USB and the agent pairs it there.</li>
     </ul>
     <p class="muted" style="margin-top:10px">The pairing code works once, for 5 minutes; start pairing again if it
@@ -60,14 +60,14 @@ code { font-size: 13px; }
   </div>
 
   <div class="card">
-    <h2>No PhoneBox app yet?</h2>
+    <h2>No RokeBox app yet?</h2>
     <p class="muted">Install it first (Android 5.0 or later), then scan the QR code again.</p>
-    <a class="btn secondary" href="https://github.com/ersinkoc/phonebox/releases/latest">Download the app</a>
+    <a class="btn secondary" href="https://github.com/kervinr-crypto/RokeBox/releases/latest">Download the app</a>
   </div>
 
   <p class="muted">This page runs only in your browser. The pairing details are in the part of the link after <code>#</code>,
     which browsers never send to a server, and the page removes them from your history.
-    <a href="https://github.com/ersinkoc/phonebox/blob/main/PRIVACY.md" style="color:var(--accent)">Privacy policy</a></p>
+    <a href="https://github.com/kervinr-crypto/RokeBox/blob/main/PRIVACY.md" style="color:var(--accent)">Privacy policy</a></p>
 </div>
 <script>
 (() => {
@@ -98,18 +98,18 @@ code { font-size: 13px; }
   document.getElementById('hosts').textContent = hosts.join(', ') + ' (port ' + port + ')';
   document.getElementById('check').textContent = (p.get('fp').slice(0, 4) + ' ' + p.get('fp').slice(4, 8)).toUpperCase();
   // Chrome on Android opens intent:// links in the app or follows the fallback if it cannot open the app;
-  // other browsers get the plain phonebox:// link. The intent names the package, so no other app that claims the
-  // phonebox:// scheme receives the one-time code. Some browsers (common on LineageOS) send such a link to the Play Store
+  // other browsers get the plain rokebox:// link. The intent names the package, so no other app that claims the
+  // rokebox:// scheme receives the one-time code. Some browsers (common on LineageOS) send such a link to the Play Store
   // even with the app installed (#175); for them the plain link is offered below, only as a choice the user makes.
   // rebuilt from the checked fields only, so nothing else from the link reaches the intent syntax
   const query = ['v', 'pc', 'fp', 'port', 'h', 'c'].filter((k) => p.has(k)).map((k) => k + '=' + encodeURIComponent(p.get(k))).join('&');
   const android = /Android/i.test(navigator.userAgent);
   // A query parameter loads the fallback even in the tab that already shows the pairing card (#175).
-  const fallback = encodeURIComponent('https://ersinkoc.github.io/phonebox/pair/?cannot-open=1');
+  const fallback = encodeURIComponent('https://kervinr-crypto.github.io/RokeBox/pair/?cannot-open=1');
   document.getElementById('open').href = android
-    ? `intent://pair?${query}#Intent;scheme=phonebox;package=net.oxog.phonebox.deskpanel;S.browser_fallback_url=${fallback};end`
-    : `phonebox://pair?${query}`;
-  document.getElementById('plain').href = `phonebox://pair?${query}`;
+    ? `intent://pair?${query}#Intent;scheme=rokebox;package=com.syroke.rokebox;S.browser_fallback_url=${fallback};end`
+    : `rokebox://pair?${query}`;
+  document.getElementById('plain').href = `rokebox://pair?${query}`;
   document.getElementById('plainWrap').hidden = !android;
   document.getElementById('ok').hidden = false;
 })();

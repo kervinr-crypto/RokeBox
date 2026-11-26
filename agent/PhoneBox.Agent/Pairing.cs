@@ -81,7 +81,7 @@ public sealed class PairingCodes
     /// so opening the link in a browser instead of the app does not leak the code to the web page's host.
     /// </summary>
     public static string Link(string pc, string fingerprint, int port, IEnumerable<string> hosts, string code) =>
-        "rokebox://pair?v=1"
+        "https://kervinr-crypto.github.io/RokeBox/pair/#v=1"
         + "&pc=" + Uri.EscapeDataString(pc)
         + "&fp=" + fingerprint
         + "&port=" + port

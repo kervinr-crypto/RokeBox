@@ -62,8 +62,12 @@ public sealed class PairingTests
     public void TheLinkKeepsEverythingInTheFragment()
     {
         var link = PairingCodes.Link("Desk PC & co", "ab12", 8766, ["192.168.1.10", "100.64.0.7"], "CODE_x-1");
-        // RokeBox: a rokebox://pair link that opens the app directly (no hosted pairing page yet)
-        Assert.Equal("rokebox://pair?v=1&pc=Desk%20PC%20%26%20co&fp=ab12&port=8766&h=192.168.1.10,100.64.0.7&c=CODE_x-1", link);
+        var uri = new Uri(link);
+        Assert.Equal("https", uri.Scheme);
+        Assert.Equal("kervinr-crypto.github.io", uri.Host);
+        Assert.Equal("/RokeBox/pair/", uri.AbsolutePath);
+        Assert.Equal("", uri.Query); // nothing a web server would receive
+        Assert.Equal("#v=1&pc=Desk%20PC%20%26%20co&fp=ab12&port=8766&h=192.168.1.10,100.64.0.7&c=CODE_x-1", uri.Fragment);
     }
 
     [Fact]
