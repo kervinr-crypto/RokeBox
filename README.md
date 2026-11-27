@@ -36,7 +36,7 @@ Estadísticas del PC, sesiones de IA, música y controles táctiles por USB o Wi
 </p>
 
 RokeBox es un fork de [PhoneBox](https://github.com/ersinkoc/phonebox), de Ersin KOÇ (licencia MIT). Une una
-**app Android** a pantalla completa con un pequeño **agente de escritorio**: **138 widgets**, **31 templates**
+**app Android** a pantalla completa con un pequeño **agente de escritorio**: **142 widgets**, **33 templates**
 (plantillas), varias páginas y un editor visual en el navegador. Tiene su propio identificador de app, puertos y
 configuración, así que se puede instalar y usar junto a PhoneBox.
 

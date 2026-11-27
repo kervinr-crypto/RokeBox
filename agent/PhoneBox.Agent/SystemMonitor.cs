@@ -414,6 +414,7 @@ public sealed partial class SystemMonitor(ILogger<SystemMonitor> log, ConfigStor
     internal static bool Counted(string name, string description, NetworkInterfaceType type, IReadOnlyList<string> chosen)
     {
         if (chosen.Count > 0) return chosen.Contains(name, StringComparer.OrdinalIgnoreCase);
+        if (IsFilterInstance(name, description)) return false;
         if (type is not (NetworkInterfaceType.Ethernet or NetworkInterfaceType.Wireless80211 or NetworkInterfaceType.GigabitEthernet)) return false;
         var d = description + " " + name;
         if (!OperatingSystem.IsWindows() && (name.StartsWith("docker") || name.StartsWith("veth") || name.StartsWith("br-")
@@ -423,6 +424,18 @@ public sealed partial class SystemMonitor(ILogger<SystemMonitor> log, ConfigStor
             || d.Contains("WSL", StringComparison.OrdinalIgnoreCase) || d.Contains("TAP", StringComparison.Ordinal)
             || d.Contains("Bluetooth", StringComparison.OrdinalIgnoreCase));
     }
+
+    /// <summary>
+    /// RokeBox: an NDIS filter or packet scheduler bound to an adapter. .NET on Windows lists each one as an interface of
+    /// its own ("Ethernet-QoS Packet Scheduler-0000", "Ethernet-WFP Native MAC Layer LightWeight Filter-0000"), with the
+    /// adapter's own byte counters, so counting them counted the adapter's traffic once more per filter (five times on
+    /// a PC with an antivirus filter).
+    /// </summary>
+    internal static bool IsFilterInstance(string name, string description) =>
+        FilterInstance().IsMatch(name) || FilterInstance().IsMatch(description);
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"^.+-.+-\d{4}$")]
+    private static partial System.Text.RegularExpressions.Regex FilterInstance();
 
     /// <summary>Connected adapters for Settings › Ping & network (names and descriptions only; local page).</summary>
     public static IReadOnlyList<object> Adapters(IReadOnlyList<string> chosen) => NetworkInterface.GetAllNetworkInterfaces()

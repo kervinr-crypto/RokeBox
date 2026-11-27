@@ -144,6 +144,12 @@ AddMonitor<DiscordMonitor>(builder.Services);
 AddMonitor<SteamMonitor>(builder.Services);
 builder.Services.AddSingleton<SteamLibrary>();
 builder.Services.AddSingleton<GamingMonitor>(); // RokeBox: the Gaming widget
+// RokeBox: the PC's spec sheet, health check, power timer and data usage (RokeSystem.cs)
+builder.Services.AddSingleton<SystemInfo>();
+builder.Services.AddSingleton<PcHealth>();
+builder.Services.AddSingleton<PowerTimer>();
+builder.Services.AddSingleton<DataUsageMonitor>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<DataUsageMonitor>());
 builder.Services.AddSingleton(sp => new LyricsService(sp.GetRequiredService<ConfigStore>(), sp.GetRequiredService<ILogger<LyricsService>>()));
 AddMonitor<BatteryMonitor>(builder.Services);
 AddMonitor<RuleEngine>(builder.Services);
@@ -814,6 +820,21 @@ app.MapGet("/api/steam/library", (SteamLibrary library) => Results.Json(library.
 // RokeBox: the Gaming widget, the Steam game being played and what its processes use (read only while the widget is on an
 // enabled page; read-only, no ids from the phone).
 app.MapGet("/api/gaming", (GamingMonitor gaming) => Results.Json(gaming.View()));
+// RokeBox: the PC's spec sheet, health check, data usage and power timer (RokeSystem.cs). The phone sends a widget id, a
+// fixed action and a bounded number of minutes; what changes the computer is opt-in (see each service).
+app.MapGet("/api/rk/sysinfo", (SystemInfo info) => Results.Json(info.View()));
+app.MapGet("/api/rk/health", (string? widget, HttpRequest req, PcHealth health) =>
+    Results.Json(health.View(req.Headers["X-PhoneBox-Device"].ToString(), widget)));
+app.MapPost("/api/rk/health/clean", (string? widget, HttpRequest req, PcHealth health) =>
+    health.Clean(req.Headers["X-PhoneBox-Device"].ToString(), widget) is { } refused ? Results.BadRequest(new { error = refused }) : Results.Ok(new { ok = true }));
+app.MapGet("/api/rk/datausage", (DataUsageMonitor usage) => Results.Json(usage.View()));
+app.MapGet("/api/rk/powertimer", (PowerTimer timer) => Results.Json(timer.View()));
+app.MapPost("/api/rk/powertimer", (string? action, int? minutes, string? widget, HttpRequest req, PowerTimer timer) =>
+    timer.Start(req.Headers["X-PhoneBox-Device"].ToString(), widget, action, minutes ?? 0) is { } refused
+        ? Results.BadRequest(new { error = refused }) : Results.Json(timer.View()));
+app.MapPost("/api/rk/powertimer/cancel", (string? widget, HttpRequest req, PowerTimer timer) =>
+    timer.Cancel(req.Headers["X-PhoneBox-Device"].ToString(), widget) is { } refused
+        ? Results.BadRequest(new { error = refused }) : Results.Json(timer.View()));
 // The installed games (id and name) for the widget's favorites picker in settings. Not in Lan.cs: the computer only.
 app.MapGet("/api/steam/games", (SteamLibrary library) => Results.Json(library.Installed()));
 // A cover from Steam's appcache/librarycache, for an installed app id only (SteamLibrary.FindCover checks the path).

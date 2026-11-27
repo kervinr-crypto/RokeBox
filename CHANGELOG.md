@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.9.30.2 — 2026-11-26
+
+RokeBox's own release: more about the computer and more control over it.
+
+- **PC spec sheet** widget, like AIDA64's or HWiNFO's summary: Windows with its version, build and install date,
+  uptime, processor cores and threads, memory modules with their type, speed and maker (read from SMBIOS), board and
+  BIOS, graphics drivers, displays with their refresh rate, physical disks (NVMe/SATA/USB, SSD/HDD), volumes and the
+  network adapters. All read without administrator rights.
+- **PC health** widget: free disk space, memory, CPU and GPU temperatures, days since the last restart, a restart
+  Windows Update waits for, and the Recycle Bin, which the phone can empty when the widget allows it (off by default).
+- **Data usage** widget, like GlassWire or NetWorx: today, the last 7 days and the monthly cycle (with its start day)
+  against an optional limit, and a chart of the last days. Counted on the computer and kept for 400 days.
+- **Power timer** widget: sleep, shut down or restart in 15 minutes to 2 hours with a countdown and cancel, behind
+  the Control Deck's power opt-in.
+- Templates **PC** (spec sheet and health) and **Control** (data usage and power timer).
+- Fix: the network meters counted a wired or Wi-Fi adapter once more for every NDIS filter bound to it (the QoS
+  Packet Scheduler, WFP and antivirus filters, which .NET lists as interfaces of their own with the adapter's
+  counters): about five times the real traffic on a PC with an antivirus.
+
 ## 0.9.30.1 — 2026-11-26
 
 RokeBox's own release (PhoneBox 0.9.30 underneath):

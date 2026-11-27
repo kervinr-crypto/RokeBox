@@ -17,8 +17,8 @@ android {
         applicationId = "com.syroke.rokebox"
         minSdk = 21 // Android 5.0; see CONTRIBUTING.md before changing it
         targetSdk = 35
-        versionCode = 52
-        versionName = "0.9.30.1"
+        versionCode = 53
+        versionName = "0.9.30.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

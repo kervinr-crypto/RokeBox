@@ -14,6 +14,7 @@
     ['900060', 'Lantern Keep', 1200, 'ready', null, 280], ['900070', 'Glass Orchard', 1500, 'paused', 0.7, 330], ['900080', 'Tidal Forge', 2000, 'ready', null, 160],
     ['900090', 'Quiet Summit', 2600, 'ready', null, 60], ['900100', 'Iron Meadow', null, 'ready', null, 95]];
   const now = () => Date.now();
+  let demoPowerTimer = null; // RokeBox: the Power timer widget's made-up timer
   const rnd = (a, b) => a + Math.random() * (b - a);
   const wave = (period, lo, hi, phase = 0, noise = 0) =>
     lo + (hi - lo) * (0.5 + 0.5 * Math.sin((2 * Math.PI * (now() - START)) / 1000 / period + phase)) + rnd(-noise, noise);
@@ -25,7 +26,7 @@
     ['screenoff', 'Screen Off', '🌙', '#8b5cf6'], ['lock', 'Lock', '🔒', '#ef4444'], ['settings', 'Settings', '⚙️', '#94a3b8'],
   ].map(([id, label, icon, color]) => ({ id, label, icon, color, cmd: id === 'mute' ? 'builtin:mute' : 'demo', args: null, toggle: false }));
   const PAGES = ['home', 'dashboard', 'ai', 'work', 'system', 'procs', 'deck', 'music', 'status', 'ambient', 'world', 'daily', 'markets', 'feeds', 'focus', 'calm', 'clock', 'automation', 'planner', 'nightstand', 'weekend', 'focuswork',
-    'codexbar', 'devops', 'audio-deck', 'stream-deck', 'meeting-deck', 'development-deck', 'music-deck', 'system-deck', 'gaming'];
+    'codexbar', 'devops', 'audio-deck', 'stream-deck', 'meeting-deck', 'development-deck', 'music-deck', 'system-deck', 'gaming', 'pc-info', 'pc-control'];
 
   let catalog = null;
   async function loadCatalog() {
@@ -738,6 +739,62 @@
           diskReadBps: wave(5, 2e6, 3.4e7, 0, 1e6), diskWriteBps: wave(11, 1e5, 2e6), netDownBps: wave(6, 1.1e5, 4.2e5), netUpBps: wave(6, 3e4, 9e4),
           sessionDownMb: 182.4, sessionUpMb: 41.7, lastUpdated: ago(30), cover: true },
         recent: DEMO_GAMES.slice(1, 7).map(([id, name, h]) => ({ id, name, sizeGb: 12.5, lastPlayed: ago(h), cover: true })) });
+    }
+    // RokeBox: the PC's spec sheet, health check, data usage and power timer, on the demo's made-up PC
+    if (path.startsWith('/api/rk/')) {
+      const c = await config();
+      const on = (type) => shownWidgets(c).some((w) => w.type === type);
+      const DAY = 86_400_000;
+      if (path === '/api/rk/sysinfo') {
+        return json({ enabled: on('sysinfo'),
+          os: { name: 'Windows 11 Pro', version: '24H2', build: '26100.2894', edition: 'Professional', installedAt: now() - 412 * DAY, bootedAt: START - (3 * DAY + 5 * 3600e3), computer: 'DESK-PC' },
+          cpu: { name: 'AMD Ryzen 9 7950X 16-Core Processor', cores: 16, threads: 32, baseMhz: 4500 },
+          ram: { totalGb: 64, usableGb: 63.2, type: 'DDR5', speedMts: 6000, modules: [1, 2, 3, 4].map((n) => ({ slot: 'DIMM ' + n, sizeGb: 16, type: 'DDR5', speedMts: 6000, maker: 'Kingston', part: 'KF560C36-16' })) },
+          board: { maker: 'ASUSTeK COMPUTER INC.', model: 'ROG STRIX X670E-E GAMING WIFI', biosVendor: 'American Megatrends Inc.', bios: '2204', biosDate: '09/12/2026', system: 'Desk PC' },
+          gpus: [{ name: 'NVIDIA GeForce RTX 4080', driver: '32.0.15.6614', driverDate: '10-30-2026', vramGb: 16 }, { name: 'AMD Radeon(TM) Graphics', driver: '31.0.24033.1003', driverDate: '8-14-2026', vramGb: 0.5 }],
+          displays: [{ width: 2560, height: 1440, hz: 165, primary: true }, { width: 1920, height: 1080, hz: 60, primary: false }],
+          disks: [{ model: 'Samsung SSD 990 PRO 2TB', sizeGb: 2000, bus: 'NVMe', ssd: true }, { model: 'WDC WD40EZAZ-00SF3B0', sizeGb: 4001, bus: 'SATA', ssd: false }],
+          volumes: [{ name: 'C:', label: null, format: 'NTFS', totalGb: 1862.3, freeGb: 742.1 }, { name: 'D:', label: 'Games', format: 'NTFS', totalGb: 3726, freeGb: 410.6 }],
+          network: [{ name: 'Ethernet', kind: 'ethernet', speedMbps: 2500, ipv4: '192.168.1.20/24', gateway: '192.168.1.1', dns: ['1.1.1.1'] }] });
+      }
+      if (path === '/api/rk/health') {
+        const w = panelWidget(c, q.get('widget'), 'pchealth');
+        return json({ enabled: on('pchealth'), canClean: w?.options?.allowClean === true, checks: [
+          { kind: 'disk', level: 'ok', name: 'C:', value: 39.8, a: 742.1, b: 1862.3 }, { kind: 'disk', level: 'warn', name: 'D:', value: 11, a: 410.6, b: 3726 },
+          { kind: 'ram', level: 'ok', value: 37, a: 23.4, b: 63.2 }, { kind: 'uptime', level: 'ok', value: 3.2 },
+          { kind: 'update', level: 'warn' }, { kind: 'recycle', level: 'ok', value: 128, a: 3.4 }] });
+      }
+      if (path === '/api/rk/health/clean' && method === 'POST') {
+        return panelWidget(c, q.get('widget'), 'pchealth')?.options?.allowClean === true ? json({ ok: true })
+          : json({ error: 'Turn on "Let the phone empty the Recycle Bin" in this widget\'s settings' }, 400);
+      }
+      if (path === '/api/rk/datausage') {
+        const ymd = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const today = new Date();
+        const days = [];
+        for (let i = 44; i >= 0; i--) {
+          const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i);
+          const wave2 = 0.5 + 0.5 * Math.sin(i * 1.7) * Math.cos(i * 0.6);
+          const share = i === 0 ? (today.getHours() + today.getMinutes() / 60) / 24 : 1;
+          days.push({ date: ymd(d), down: Math.round((2.2e9 + wave2 * 7.5e9) * share), up: Math.round((0.35e9 + wave2 * 1.1e9) * share) });
+        }
+        return json({ enabled: on('datausage'), since: days[0].date, today: ymd(today), days });
+      }
+      if (path === '/api/rk/powertimer') {
+        if (method === 'POST') {
+          if (!panelWidget(c, q.get('widget'), 'powertimer')) return json({ error: 'widget' }, 400);
+          const minutes = Number(q.get('minutes'));
+          if (!['sleep', 'shutdown', 'restart'].includes(q.get('action')) || !(minutes >= 1 && minutes <= 720)) return json({ error: 'invalid' }, 400);
+          demoPowerTimer = { action: q.get('action'), endsAt: now() + minutes * 60e3 };
+        }
+        if (demoPowerTimer && demoPowerTimer.endsAt <= now()) demoPowerTimer = null;
+        return json({ enabled: on('powertimer'), allowed: true, action: demoPowerTimer?.action ?? null, endsAt: demoPowerTimer?.endsAt ?? null });
+      }
+      if (path === '/api/rk/powertimer/cancel' && method === 'POST') {
+        demoPowerTimer = null;
+        return json({ enabled: on('powertimer'), allowed: true, action: null, endsAt: null });
+      }
+      return json({ error: 'not found' }, 404);
     }
     if (path === '/api/steam/games') return json(DEMO_GAMES.map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)));
     if (path === '/api/steam/launch' && method === 'POST') {

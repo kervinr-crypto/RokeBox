@@ -29,6 +29,8 @@ cambia a propósito.
 | Tema por defecto | `default` (turquesa) | `rokebox` (aurora violeta y rosa, tarjetas de cristal) |
 | Ciudad del clima por defecto | Tallinn (la del autor) | ninguna: el panel pide elegirla en Ajustes › Clima |
 | Widget y plantilla **Gaming** | no existe | el juego de Steam en curso y lo que consume |
+| Widgets **Ficha del PC**, **Estado del PC**, **Consumo de datos**, **Temporizador de energía** | no existen | ver más abajo |
+| Medidor de red | cuenta cada adaptador una vez más por cada filtro NDIS | cuenta solo el adaptador real |
 
 Pendiente de adaptar:
 
@@ -55,6 +57,25 @@ propio PC, sin cuentas ni servicios externos:
 Límites: Windows no permite medir la red de un solo proceso sin permisos de administrador, por eso la red es la del
 PC. Los FPS no se miden (harían falta PresentMon o ETW). Solo Steam: los juegos de otras tiendas no se detectan.
 El agente solo lee todo esto mientras un widget Gaming está en una página activa.
+
+## Control e información del sistema
+
+Inspirados en aplicaciones parecidas (AIDA64 y HWiNFO para la ficha técnica, GlassWire y NetWorx para el consumo de
+datos, Unified Remote y los paneles de control para el temporizador). Plantillas **PC** y **Control**. Todo se lee en
+este PC sin permisos de administrador y solo mientras el widget está en una página activa; nada sale del PC.
+
+| Widget | Qué muestra | De dónde sale |
+|---|---|---|
+| `sysinfo` Ficha del PC | Windows (versión, build, instalación), tiempo encendido, CPU (núcleos/hilos), RAM (módulos, tipo, velocidad, fabricante), placa base y BIOS, drivers de GPU, pantallas (resolución y Hz), discos físicos (NVMe/SATA/USB, SSD/HDD), volúmenes, adaptadores de red | registro de Windows, tabla SMBIOS del firmware, `EnumDisplaySettings`, IOCTL de almacenamiento sin derechos de acceso |
+| `pchealth` Estado del PC | espacio libre, memoria, temperaturas de CPU y GPU, días sin reiniciar, reinicio pendiente de Windows Update, papelera | `DriveInfo`, `GlobalMemoryStatusEx`, claves de Windows Update, `SHQueryRecycleBin` |
+| `datausage` Consumo de datos | hoy, 7 días y ciclo mensual (día de corte configurable) contra un límite opcional, gráfico diario | contadores de los adaptadores que cuenta el medidor de red, guardados en `%LOCALAPPDATA%\RokeBox\data-usage.json` (400 días) |
+| `powertimer` Temporizador de energía | suspender, apagar o reiniciar en 15–120 min con cuenta atrás y cancelación | `shutdown.exe /s` o `/r /t` (Windows lo anuncia y se puede cancelar); suspender con el temporizador del agente |
+
+Lo que cambia el PC es opcional: **vaciar la papelera** exige activar "Let the phone empty the Recycle Bin" en ese
+widget, y el **temporizador** exige los controles de energía del Control Deck activados en Ajustes (los mismos que los
+botones de apagado). Los dos piden un segundo toque para confirmar. Apagar o reiniciar cierra los programas abiertos.
+
+El consumo de datos empieza a contar cuando añades el widget y solo mientras está en una página activa.
 
 ## Convivencia con PhoneBox
 
