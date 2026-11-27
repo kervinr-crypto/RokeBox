@@ -681,7 +681,7 @@ test('the landing page embeds the panel', async ({ page }) => {
   await page.setViewportSize({ width: 1200, height: 900 });
   await page.goto('/');
   await expect(page.frameLocator('#panel').locator('.w').first()).toBeVisible();
-  await page.getByRole('button', { name: /notification/ }).click();
+  await page.getByRole('button', { name: /aviso/ }).click(); // RokeBox: the landing page is in Spanish
   await expect(page.frameLocator('#panel').locator('#toast')).toBeVisible();
   expect(errors).toEqual([]);
 });
@@ -696,10 +696,10 @@ test('the pairing page hands a checked link to the app and clears it from the ad
   await expect(page.locator('#check')).toHaveText('ABAB ABAB');
   const href = await page.locator('#open').getAttribute('href');
   expect(href).toBe(`intent://pair?v=1&pc=Desk%20PC&fp=${fp}&port=8766&h=192.168.1.10%2C100.64.0.7&c=${'A'.repeat(22)}`
-    + '#Intent;scheme=phonebox;package=net.oxog.phonebox.deskpanel;S.browser_fallback_url=https%3A%2F%2Fersinkoc.github.io%2Fphonebox%2Fpair%2F%3Fcannot-open%3D1;end');
+    + '#Intent;scheme=rokebox;package=com.syroke.rokebox;S.browser_fallback_url=https%3A%2F%2Fkervinr-crypto.github.io%2FRokeBox%2Fpair%2F%3Fcannot-open%3D1;end');
   // the button stays pinned to the app's package; the plain link is a separate choice for browsers that open a store (#175)
   await expect(page.locator('#plainWrap')).toBeVisible();
-  expect(await page.locator('#plain').getAttribute('href')).toBe(`phonebox://pair?v=1&pc=Desk%20PC&fp=${fp}&port=8766&h=192.168.1.10%2C100.64.0.7&c=${'A'.repeat(22)}`);
+  expect(await page.locator('#plain').getAttribute('href')).toBe(`rokebox://pair?v=1&pc=Desk%20PC&fp=${fp}&port=8766&h=192.168.1.10%2C100.64.0.7&c=${'A'.repeat(22)}`);
   expect(new URL(page.url()).hash).toBe('');
   // Follow the intent's fallback in the tab that already shows the pairing card.
   const fallback = new URL(decodeURIComponent(href.match(/S\.browser_fallback_url=([^;]+)/)[1]));
@@ -729,8 +729,8 @@ test('the pairing page hands a checked link to the app and clears it from the ad
   await page.goto('about:blank');
   await page.goto(`/pair/${fallback.search}${fallback.hash}`);
   await expect(page.locator('#cannotOpen')).toBeVisible();
-  await expect(page.getByRole('heading', { name: "The PhoneBox app didn't open" })).toBeVisible();
-  await expect(page.locator('#cannotOpen')).toContainText("If PhoneBox isn't installed yet");
+  await expect(page.getByRole('heading', { name: "The RokeBox app didn't open" })).toBeVisible();
+  await expect(page.locator('#cannotOpen')).toContainText("If RokeBox isn't installed yet");
   await expect(page.getByRole('link', { name: 'Download the app' })).toBeVisible();
   await expect(page.locator('#bad')).toBeHidden();
   await expect(page.locator('#ok')).toBeHidden();

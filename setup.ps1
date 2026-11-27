@@ -1,24 +1,27 @@
 <#
 .SYNOPSIS
-  PhoneBox setup for Windows: installs the latest release, everything it needs, and the phone app.
+  RokeBox setup for Windows: installs the latest release, everything it needs, and the phone app.
 
 .DESCRIPTION
   Run it from a normal PowerShell window (not "Run as administrator"):
 
-    irm https://raw.githubusercontent.com/ersinkoc/phonebox/main/setup.ps1 | iex
+    irm https://raw.githubusercontent.com/kervinr-crypto/RokeBox/main/setup.ps1 | iex
 
   With options:
 
-    & ([scriptblock]::Create((irm https://raw.githubusercontent.com/ersinkoc/phonebox/main/setup.ps1))) -NoPhone
+    & ([scriptblock]::Create((irm https://raw.githubusercontent.com/kervinr-crypto/RokeBox/main/setup.ps1))) -NoPhone
 
-  What it does, asking first before anything outside the PhoneBox folders:
-    1. Checks this PC (Windows 10/11 x64 or Windows 11 ARM64) and finds the latest PhoneBox release.
-    2. Downloads the agent and checks its SHA-256 checksum (and its build provenance when the GitHub CLI is signed in).
+  RokeBox is a fork of PhoneBox with its own app id, ports and folders: it installs beside PhoneBox and never stops,
+  changes or removes it.
+
+  What it does, asking first before anything outside the RokeBox folders:
+    1. Checks this PC (Windows 10/11 x64) and finds the latest RokeBox release.
+    2. Downloads the agent and checks its SHA-256 checksum against the release's SHA256SUMS file.
     3. Installs adb (Android platform tools) when it is missing: with winget, or from Google's download.
-    4. Installs the agent to %LOCALAPPDATA%\PhoneBox\app. Settings in %APPDATA%\PhoneBox are kept.
-    5. Adds a Start Menu shortcut, optionally starts PhoneBox with Windows, puts the app on a phone connected over USB, starts the agent and opens its settings.
+    4. Installs the agent to %LOCALAPPDATA%\RokeBox\app. Settings in %APPDATA%\RokeBox are kept.
+    5. Adds a Start Menu shortcut, optionally starts RokeBox with Windows, puts the app on a phone connected over USB, starts the agent and opens its settings.
 
-  Running it again updates PhoneBox or repairs the installation.
+  Running it again updates RokeBox or repairs the installation.
 
 .PARAMETER Yes
   Answer every question with its default: for unattended runs.
@@ -27,11 +30,11 @@
 .PARAMETER Serial
   The phone to use when several are connected (see "adb devices").
 .PARAMETER NoAutostart
-  Do not start PhoneBox with Windows.
+  Do not start RokeBox with Windows.
 .PARAMETER NoStart
   Install only; do not start the agent.
 .PARAMETER Version
-  Install this release (for example 0.9.8) instead of the latest.
+  Install this release (for example 0.9.30.2) instead of the latest.
 .PARAMETER DryRun
   Download and check everything, show what would happen, and change nothing.
 .PARAMETER AllowAdministrator
@@ -48,9 +51,12 @@ param(
     [switch]$AllowAdministrator
 )
 
-$Repo = 'ersinkoc/phonebox'
-$Package = 'net.oxog.phonebox.deskpanel'
-$SettingsUrl = 'http://127.0.0.1:8765'
+$Repo = 'kervinr-crypto/RokeBox'
+$Package = 'com.syroke.rokebox'
+# the app keeps PhoneBox's code and class names; only its application id is RokeBox's
+$Activity = 'com.syroke.rokebox/net.oxog.phonebox.deskpanel.MainActivity'
+$Port = 8775
+$SettingsUrl = "http://127.0.0.1:$Port"
 
 function Write-Step([string]$Text) { Write-Host ''; Write-Host "==> $Text" -ForegroundColor Cyan }
 function Write-Info([string]$Text) { Write-Host "    $Text" }
@@ -89,24 +95,24 @@ function Invoke-Native([string]$File, [string[]]$Arguments) {
 }
 
 function Get-Download([string]$Url, [string]$Path) {
-    Invoke-WebRequest -UseBasicParsing -Uri $Url -OutFile $Path -Headers @{ 'User-Agent' = 'phonebox-setup' }
+    Invoke-WebRequest -UseBasicParsing -Uri $Url -OutFile $Path -Headers @{ 'User-Agent' = 'rokebox-setup' }
 }
 
 function Get-LatestVersion {
     try {
         $release = Invoke-RestMethod -UseBasicParsing -Uri "https://api.github.com/repos/$Repo/releases/latest" `
-            -Headers @{ 'User-Agent' = 'phonebox-setup'; 'Accept' = 'application/vnd.github+json' } -TimeoutSec 30
+            -Headers @{ 'User-Agent' = 'rokebox-setup'; 'Accept' = 'application/vnd.github+json' } -TimeoutSec 30
         if ($release.tag_name) { return [string]$release.tag_name }
     } catch { }
     # The API allows 60 requests an hour per address; the release page redirects to the newest tag as well.
     $request = [System.Net.HttpWebRequest]::Create("https://github.com/$Repo/releases/latest")
     $request.AllowAutoRedirect = $false
     $request.Method = 'HEAD'
-    $request.UserAgent = 'phonebox-setup'
+    $request.UserAgent = 'rokebox-setup'
     $response = $request.GetResponse()
     try { $location = [string]$response.Headers['Location'] } finally { $response.Close() }
     if ($location -match '/tag/([^/?#]+)$') { return $Matches[1] }
-    throw 'Could not find the latest release on GitHub. Check the internet connection, or pass -Version (for example -Version 0.9.8).'
+    throw 'Could not find the latest release on GitHub. Check the internet connection, or pass -Version (for example -Version 0.9.30.2).'
 }
 
 function Assert-Checksum([string]$File, [string]$SumsFile) {
@@ -122,7 +128,13 @@ function Assert-Checksum([string]$File, [string]$SumsFile) {
     Write-Ok "$name matches the release checksum"
 }
 
+# RokeBox releases are built and published with scripts/rokebox-release.ps1, not by a GitHub workflow, so they carry no
+# build attestation: the checksum is the check. (PhoneBox's setup runs "gh attestation verify", kept below, unused.)
 function Test-Provenance([string]$File) {
+    Write-Info "$(Split-Path $File -Leaf): RokeBox releases have no GitHub build attestation; the SHA-256 checksum above is the check."
+}
+
+function Test-ProvenanceAttestation([string]$File) {
     $gh = Get-Command gh -ErrorAction SilentlyContinue | Select-Object -First 1
     if (-not $gh -or (Invoke-Native $gh.Source @('auth', 'status')).Code -ne 0) {
         Write-Info "Build provenance not checked (needs the GitHub CLI, signed in): gh attestation verify $(Split-Path $File -Leaf) --repo $Repo"
@@ -174,8 +186,9 @@ function Install-Adb([string]$Temp) {
     Find-Adb
 }
 
-function Stop-PhoneBox {
-    $running = @(Get-Process PhoneBoxAgent, DeskAgent -ErrorAction SilentlyContinue)
+# Only RokeBox's own agent: PhoneBoxAgent.exe is another program here, and it keeps running.
+function Stop-RokeBox {
+    $running = @(Get-Process RokeBoxAgent -ErrorAction SilentlyContinue)
     foreach ($process in $running) {
         try { $process.Kill(); [void]$process.WaitForExit(10000) } catch { }
     }
@@ -225,7 +238,7 @@ function Select-Phone([string]$Adb, [string[]]$Ignored) {
     $wanted = $Serial
     while ($true) {
         if ($wanted -and $Ignored -ccontains $wanted) {
-            Write-Caution "$wanted is in PhoneBox's ignored USB device list. Skipping the phone app."
+            Write-Caution "$wanted is in RokeBox's ignored USB device list. Skipping the phone app."
             return $null
         }
         $devices = @(Get-Devices $Adb)
@@ -272,7 +285,7 @@ function Get-UsbInstallPolicy([string]$Agent, [string]$OutputPath) {
             return [pscustomobject]@{ Ignored = @(Get-Content -LiteralPath $OutputPath -Encoding UTF8 -ErrorAction Stop) }
         }
         # Legacy agents cannot validate an existing configuration.
-        $config = Join-Path $env:APPDATA 'PhoneBox\config.json'
+        $config = Join-Path $env:APPDATA 'RokeBox\config.json'
         if (Test-Path -LiteralPath $config -ErrorAction Stop) { return $null }
     } catch { return $null }
     [pscustomobject]@{ Ignored = @() }
@@ -282,19 +295,19 @@ function Install-PhoneApp([string]$Adb, [string]$Apk, [string]$Device) {
     $sdkLevel = 0
     [void][int]::TryParse(("$((Invoke-Native $Adb @('-s', $Device, 'shell', 'getprop', 'ro.build.version.sdk')).Output)").Trim(), [ref]$sdkLevel)
     if ($sdkLevel -gt 0 -and $sdkLevel -lt 21) {
-        Write-Caution "This phone runs Android API $sdkLevel; PhoneBox needs Android 5.0 (API 21) or later. The app was not installed."
+        Write-Caution "This phone runs Android API $sdkLevel; RokeBox needs Android 5.0 (API 21) or later. The app was not installed."
         return $false
     }
     Write-Info "Installing $(Split-Path $Apk -Leaf) on $Device (the phone may ask you to confirm) ..."
     $result = Invoke-Native $Adb @('-s', $Device, 'install', '-r', $Apk)
     $text = $result.Output -join ' '
     if ($text -match 'INSTALL_FAILED_UPDATE_INCOMPATIBLE') {
-        Write-Caution 'The phone has a PhoneBox app signed with a different key (for example one you built yourself).'
-        Write-Caution 'It was left as it is, with its data. To switch to the release app, uninstall PhoneBox on the phone'
+        Write-Caution 'The phone has a RokeBox app signed with a different key (for example a debug build).'
+        Write-Caution 'It was left as it is, with its data. To switch to the release app, uninstall RokeBox on the phone'
         Write-Caution '(this deletes its settings) and run setup again.'
         return $false
     }
-    if ($text -match 'INSTALL_FAILED_VERSION_DOWNGRADE') { Write-Ok 'The phone already has a newer PhoneBox app; it was kept.'; return $true }
+    if ($text -match 'INSTALL_FAILED_VERSION_DOWNGRADE') { Write-Ok 'The phone already has a newer RokeBox app; it was kept.'; return $true }
     if ($text -match 'INSTALL_FAILED_USER_RESTRICTED|INSTALL_FAILED_ABORTED') {
         Write-Caution 'The phone refused the installation. Confirm it on the phone; Xiaomi / Redmi / POCO phones also need'
         Write-Caution '"Install via USB" in Developer options. Then run setup again.'
@@ -304,121 +317,119 @@ function Install-PhoneApp([string]$Adb, [string]$Apk, [string]$Device) {
         Write-Caution "The app could not be installed: $text"
         return $false
     }
-    Write-Ok 'PhoneBox app installed on the phone'
-    [void](Invoke-Native $Adb @('-s', $Device, 'shell', 'am', 'start', '-n', "$Package/.MainActivity"))
+    Write-Ok 'RokeBox app installed on the phone (PhoneBox, if it is there, is left as it is)'
+    [void](Invoke-Native $Adb @('-s', $Device, 'shell', 'am', 'start', '-n', $Activity))
     $true
 }
 
-function Install-PhoneBox {
+function Install-RokeBox {
     $ErrorActionPreference = 'Stop'
     $ProgressPreference = 'SilentlyContinue'   # the progress bar makes downloads in Windows PowerShell 5.1 many times slower
     [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 
     Write-Host ''
-    Write-Host 'PhoneBox setup' -ForegroundColor Cyan
+    Write-Host 'RokeBox setup' -ForegroundColor Magenta
     if ($DryRun) { Write-Host 'Dry run: downloads and checks everything, changes nothing.' -ForegroundColor Yellow }
 
     Write-Step 'Checking this PC'
     $architecture = if ($env:PROCESSOR_ARCHITEW6432) { $env:PROCESSOR_ARCHITEW6432 } else { $env:PROCESSOR_ARCHITECTURE }
     $rid = switch ($architecture) {
         'AMD64' { 'win-x64' }
-        'ARM64' { 'win-arm64' }
-        default { throw "PhoneBox needs 64-bit Windows (this PC reports $architecture)." }
+        'ARM64' { throw 'RokeBox releases have a Windows x64 build only, and this PC is Windows on ARM. Build the agent from source (see ROKEBOX.md).' }
+        default { throw "RokeBox needs 64-bit Windows (this PC reports $architecture)." }
     }
     $build = [Environment]::OSVersion.Version.Build
-    if ($rid -eq 'win-arm64' -and $build -lt 22000) { throw 'PhoneBox needs Windows 11 on ARM.' }
-    if ($build -lt 19041) { Write-Caution "PhoneBox is built for Windows 10 version 2004 (build 19041) or later; this PC has build $build, so some parts may not work." }
+    if ($build -lt 19041) { Write-Caution "RokeBox is built for Windows 10 version 2004 (build 19041) or later; this PC has build $build, so some parts may not work." }
     $identity = [Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()
     if ($identity.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -and -not $AllowAdministrator) {
-        throw 'Run setup from a normal PowerShell window, not "Run as administrator". PhoneBox runs as you and needs no administrator rights; as administrator it would start with full rights, or install for the administrator account instead of yours.'
+        throw 'Run setup from a normal PowerShell window, not "Run as administrator". RokeBox runs as you and needs no administrator rights; as administrator it would start with full rights, or install for the administrator account instead of yours.'
     }
     $scoop = if ($env:SCOOP) { $env:SCOOP } else { Join-Path $HOME 'scoop' }
-    if (Test-Path (Join-Path $scoop 'apps\phonebox')) {
-        throw 'PhoneBox is installed with Scoop. Update it with "scoop update phonebox". To switch to this setup instead, run "scoop uninstall phonebox" first (your settings stay) and then setup again; two copies would fight over the same port.'
+    if (Test-Path (Join-Path $scoop 'apps\rokebox')) {
+        throw 'RokeBox is installed with Scoop. Update it with "scoop update rokebox", or run "scoop uninstall rokebox" first (your settings stay) and then setup again; two copies would fight over the same port.'
     }
-    $app = Join-Path $env:LOCALAPPDATA 'PhoneBox\app'
-    $exe = Join-Path $app 'PhoneBoxAgent.exe'
+    $app = Join-Path $env:LOCALAPPDATA 'RokeBox\app'
+    $exe = Join-Path $app 'RokeBoxAgent.exe'
     $installed = $null
     if (Test-Path $exe) { $installed = ("$((Get-Item $exe).VersionInfo.ProductVersion)" -split '\+')[0] }
-    Write-Ok "Windows build $build, $rid$(if ($installed) { ", PhoneBox $installed installed" })"
+    Write-Ok "Windows build $build, $rid$(if ($installed) { ", RokeBox $installed installed" })"
     # Smart App Control (Windows 11) blocks programs that are neither signed nor known to Microsoft: 1 on, 2 evaluation
     $smartAppControl = 0
     try { $smartAppControl = [int](Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\CI\Policy' -ErrorAction Stop).VerifiedAndReputablePolicyState } catch { }
     if ($smartAppControl -eq 1) {
         Write-Caution 'Smart App Control is on. It blocks programs that are neither signed nor known to Microsoft, and'
-        Write-Caution 'PhoneBoxAgent.exe is not code-signed yet (signing through SignPath Foundation is pending:'
-        Write-Caution "https://github.com/$Repo/issues/56), so Windows will probably refuse to start it. Setup still installs it."
+        Write-Caution 'RokeBoxAgent.exe is not code-signed, so Windows will probably refuse to start it. Setup still installs it.'
         Write-Caution 'Please keep Smart App Control on: on older Windows builds it cannot be turned back on without resetting Windows.'
     } elseif ($smartAppControl -eq 2) {
         Write-Caution 'Smart App Control is in evaluation mode: it blocks nothing yet. If Windows turns it on later, it will block'
-        Write-Caution "PhoneBoxAgent.exe until the agent is code-signed (pending: https://github.com/$Repo/issues/56)."
+        Write-Caution 'RokeBoxAgent.exe, which is not code-signed.'
     }
 
     Write-Step 'Finding the release'
     $tag = if ($Version) { $Version } else { Get-LatestVersion }
     $ver = $tag.Trim().TrimStart('v')
-    if ($ver -notmatch '^\d+\.\d+\.\d+$') { throw "Unexpected version '$tag'." }
+    # RokeBox adds a fourth number to PhoneBox's version (0.9.30.2)
+    if ($ver -notmatch '^\d+\.\d+\.\d+(\.\d+)?$') { throw "Unexpected version '$tag'." }
     $base = "https://github.com/$Repo/releases/download/v$ver"
-    if ($installed -eq $ver) { Write-Ok "PhoneBox $ver (already installed; it will be reinstalled, settings stay)" }
-    elseif ($installed) { Write-Ok "PhoneBox $ver (updating from $installed; settings stay)" }
-    else { Write-Ok "PhoneBox $ver" }
+    if ($installed -eq $ver) { Write-Ok "RokeBox $ver (already installed; it will be reinstalled, settings stay)" }
+    elseif ($installed) { Write-Ok "RokeBox $ver (updating from $installed; settings stay)" }
+    else { Write-Ok "RokeBox $ver" }
 
-    $temp = Join-Path ([IO.Path]::GetTempPath()) ('phonebox-setup-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
+    $temp = Join-Path ([IO.Path]::GetTempPath()) ('rokebox-setup-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
     New-Item -ItemType Directory -Force $temp | Out-Null
     try {
-        Write-Step "Downloading PhoneBox $ver"
-        $zipName = "PhoneBoxAgent-$ver-$rid.zip"
+        Write-Step "Downloading RokeBox $ver"
+        $zipName = "RokeBoxAgent-$ver-$rid.zip"
         $sums = Join-Path $temp "SHA256SUMS-$ver.txt"
         $zip = Join-Path $temp $zipName
         try { Get-Download "$base/SHA256SUMS-$ver.txt" $sums } catch { throw "Release $ver was not found ($base). $($_.Exception.Message)" }
         if ($rid -eq 'win-arm64' -and -not (Select-String -LiteralPath $sums -SimpleMatch $zipName -Quiet)) {
-            throw "PhoneBox $ver has no native Windows ARM64 package. See https://github.com/$Repo/blob/main/docs/SETUP.md#windows-on-arm for available options."
+            throw "RokeBox $ver has no native Windows ARM64 package. See https://github.com/$Repo/blob/main/docs/SETUP.md#windows-on-arm for available options."
         }
         Write-Info "$zipName (about 65 MB) ..."
         Get-Download "$base/$zipName" $zip
         Assert-Checksum $zip $sums
         Test-Provenance $zip
-        Write-Info 'The agent is not code-signed yet (the SignPath Foundation application is pending). Windows SmartScreen'
-        Write-Info 'or an antivirus can warn about new unsigned programs; the checksum above shows that this is the file'
-        Write-Info "GitHub built from the public source. Details: https://github.com/$Repo/issues/69"
+        Write-Info 'The agent is not code-signed. Windows SmartScreen or an antivirus can warn about new unsigned programs;'
+        Write-Info 'the checksum above shows that this is the file published in the release.'
 
         $extract = Join-Path $temp 'agent'
         Expand-Archive -LiteralPath $zip -DestinationPath $extract -Force
         Get-ChildItem $extract -Recurse -File | Unblock-File
-        if (-not (Test-Path (Join-Path $extract 'PhoneBoxAgent.exe'))) {
-            throw "PhoneBoxAgent.exe is missing from the download: an antivirus probably removed it. See https://github.com/$Repo/issues/69 and restore it from quarantine, or add an exclusion, then run setup again."
+        if (-not (Test-Path (Join-Path $extract 'RokeBoxAgent.exe'))) {
+            throw "RokeBoxAgent.exe is missing from the download: an antivirus probably removed it. Restore it from quarantine, or add an exclusion, then run setup again."
         }
 
         Write-Step 'Checking adb (needed for the USB connection to the phone)'
         $adb = Find-Adb
         if ($adb) { Write-Ok $adb }
         else {
-            Write-Caution 'adb is not installed. Without it PhoneBox still works over Wi-Fi, but cannot reach the phone over USB'
+            Write-Caution 'adb is not installed. Without it RokeBox still works over Wi-Fi, but cannot reach the phone over USB'
             Write-Caution '(wake it on plug-in, install and update the phone app, fall back to USB when Wi-Fi drops).'
             if ($DryRun) { Write-Info 'Would offer to install it.' }
             elseif (Read-YesNo 'Install adb now?') {
                 $adb = Install-Adb $temp
-                if ($adb) { Write-Ok "adb installed: $adb" } else { Write-Caution 'adb could not be installed; PhoneBox will work over Wi-Fi only until it is.' }
+                if ($adb) { Write-Ok "adb installed: $adb" } else { Write-Caution 'adb could not be installed; RokeBox will work over Wi-Fi only until it is.' }
             }
         }
 
-        $owner = Get-PortOwner 8765
-        if ($owner -and $owner -ne 'PhoneBoxAgent' -and $owner -ne 'DeskAgent') {
-            Write-Caution "Port 8765 is used by $owner. PhoneBox needs this port; close $owner or PhoneBox will not start."
+        $owner = Get-PortOwner $Port
+        if ($owner -and $owner -ne 'RokeBoxAgent') {
+            Write-Caution "Port $Port is used by $owner. RokeBox needs this port; close $owner or RokeBox will not start."
         }
 
         if ($DryRun) {
             Write-Step 'Dry run finished'
-            Write-Info "Would stop the running agent and install PhoneBox $ver to $app (settings in $env:APPDATA\PhoneBox stay)."
-            Write-Info 'Would add a PhoneBox shortcut to the Start Menu.'
-            if (-not $NoAutostart) { Write-Info 'Would ask to start PhoneBox with Windows.' }
+            Write-Info "Would stop the running RokeBox agent and install RokeBox $ver to $app (settings in $env:APPDATA\RokeBox stay)."
+            Write-Info 'Would add a RokeBox shortcut to the Start Menu.'
+            if (-not $NoAutostart) { Write-Info 'Would ask to start RokeBox with Windows.' }
             if (-not $NoPhone) { Write-Info 'Would offer to install the app on a phone connected over USB.' }
             Write-Info 'Nothing was changed.'
             return
         }
 
         Write-Step "Installing to $app"
-        Stop-PhoneBox
+        Stop-RokeBox
         # The files are replaced in place: the folder itself cannot be renamed while another program has it as its
         # working directory, such as the adb server the agent started.
         $old = "$app.old"
@@ -434,29 +445,28 @@ function Install-PhoneBox {
                 Remove-Item -Force -ErrorAction SilentlyContinue
         } catch {
             if (Test-Path $old) { try { Copy-Item (Join-Path $old '*') $app -Recurse -Force } catch { } }
-            throw "Installing failed and the previous version was put back: $($_.Exception.Message). Close PhoneBox (tray icon > Exit) and run setup again."
+            throw "Installing failed and the previous version was put back: $($_.Exception.Message). Close RokeBox (tray icon > Exit) and run setup again."
         }
         Remove-Item $old -Recurse -Force -ErrorAction SilentlyContinue
-        Write-Ok "PhoneBox $ver installed; settings are in $env:APPDATA\PhoneBox"
+        Write-Ok "RokeBox $ver installed; settings are in $env:APPDATA\RokeBox"
 
         $programs = [Environment]::GetFolderPath('Programs')
         if ($programs -and (Test-Path $programs)) {
             try {
                 $shell = New-Object -ComObject WScript.Shell
-                $startLink = $shell.CreateShortcut((Join-Path $programs 'PhoneBox.lnk'))
+                $startLink = $shell.CreateShortcut((Join-Path $programs 'RokeBox.lnk'))
                 $startLink.TargetPath = $exe
                 $startLink.WorkingDirectory = $app
-                $startLink.Description = 'PhoneBox agent'
+                $startLink.Description = 'RokeBox agent'
                 $startLink.Save()
-                Write-Ok 'Added to the Start Menu (search "PhoneBox" to start it anytime)'
+                Write-Ok 'Added to the Start Menu (search "RokeBox" to start it anytime)'
             } catch {
                 Write-Caution "Could not create Start Menu shortcut: $($_.Exception.Message)"
             }
         }
 
         $startup = [Environment]::GetFolderPath('Startup')
-        Remove-Item (Join-Path $startup 'DeskAgent.lnk') -ErrorAction SilentlyContinue   # the pre-PhoneBox prototype
-        $shortcut = Join-Path $startup 'PhoneBox.lnk'
+        $shortcut = Join-Path $startup 'RokeBox.lnk'
         if ($NoAutostart) {
             if (Test-Path $shortcut) {
                 Remove-Item $shortcut -Force
@@ -464,12 +474,12 @@ function Install-PhoneBox {
             }
         } else {
             Write-Step 'Start with Windows'
-            if (Read-YesNo 'Start PhoneBox when you sign in to Windows?') {
+            if (Read-YesNo 'Start RokeBox when you sign in to Windows?') {
                 $shell = New-Object -ComObject WScript.Shell
                 $link = $shell.CreateShortcut($shortcut)
                 $link.TargetPath = $exe
                 $link.WorkingDirectory = $app
-                $link.Description = 'PhoneBox agent'
+                $link.Description = 'RokeBox agent'
                 $link.Save()
                 Write-Ok 'Added to the Startup folder (turn it off in Task Manager > Startup apps)'
             } elseif (Test-Path $shortcut) {
@@ -483,7 +493,7 @@ function Install-PhoneBox {
             Write-Step 'Phone app'
             if (-not $adb) {
                 Write-Caution 'Skipped: adb is not installed.'
-            } elseif (Read-YesNo 'Install the PhoneBox app on a phone connected over USB now?') {
+            } elseif (Read-YesNo 'Install the RokeBox app on a phone connected over USB now?') {
                 Write-Info 'USB debugging lets an allowed computer control the phone. Allow only your own computers; you can'
                 Write-Info 'revoke them under Developer options > "Revoke USB debugging authorisations".'
                 $policy = Get-UsbInstallPolicy $exe (Join-Path $temp 'ignored-usb-devices')
@@ -493,8 +503,8 @@ function Install-PhoneBox {
                     # The phone app is optional: a failed download or checksum skips it, and the agent (already
                     # installed and stopped for the update) still starts below.
                     try {
-                        $apk = Join-Path $temp "PhoneBox-$ver.apk"
-                        Get-Download "$base/PhoneBox-$ver.apk" $apk
+                        $apk = Join-Path $temp "RokeBox-$ver.apk"
+                        Get-Download "$base/RokeBox-$ver.apk" $apk
                         Assert-Checksum $apk $sums
                         $phoneDone = Install-PhoneApp $adb $apk $device
                     } catch {
@@ -508,7 +518,7 @@ function Install-PhoneBox {
             Write-Step 'Done (not started)'
             Write-Info "Start it with $exe"
         } else {
-            Write-Step 'Starting PhoneBox'
+            Write-Step 'Starting RokeBox'
             $blocked = $false
             try {
                 Start-Process -FilePath $exe -WorkingDirectory $app -ErrorAction Stop
@@ -521,13 +531,13 @@ function Install-PhoneBox {
                 $groupPolicy = & $says 1260  # AppLocker or a software restriction policy
                 if (-not ($appControl -or $groupPolicy)) { throw }
                 $blocked = $true
-                Write-Caution "Windows did not let PhoneBoxAgent.exe start: $why"
+                Write-Caution "Windows did not let RokeBoxAgent.exe start: $why"
                 if ($appControl -and $smartAppControl -eq 1) {
-                    Write-Caution 'PhoneBox is installed, but Smart App Control will not run it until the agent is code-signed.'
-                    Write-Caution "Signing is pending: https://github.com/$Repo/issues/56. Please keep Smart App Control on."
+                    Write-Caution 'RokeBox is installed, but Smart App Control will not run it: the agent is not code-signed.'
+                    Write-Caution 'Please keep Smart App Control on.'
                 } else {
-                    Write-Caution 'PhoneBox is installed, but a policy on this computer does not allow it to run. On a work or school'
-                    Write-Caution 'computer, ask its administrator to allow PhoneBoxAgent.exe.'
+                    Write-Caution 'RokeBox is installed, but a policy on this computer does not allow it to run. On a work or school'
+                    Write-Caution 'computer, ask its administrator to allow RokeBoxAgent.exe.'
                 }
             }
             $up = $false
@@ -536,14 +546,14 @@ function Install-PhoneBox {
                 try { Invoke-RestMethod -UseBasicParsing "$SettingsUrl/api/info" -TimeoutSec 2 | Out-Null; $up = $true } catch { }
             }
             if ($up) {
-                Write-Ok "PhoneBox is running: settings at $SettingsUrl (also from the tray icon)"
+                Write-Ok "RokeBox is running: settings at $SettingsUrl (also from the tray icon)"
                 try { Start-Process $SettingsUrl } catch { }
             } elseif ($blocked) {
                 # explained above
             } elseif (-not (Test-Path $exe)) {
-                Write-Caution "PhoneBoxAgent.exe was removed, probably by an antivirus. See https://github.com/$Repo/issues/69."
+                Write-Caution 'RokeBoxAgent.exe was removed, probably by an antivirus: restore it from quarantine or add an exclusion.'
             } else {
-                Write-Caution "The agent did not answer. Its log: $env:LOCALAPPDATA\PhoneBox\agent.log"
+                Write-Caution "The agent did not answer. Its log: $env:LOCALAPPDATA\RokeBox\agent.log"
                 if ($smartAppControl -eq 1) {
                     Write-Caution 'Smart App Control may have blocked it: see Windows Security > App & browser control, and the warning above.'
                 }
@@ -551,16 +561,20 @@ function Install-PhoneBox {
         }
 
         Write-Step 'Good to know'
-        if ($phoneDone) { Write-Info 'Keep the phone plugged in: PhoneBox wakes it and opens the panel.' }
+        if ($phoneDone) { Write-Info 'Keep the phone plugged in: RokeBox wakes it and opens the panel.' }
         elseif (-not $NoPhone) {
             Write-Info "Phone app later: plug the phone in and use Settings > General > Install the phone app, or run setup again."
         }
         Write-Info 'Wi-Fi only: install the app from the release page on the phone, then on the computer open'
         Write-Info 'Settings > General > Wi-Fi & Tailscale > Pair a phone over Wi-Fi and scan the QR code.'
-        Write-Info 'When you turn Wi-Fi on, Windows asks to let PhoneBox through the firewall: allow Private networks only.'
-        Write-Info "Until then PhoneBox only listens on this computer. Every connection it makes: https://github.com/$Repo/blob/main/PRIVACY.md"
-        Write-Info 'Updates: PhoneBox updates itself from Settings. Run setup again any time to repair it.'
-        Write-Info "Uninstall: & ([scriptblock]::Create((irm https://raw.githubusercontent.com/$Repo/main/scripts/uninstall.ps1))) [-Purge] [-Apk]"
+        Write-Info 'When you turn Wi-Fi on, Windows asks to let RokeBox through the firewall: allow Private networks only.'
+        Write-Info "Until then RokeBox only listens on this computer. Every connection it makes: https://github.com/$Repo/blob/main/PRIVACY.md"
+        Write-Info 'Updates: RokeBox updates itself and the phone app from its releases. Run setup again any time to repair it.'
+        Write-Info 'PhoneBox, if you use it too, runs beside RokeBox: if it opens on the phone when you plug the cable in, turn'
+        Write-Info 'that off in PhoneBox, or close it while you use RokeBox.'
+        # scripts/uninstall.ps1 is PhoneBox's and removes PhoneBox, so it is not offered here
+        Write-Info "Uninstall: tray icon > Exit, then delete $env:LOCALAPPDATA\RokeBox and the RokeBox shortcuts (and, to drop"
+        Write-Info "the settings, $env:APPDATA\RokeBox). On the phone, uninstall the RokeBox app."
     } finally {
         Remove-Item $temp -Recurse -Force -ErrorAction SilentlyContinue
     }
@@ -568,11 +582,11 @@ function Install-PhoneBox {
 
 # Everything runs from here, so a download cut off half way cannot run half a script.
 try {
-    Install-PhoneBox
+    Install-RokeBox
     $global:LASTEXITCODE = 0   # optional native checks (gh, winget) may have left a non-zero code; setup succeeded
 } catch {
     Write-Host ''
     Write-Host "Setup stopped: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "Help: https://github.com/$Repo#quick-start  -  issues: https://github.com/$Repo/issues" -ForegroundColor Red
+    Write-Host "Help: https://kervinr-crypto.github.io/RokeBox/#instalar  -  issues: https://github.com/$Repo/issues" -ForegroundColor Red
     if (-not (Test-Interactive)) { throw }   # unattended runs must fail visibly
 }

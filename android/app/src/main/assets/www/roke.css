@@ -1,48 +1,238 @@
-/* RokeBox: the RokeBox theme (Settings › Display › Theme, the default) and the Gaming widget. RokeBox's own file, so
-   merges from PhoneBox never touch it; style.css stays PhoneBox's. The theme only changes cards that keep the
-   default surface: a surface, border or shadow picked in Settings › Appearance still wins. */
+/* RokeBox: the RokeBox theme (Settings › Display › Theme, the default) and RokeBox's own widgets. RokeBox's own file,
+   so merges from PhoneBox never touch it; style.css stays PhoneBox's. The theme only changes cards that keep the
+   default surface: a surface, border or shadow picked in Settings › Appearance still wins.
 
-/* ---------------------------------------------------------------- RokeBox theme */
+   The look, "Chassis": the phone is a piece of desk hardware. The background is an anodized faceplate and every widget
+   is a display window recessed into it; controls (shortcut keys, play, presets) are raised keys on that plate. Colour
+   is data: the plate and the type stay neutral, and colour comes from the readings, the album art and one lit marker.
+   Mona Sans carries the hierarchy with its width axis: condensed numbers, expanded labels, normal body text. */
+
+/* ---------------------------------------------------------------- type: Mona Sans (SIL OFL 1.1, roke-mona-OFL.txt) */
+@font-face {
+  font-family: "Mona Sans"; font-style: normal; font-weight: 200 900; font-stretch: 75% 125%; font-display: swap;
+  src: url("roke-mona-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Mona Sans"; font-style: normal; font-weight: 200 900; font-stretch: 75% 125%; font-display: swap;
+  src: url("roke-mona-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ---------------------------------------------------------------- RokeBox theme: tokens */
 body[data-theme="rokebox"] {
-  --bg: #09070f;
-  --card: rgba(255, 255, 255, 0.05);
-  --card-hi: rgba(255, 255, 255, 0.085);
-  --line: rgba(255, 255, 255, 0.075);
-  --text: #f5f2fb;
-  --muted: #a49cb8;
-  --dim: #6c6584;
+  --bg: #1c2026;                       /* the faceplate */
+  --card: #0a0c0f;                     /* a display window */
+  --card-hi: #15181d;
+  --line: rgba(255, 255, 255, 0.07);
+  --text: #edf0f3;
+  --muted: #9aa2ad;
+  --dim: #626a75;
   /* the metric colours (--cpu, --gpu, --ram, --net…) stay the panel's own: widgets read them when they are built,
      which can be before the theme applies, so a theme that changed them would leave two palettes on screen */
-  --rk-rose: 251, 113, 133;
-  --rk-violet: 139, 92, 246;
+  --rk-plate-hi: #272b32;
+  --rk-plate: #1d2127;
+  --rk-plate-lo: #16191e;
+  --rk-key-hi: #30353d;
+  --rk-key-lo: #23272d;
+  --rk-key-edge: #0c0e11;
+  --rk-cond: 80%;                      /* numbers */
+  --rk-wide: 116%;                     /* labels */
+  --rk-well-shadow: inset 0 2px 7px rgba(0, 0, 0, 0.72), inset 0 0 0 1px rgba(255, 255, 255, 0.018), 0 1px 0 rgba(255, 255, 255, 0.075);
+  --rk-key-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09), 0 2px 0 var(--rk-key-edge), 0 6px 10px -5px rgba(0, 0, 0, 0.7);
+  font-family: "Mona Sans", Roboto, "Segoe UI", system-ui, sans-serif;
+  /* the plate: lit from above, a fine anodized grain */
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .045 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, var(--rk-plate-hi) 0%, var(--rk-plate) 42%, var(--rk-plate-lo) 100%);
 }
-
-/* an aurora in RokeBox's colours; the accent (or the album art's tint) keeps its glow in the top corner */
+/* a lamp over the desk instead of an aurora; the accent (or the album art's tint) spills faintly on the lower edge */
 body[data-theme="rokebox"]::before {
   background:
-    radial-gradient(55% 75% at 88% 8%, rgba(var(--ambient), 0.15), transparent 70%),
-    radial-gradient(65% 85% at -5% 105%, rgba(var(--rk-violet), 0.2), transparent 70%),
-    radial-gradient(45% 55% at 50% 120%, rgba(var(--rk-rose), 0.09), transparent 70%);
+    radial-gradient(70% 60% at 28% -12%, rgba(255, 255, 255, 0.075), transparent 70%),
+    radial-gradient(55% 45% at 88% 112%, rgba(var(--ambient), 0.13), transparent 70%);
 }
+body[data-theme="rokebox"].has-wallpaper { background: #000; }
 
-/* glass cards: a soft gradient face, a hairline that catches the light at the top and fades into violet */
-body[data-theme="rokebox"] .card:not([data-widget-surface]) {
+/* ---------------------------------------------------------------- display windows (cards) */
+body[data-theme="rokebox"] .card:not([data-widget-surface]):not(.w-quotas):not(.w-processes):not(.w-shortcuts):not(.w-button) {
+  background: linear-gradient(180deg, #07080b 0%, #0b0d10 26%, #0a0c0f 100%);
+  border: 1px solid #050608;
+  border-radius: clamp(8px, 5cqmin, 15px);
+  box-shadow: var(--rk-well-shadow);
+}
+/* the AI quota cards are display windows too, with the service's colour as a faint glow from the top edge */
+body[data-theme="rokebox"] .q-card {
+  border: 1px solid #050608; border-radius: clamp(8px, 5cqmin, 15px); box-shadow: var(--rk-well-shadow);
+  background: radial-gradient(90% 55% at 50% 0%, color-mix(in srgb, var(--q) 11%, transparent), transparent 72%), linear-gradient(180deg, #07080b, #0b0d10 26%, #0a0c0f);
+}
+body[data-theme="rokebox"] .sess { background: rgba(255, 255, 255, 0.04); border-radius: 8px; }
+body[data-theme="rokebox"] .chip { background: rgba(255, 255, 255, 0.065); border-radius: 6px; }
+
+/* ---------------------------------------------------------------- type: width carries the hierarchy */
+/* labels: expanded, sentence case, no tracking (the strings keep their own case) */
+body[data-theme="rokebox"] :is(.w-title, .s-label, .m-app, .gh-sec, .conv-h, .conv-who, .wc-n, .cd-l, .an-l, .dc-kind, .dcf-cap, .ag-day, .ac-title, .session-cell span, .g-label, .rk-label, .rk-sec-t, .gm-label) {
+  text-transform: none; letter-spacing: 0; font-stretch: var(--rk-wide); font-weight: 650;
+}
+body[data-theme="rokebox"] .w-title { color: var(--text); }
+/* the metric tile's name is a short code (CPU, GPU, RAM): it keeps its case, and its colour moves to a lamp */
+body[data-theme="rokebox"] .t-label {
+  display: flex; align-items: center; gap: 6px; letter-spacing: .03em; font-stretch: var(--rk-wide); font-weight: 650; color: var(--muted);
+}
+body[data-theme="rokebox"] .t-label::before {
+  content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--c); box-shadow: 0 0 7px var(--c);
+}
+body[data-theme="rokebox"] .g-label { color: var(--muted); }
+/* readouts: condensed figures */
+body[data-theme="rokebox"] :is(.clock, #nClock, .t-val b, .s-main b, .g-val, .q-pct, .q-ov-val, .wx-temp, .fc-v, .gm-val b, .du-big, .pt-preset b, .pt-ring b, .wc-t, .gd-big) {
+  font-stretch: var(--rk-cond);
+}
+body[data-theme="rokebox"] .clock { font-weight: 260; letter-spacing: -0.02em; }
+body[data-theme="rokebox"] .clock .colon { opacity: .4; }
+body[data-theme="rokebox"] .clock .sec { font-stretch: 100%; font-weight: 500; color: var(--dim); }
+body[data-theme="rokebox"] .date { color: #c3c9d1; font-stretch: 108%; }
+body[data-theme="rokebox"] .t-val b { font-weight: 600; letter-spacing: -0.01em; }
+body[data-theme="rokebox"] .s-main b, body[data-theme="rokebox"] .g-val, body[data-theme="rokebox"] .q-pct { font-weight: 600; }
+body[data-theme="rokebox"] .w-stat canvas { opacity: .55; }
+body[data-theme="rokebox"] .w-stat .t-val, body[data-theme="rokebox"] .w-stat .t-sub { text-shadow: 0 1px 4px #000; }
+body[data-theme="rokebox"] .m-title { font-weight: 650; font-stretch: 96%; }
+body[data-theme="rokebox"] .m-app { color: var(--muted); }
+
+/* ---------------------------------------------------------------- raised keys: what you can press stands up from the plate */
+body[data-theme="rokebox"] .key {
+  border-radius: clamp(8px, 4cqmin, 13px);
+  border: 1px solid #111317;
+  /* the key's own colour is a light pipe along its top edge */
   background:
-    linear-gradient(165deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.028) 42%, rgba(255, 255, 255, 0.035)) padding-box,
-    linear-gradient(165deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.04) 35%, rgba(var(--rk-violet), 0.22)) border-box;
-  border: 1px solid transparent;
-  box-shadow: 0 14px 34px -20px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    linear-gradient(var(--k, #6b7280), var(--k, #6b7280)) 50% 0 / 34% 3px no-repeat,
+    linear-gradient(180deg, var(--rk-key-hi), var(--rk-key-lo));
+  box-shadow: var(--rk-key-shadow);
+  transition: transform .08s, box-shadow .08s, filter .2s;
+}
+body[data-theme="rokebox"] .key:active { transform: translateY(2px); filter: none; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0 0 var(--rk-key-edge); }
+body[data-theme="rokebox"] .key .k-icon { color: #f2f4f7; color: color-mix(in srgb, var(--k, #fff) 32%, #f2f4f7); }
+body[data-theme="rokebox"] .key .k-label { color: #dfe3e8; font-weight: 600; font-stretch: 104%; }
+body[data-theme="rokebox"] .key.toggle.on { filter: none; background:
+    linear-gradient(var(--k, #6b7280), var(--k, #6b7280)) 50% 0 / 34% 3px no-repeat,
+    linear-gradient(180deg, color-mix(in srgb, var(--k, #6b7280) 24%, var(--rk-key-hi)), color-mix(in srgb, var(--k, #6b7280) 16%, var(--rk-key-lo))); }
+body[data-theme="rokebox"] .key.k-cover { background: #000; }
+/* a grid of keys has no window around it: no rounded clip, and room under the last row for the keys' edge */
+body[data-theme="rokebox"] .w-shortcuts { border-radius: 0; padding-bottom: 3px; }
+body[data-theme="rokebox"] .w-button { border-radius: 0; padding-bottom: 3px; background: none; border: 0; box-shadow: none; }
+
+/* the Control Deck's buttons are keys too; a channel is a small plate inside its window */
+body[data-theme="rokebox"] :is(.deck-button, .deck-hold) {
+  background: linear-gradient(180deg, var(--rk-key-hi), var(--rk-key-lo)); border: 1px solid #111317; border-radius: 9px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 0 var(--rk-key-edge);
+}
+body[data-theme="rokebox"] :is(.deck-button:active, .deck-hold.held) {
+  transform: translateY(2px); background: var(--accent, #fb7185); color: #140b0d; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+body[data-theme="rokebox"] :is(.deck-button.selected, .deck-button[aria-pressed="true"]) {
+  border-color: #111317; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 0 var(--rk-key-edge), inset 0 -3px 0 var(--accent, #fb7185);
+}
+body[data-theme="rokebox"] .deck-channel { background: rgba(255, 255, 255, 0.03); border-color: var(--line); }
+
+/* small buttons inside the windows */
+body[data-theme="rokebox"] :is(.mini-btn, .rk-btn, .chip-btn) {
+  background: linear-gradient(180deg, var(--rk-key-hi), var(--rk-key-lo)); border: 1px solid #111317; border-radius: 7px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 1px 0 var(--rk-key-edge);
+}
+body[data-theme="rokebox"] :is(.mini-btn, .rk-btn, .chip-btn):active { transform: translateY(1px); box-shadow: none; }
+
+/* media: the play key is the lit one; skip keys are plain glyphs; the position runs in the accent */
+body[data-theme="rokebox"] .ic.play {
+  border-radius: 30%; background: var(--accent, #fb7185); color: #140b0d;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 0 rgba(0, 0, 0, 0.55), 0 0 22px -6px var(--accent, #fb7185);
+}
+body[data-theme="rokebox"] .ic.play:active { transform: translateY(2px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25); }
+body[data-theme="rokebox"] .art-wrap { border-radius: clamp(6px, 4cqh, 12px); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 10px 24px -10px #000; }
+body[data-theme="rokebox"] .bar::before { height: 6px; border-radius: 3px; background: #1b1f25; box-shadow: inset 0 1px 2px #000; }
+body[data-theme="rokebox"] .fill { height: 6px; border-radius: 3px; background: var(--accent, #fb7185); }
+body[data-theme="rokebox"] .fill::after { top: -4px; width: 14px; height: 14px; right: -7px; background: #f4f6f8; box-shadow: 0 1px 3px #000; }
+body[data-theme="rokebox"] input[type=range]::-webkit-slider-runnable-track {
+  height: 6px; border-radius: 3px; box-shadow: inset 0 1px 2px #000;
+  background: linear-gradient(to right, var(--accent, #fb7185) var(--p, 50%), #1b1f25 var(--p, 50%));
+}
+body[data-theme="rokebox"] input[type=range]::-webkit-slider-thumb { width: 18px; height: 18px; margin-top: -6px; border-radius: 5px; background: linear-gradient(180deg, #f6f7f9, #cfd4da); box-shadow: 0 1px 3px #000; }
+body[data-theme="rokebox"] .track { height: 6px; background: #1b1f25; box-shadow: inset 0 1px 2px #000; }
+body[data-theme="rokebox"] :is(.g-dial, .q-dial) .bg { stroke: #1b1f25; }
+body[data-theme="rokebox"] :is(.g-dial, .q-dial) .fg { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--qc, var(--q)) 45%, transparent)); }
+
+/* ---------------------------------------------------------------- page scale: an engraved row of ticks, the current page lit */
+body[data-theme="rokebox"] #dots:not(.pagebar) i { width: 2px; height: 7px; border-radius: 1px; background: rgba(255, 255, 255, 0.2); transition: height .2s, width .2s, background .2s; }
+body[data-theme="rokebox"] #dots:not(.pagebar) i.on { width: 3px; height: 15px; background: var(--accent, #fb7185); box-shadow: 0 0 8px var(--accent, #fb7185); }
+/* the page buttons share the status lamp's class: no green disc behind the current one */
+body[data-theme="rokebox"] #dots:not(.pagebar) .dot.on { background: transparent; box-shadow: none; }
+body[data-theme="rokebox"] #dots:not(.pagebar) .dot.aim i { background: #fff; transform: scaleY(1.6); }
+body[data-theme="rokebox"] #dots.paused { background: transparent; border-color: transparent; }
+body[data-theme="rokebox"] #dots.paused i.on { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+body[data-theme="rokebox"] .page-all, body[data-theme="rokebox"] .page-pause { color: rgba(255, 255, 255, 0.42); }
+/* the page bar (Settings › Display › Page navigation) becomes a strip of keys */
+body[data-theme="rokebox"] #dots.pagebar { background: linear-gradient(180deg, #23272e, #1a1d22); border: 1px solid #0d0f12; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 6px 18px rgba(0, 0, 0, 0.5); border-radius: 12px; }
+body[data-theme="rokebox"] #dots.pagebar .dot { border-radius: 8px; font-stretch: 108%; }
+body[data-theme="rokebox"] #dots.pagebar .dot.on { color: #140b0d; background: var(--accent, #fb7185); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3); }
+body[data-theme="rokebox"].pagebar-docked #dots.pagebar { border-radius: 0; }
+
+/* the page's name when it changes: a label strip stuck on the plate */
+body[data-theme="rokebox"] #ptitle {
+  top: 8px; padding: 4px 12px; border-radius: 3px; border: 0;
+  background: #eceff2; color: #15181c; font-size: 12.5px; font-weight: 750; font-stretch: 118%;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset, 0 4px 12px rgba(0, 0, 0, 0.45);
 }
 
-/* numbers: a touch heavier and tighter; labels quieter */
-body[data-theme="rokebox"] .t-val b { font-weight: 600; letter-spacing: -0.03em; }
-body[data-theme="rokebox"] .t-label { letter-spacing: .16em; }
-body[data-theme="rokebox"] .w-stat canvas { opacity: .65; }
+/* ---------------------------------------------------------------- all pages: the plate with a window per page */
+body[data-theme="rokebox"] #overview { background: linear-gradient(180deg, var(--rk-plate-hi), var(--rk-plate-lo)); }
+body[data-theme="rokebox"] .ov-head { font-stretch: var(--rk-wide); font-weight: 700; }
+body[data-theme="rokebox"] .ov-tile { background: #0a0c0f; border: 1px solid #050608; box-shadow: var(--rk-well-shadow); border-radius: 8px; }
+body[data-theme="rokebox"] .ov-tile.on { border-color: var(--accent, #fb7185); box-shadow: var(--rk-well-shadow), 0 0 0 2px color-mix(in srgb, var(--accent, #fb7185) 30%, transparent); }
+body[data-theme="rokebox"] .ov-map span { background: #20242a; border-radius: 3px; }
+body[data-theme="rokebox"] .ov-pc { background: linear-gradient(180deg, var(--rk-key-hi), var(--rk-key-lo)); border-color: #111317; box-shadow: var(--rk-key-shadow); }
+body[data-theme="rokebox"] .ov-pc.on { border-color: var(--accent, #fb7185); }
 
-/* page dots: the current page glows in the accent */
-body[data-theme="rokebox"] #dots i.on { box-shadow: 0 0 10px rgba(var(--ambient), 0.65); }
-body[data-theme="rokebox"] #dots.pagebar .dot.on {
-  background: linear-gradient(135deg, rgba(var(--ambient), 0.3), rgba(var(--rk-violet), 0.25));
+/* ---------------------------------------------------------------- messages that sit over the pages */
+body[data-theme="rokebox"] .toast {
+  background: #0b0d10; border: 1px solid #000; border-radius: 10px; font-stretch: 104%;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 14px 34px rgba(0, 0, 0, 0.6);
+}
+body[data-theme="rokebox"] #navCard, body[data-theme="rokebox"] #navChip {
+  background: linear-gradient(180deg, #262a31, #1b1e23); border: 1px solid #0d0f12;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 14px 40px rgba(0, 0, 0, 0.6);
+}
+body[data-theme="rokebox"] #navCard { border-radius: 14px; }
+body[data-theme="rokebox"] .nv-ring #nvRing { stroke: var(--accent, #fb7185); }
+body[data-theme="rokebox"] .nv-ring b { font-stretch: var(--rk-cond); }
+body[data-theme="rokebox"] .nv-btn { border-radius: 9px; background: linear-gradient(180deg, var(--rk-key-hi), var(--rk-key-lo)); box-shadow: var(--rk-key-shadow); }
+body[data-theme="rokebox"] .nv-btn.go { background: var(--accent, #fb7185); color: #140b0d; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 2px 0 rgba(0, 0, 0, 0.5); }
+/* PC not connected: a red lamp and its label on the plate */
+body[data-theme="rokebox"] #offline { background: #0b0d10; color: #fca5a5; border: 1px solid #000; border-radius: 6px; font-weight: 600; font-stretch: 108%; box-shadow: 0 1px 0 rgba(255, 255, 255, 0.07); }
+body[data-theme="rokebox"] #offline::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+body[data-theme="rokebox"] #offline .ico { display: none; }
+body[data-theme="rokebox"] #wake button { border-radius: 10px; border: 1px solid #111317; background: linear-gradient(180deg, var(--rk-key-hi), var(--rk-key-lo)); box-shadow: var(--rk-key-shadow); }
+
+/* the permission prompt: a raised plate, a display window for the command and real keys to answer */
+body[data-theme="rokebox"] #approval { background: rgba(10, 12, 15, 0.9); }
+body[data-theme="rokebox"] .ap-card {
+  border-radius: 16px; border: 1px solid #0d0f12;
+  background: linear-gradient(180deg, #282c33, #1c1f24);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09), inset 0 3px 0 -1px rgba(217, 119, 87, 0.8), 0 24px 60px rgba(0, 0, 0, 0.7);
+}
+body[data-theme="rokebox"] .ap-tool { font-stretch: var(--rk-wide); font-weight: 700; }
+body[data-theme="rokebox"] .ap-detail, body[data-theme="rokebox"] .ap-custom input { background: #090b0e; border-color: #050608; box-shadow: var(--rk-well-shadow); border-radius: 10px; }
+body[data-theme="rokebox"] .ap-btn { border-radius: 11px; font-stretch: 108%; }
+body[data-theme="rokebox"] .ap-btn.allow { background: linear-gradient(180deg, #34d27a, #22b865); color: #04230f; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 3px 0 #0d4a26; }
+body[data-theme="rokebox"] .ap-btn.deny { background: linear-gradient(180deg, var(--rk-key-hi), var(--rk-key-lo)); color: #fca5a5; border: 1px solid #111317; box-shadow: var(--rk-key-shadow); }
+body[data-theme="rokebox"] .ap-btn.always { background: linear-gradient(180deg, var(--rk-key-hi), var(--rk-key-lo)); border: 1px solid #111317; box-shadow: var(--rk-key-shadow); }
+body[data-theme="rokebox"] .ap-btn:active { transform: translateY(2px); box-shadow: none; }
+body[data-theme="rokebox"] .ap-opt { background: linear-gradient(180deg, var(--rk-key-hi), var(--rk-key-lo)); border: 1px solid #111317; box-shadow: var(--rk-key-shadow); border-radius: 11px; }
+body[data-theme="rokebox"] .p-sheet { background: linear-gradient(180deg, #262a31, #1b1e23); border-color: #0d0f12; }
+
+/* night: the plate goes dark and only the condensed clock is left */
+body[data-theme="rokebox"] #nClock { font-weight: 250; letter-spacing: -0.02em; }
+body[data-theme="rokebox"] #nDate { font-stretch: var(--rk-wide); }
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-theme="rokebox"] .key, body[data-theme="rokebox"] #dots:not(.pagebar) i { transition: none; }
 }
 
 /* ---------------------------------------------------------------- Gaming widget */
@@ -51,58 +241,52 @@ body[data-theme="rokebox"] #dots.pagebar .dot.on {
 
 .gm-playing { display: flex; gap: clamp(8px, 3.4cqmin, 18px); width: 100%; min-width: 0; min-height: 0; }
 .gm-art { flex: none; height: 100%; aspect-ratio: 2 / 3; max-width: 30cqw; min-height: 0; }
-.gm-cover, .gm-tile-art {
-  position: relative; overflow: hidden;
-  background: linear-gradient(160deg, rgba(var(--rk-violet, 139, 92, 246), 0.5), rgba(var(--rk-rose, 251, 113, 133), 0.35));
-}
+.gm-cover, .gm-tile-art { position: relative; overflow: hidden; background: linear-gradient(180deg, #2b3038, #1b1e24); }
 .gm-cover {
-  width: 100%; height: 100%; border-radius: clamp(8px, 3cqmin, 16px);
-  box-shadow: 0 18px 36px -16px rgba(0, 0, 0, 0.9), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  width: 100%; height: 100%; border-radius: clamp(6px, 2.4cqmin, 12px);
+  box-shadow: 0 16px 30px -16px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.07);
 }
 .gm-cover img, .gm-tile-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .gm-initials {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  font-size: clamp(16px, 10cqmin, 46px); font-weight: 700; color: rgba(255, 255, 255, 0.85);
+  font-size: clamp(16px, 10cqmin, 46px); font-weight: 800; font-stretch: 120%; color: rgba(255, 255, 255, 0.82);
 }
 .has-art > .gm-initials { display: none; }
 
 .gm-main { flex: 1; display: flex; flex-direction: column; gap: clamp(6px, 2.4cqmin, 12px); min-width: 0; min-height: 0; }
 .gm-name {
-  font-size: clamp(16px, 7.4cqmin, 34px); font-weight: 700; letter-spacing: -0.015em; line-height: 1.12;
+  font-size: clamp(16px, 7.4cqmin, 34px); font-weight: 750; font-stretch: 112%; letter-spacing: -0.01em; line-height: 1.12;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .gm-status {
   display: flex; align-items: center; gap: 7px; margin-top: 3px;
   font-size: clamp(11px, 3.5cqmin, 15px); font-weight: 600; color: var(--ok); white-space: nowrap; overflow: hidden;
 }
-.gm-live { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); animation: gm-pulse 2s infinite; }
-@keyframes gm-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.55); }
-  70% { box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
-}
+.gm-live { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+html.beat-2 .gm-live { opacity: .4; }
 .gm-dim { color: var(--muted); font-weight: 500; }
 .gm-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: clamp(5px, 1.8cqmin, 9px); max-height: 2.4em; overflow: hidden; }
 .gm-chip {
-  font-size: clamp(10px, 2.9cqmin, 13px); line-height: 1.5; padding: 1px 10px; border-radius: 999px; white-space: nowrap;
-  background: rgba(255, 255, 255, 0.07); border: 1px solid var(--line); color: var(--text);
+  font-size: clamp(10px, 2.9cqmin, 13px); line-height: 1.5; padding: 1px 9px; border-radius: 5px; white-space: nowrap;
+  background: rgba(255, 255, 255, 0.06); border: 1px solid var(--line); color: var(--text);
 }
-.gm-chip-steam { background: linear-gradient(135deg, #1b2838, #2a475e); border-color: rgba(102, 192, 244, 0.35); color: #c7d5e0; font-weight: 600; }
+.gm-chip-steam { background: #1b2838; border-color: rgba(102, 192, 244, 0.35); color: #c7d5e0; font-weight: 600; }
 
 .gm-metrics { flex: 1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(6px, 2cqmin, 10px); min-height: 0; }
 .gm-metric {
   position: relative; overflow: hidden; display: flex; flex-direction: column; min-width: 0; min-height: 0;
-  padding: clamp(6px, 2.2cqmin, 12px); border-radius: clamp(8px, 2.6cqmin, 14px);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.02)); border: 1px solid var(--line);
+  padding: clamp(6px, 2.2cqmin, 12px); border-radius: clamp(6px, 2.2cqmin, 11px);
+  background: rgba(255, 255, 255, 0.035); border: 1px solid var(--line);
 }
 .gm-metric canvas { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 62%; pointer-events: none; }
-.gm-label { position: relative; font-size: clamp(9px, 2.7cqmin, 12px); font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
-.gm-cpu .gm-label { color: var(--cpu); }
-.gm-gpu .gm-label { color: var(--gpu); }
-.gm-ram .gm-label { color: var(--ram); }
-.gm-net .gm-label { color: var(--net); }
+.gm-label { position: relative; display: flex; align-items: center; gap: 6px; font-size: clamp(9px, 2.7cqmin, 12px); font-weight: 650; font-stretch: 116%; color: var(--muted); white-space: nowrap; }
+.gm-label::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.gm-cpu .gm-label::before { background: var(--cpu); box-shadow: 0 0 7px var(--cpu); }
+.gm-gpu .gm-label::before { background: var(--gpu); box-shadow: 0 0 7px var(--gpu); }
+.gm-ram .gm-label::before { background: var(--ram); box-shadow: 0 0 7px var(--ram); }
+.gm-net .gm-label::before { background: var(--net); box-shadow: 0 0 7px var(--net); }
 .gm-val { position: relative; margin-top: 2px; white-space: nowrap; }
-.gm-val b { font-size: clamp(20px, 13cqmin, 56px); font-weight: 650; letter-spacing: -0.035em; line-height: 1.05; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8); }
+.gm-val b { font-size: clamp(20px, 13cqmin, 56px); font-weight: 600; font-stretch: 80%; letter-spacing: -0.01em; line-height: 1.05; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8); }
 .gm-val small { margin-inline-start: 3px; font-size: clamp(10px, 3.8cqmin, 17px); color: var(--muted); }
 .gm-sub { position: relative; font-size: clamp(9.5px, 2.9cqmin, 13px); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9); }
 
@@ -112,18 +296,18 @@ body[data-theme="rokebox"] #dots.pagebar .dot.on {
 /* nothing running: a message, the recently played games and the library's size */
 .gm-idle { width: 100%; display: flex; flex-direction: column; gap: clamp(6px, 2.2cqmin, 12px); min-width: 0; min-height: 0; }
 .gm-idle-head { display: flex; align-items: center; gap: clamp(8px, 3cqmin, 14px); }
-.gm-idle-head b { display: block; font-size: clamp(14px, 5cqmin, 24px); font-weight: 700; }
+.gm-idle-head b { display: block; font-size: clamp(14px, 5cqmin, 24px); font-weight: 700; font-stretch: 112%; }
 .gm-idle-head span { color: var(--muted); font-size: clamp(11px, 3.2cqmin, 14px); }
 .gm-empty-ic {
   flex: none; display: flex; align-items: center; justify-content: center; aspect-ratio: 1; height: clamp(34px, 13cqmin, 60px);
-  border-radius: 28%; font-size: clamp(18px, 7cqmin, 32px);
-  background: linear-gradient(135deg, rgba(var(--rk-violet, 139, 92, 246), 0.4), rgba(var(--rk-rose, 251, 113, 133), 0.32));
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  border-radius: 22%; font-size: clamp(18px, 7cqmin, 32px);
+  background: linear-gradient(180deg, #2b3038, #1f2329);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09), 0 2px 0 #0c0e11;
 }
 .gm-recent-label { margin-top: 2px; }
 .gm-tiles { flex: 1; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(6px, 2.2cqmin, 12px); min-height: 0; }
 .gm-tile { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
-.gm-tile-art { flex: 1; min-height: 0; border-radius: clamp(6px, 2.4cqmin, 12px); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
+.gm-tile-art { flex: 1; min-height: 0; border-radius: clamp(5px, 2cqmin, 10px); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07); }
 .gm-tile-art .gm-initials { font-size: clamp(14px, 6cqmin, 28px); }
 .gm-tile-name { margin-top: 5px; font-size: clamp(10px, 3cqmin, 13px); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .gm-tile-sub, .gm-lib { font-size: clamp(9.5px, 2.8cqmin, 12px); color: var(--muted); }
@@ -148,21 +332,26 @@ body[data-theme="rokebox"] #dots.pagebar .dot.on {
 .rk-head { flex: none; display: flex; align-items: center; gap: clamp(8px, 2.6cqmin, 14px); min-width: 0; }
 .rk-hero {
   flex: none; display: flex; align-items: center; justify-content: center; aspect-ratio: 1; height: clamp(32px, 11cqmin, 52px);
-  border-radius: 28%; font-size: clamp(16px, 6cqmin, 28px);
-  background: linear-gradient(135deg, rgba(var(--rk-violet, 139, 92, 246), 0.38), rgba(var(--rk-rose, 251, 113, 133), 0.3));
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  border-radius: 24%; font-size: clamp(16px, 6cqmin, 28px);
+  background: linear-gradient(180deg, #2b3038, #1f2329);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09), 0 2px 0 #0c0e11;
 }
-.rk-hero.rk-state-ok { background: linear-gradient(135deg, rgba(34, 197, 94, 0.35), rgba(45, 212, 191, 0.25)); }
-.rk-hero.rk-state-warn { background: linear-gradient(135deg, rgba(245, 158, 11, 0.42), rgba(251, 113, 133, 0.25)); }
-.rk-hero.rk-state-bad { background: linear-gradient(135deg, rgba(239, 68, 68, 0.5), rgba(251, 113, 133, 0.3)); }
+/* the state is a lamp on the hero key */
+.rk-hero.rk-state-ok, .rk-hero.rk-state-warn, .rk-hero.rk-state-bad { position: relative; }
+.rk-hero.rk-state-ok::after, .rk-hero.rk-state-warn::after, .rk-hero.rk-state-bad::after {
+  content: ""; position: absolute; top: 12%; right: 12%; width: 18%; height: 18%; border-radius: 50%;
+}
+.rk-hero.rk-state-ok::after { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+.rk-hero.rk-state-warn::after { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+.rk-hero.rk-state-bad::after { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
 .rk-titles { flex: 1; min-width: 0; }
-.rk-title { font-size: clamp(13px, 4.6cqmin, 22px); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rk-title { font-size: clamp(13px, 4.6cqmin, 22px); font-weight: 700; font-stretch: 112%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rk-sub { font-size: clamp(10px, 3cqmin, 13px); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rk-chip {
-  flex: none; font-size: clamp(10px, 2.9cqmin, 12.5px); padding: 2px 10px; border-radius: 999px; white-space: nowrap;
-  background: rgba(255, 255, 255, 0.07); border: 1px solid var(--line);
+  flex: none; font-size: clamp(10px, 2.9cqmin, 12.5px); padding: 2px 9px; border-radius: 5px; white-space: nowrap;
+  background: rgba(255, 255, 255, 0.06); border: 1px solid var(--line);
 }
-.rk-label { font-size: clamp(9px, 2.7cqmin, 12px); font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.rk-label { font-size: clamp(9px, 2.7cqmin, 12px); font-weight: 650; font-stretch: 116%; color: var(--muted); }
 .rk-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
 .rk-scroll::-webkit-scrollbar { display: none; }
 .rk-empty { margin: auto; color: var(--muted); }
@@ -172,22 +361,22 @@ body[data-theme="rokebox"] #dots.pagebar .dot.on {
 .w-sysinfo .rk-scroll { columns: 2 250px; column-gap: clamp(8px, 2.6cqmin, 14px); }
 .rk-sec {
   break-inside: avoid; margin-bottom: clamp(6px, 2cqmin, 10px); padding: clamp(6px, 2cqmin, 10px) clamp(8px, 2.4cqmin, 12px);
-  border-radius: clamp(8px, 2.4cqmin, 12px); background: rgba(255, 255, 255, 0.035); border: 1px solid var(--line);
+  border-radius: clamp(6px, 2cqmin, 10px); background: rgba(255, 255, 255, 0.03); border: 1px solid var(--line);
 }
 .rk-sec-t {
   display: flex; align-items: center; gap: 6px; margin-bottom: 3px;
-  font-size: clamp(9px, 2.6cqmin, 11.5px); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+  font-size: clamp(9px, 2.6cqmin, 11.5px); font-weight: 650; font-stretch: 116%; color: var(--muted);
 }
 .rk-ic { font-size: 1.15em; letter-spacing: 0; }
 .rk-row { display: flex; align-items: baseline; gap: 8px; min-width: 0; font-size: clamp(10.5px, 3.1cqmin, 13.5px); line-height: 1.45; }
 .rk-k { flex: 1 1 auto; min-width: 0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rk-v { flex: 0 1 auto; min-width: 0; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: end; }
-.rk-bar { height: 5px; margin: 3px 0 4px; border-radius: 3px; overflow: hidden; background: rgba(255, 255, 255, 0.08); }
-.rk-bar > i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--cpu), var(--accent, #fb7185)); }
+.rk-bar { height: 5px; margin: 3px 0 4px; border-radius: 3px; overflow: hidden; background: #1b1f25; box-shadow: inset 0 1px 2px #000; }
+.rk-bar > i { display: block; height: 100%; border-radius: inherit; background: var(--cpu); }
 .rk-bar.warn > i { background: #f59e0b; }
 .rk-bar.bad > i { background: #ef4444; }
 
-/* health: a dot, the check and its detail, and a button when there is something to do */
+/* health: a lamp, the check and its detail, and a key when there is something to do */
 .rk-list .rk-row {
   display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; align-items: center; column-gap: 8px;
   padding: clamp(5px, 1.7cqmin, 8px) 2px; border-bottom: 1px solid var(--line);
@@ -203,21 +392,21 @@ body[data-theme="rokebox"] #dots.pagebar .dot.on {
 .rk-bad .rk-dot { background: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.7); }
 .rk-btn {
   font: inherit; font-size: clamp(10.5px, 3cqmin, 13px); font-weight: 600; color: var(--text); white-space: nowrap;
-  padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.08);
+  padding: 6px 14px; border-radius: 7px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.08);
 }
 .rk-btn.armed { background: #ef4444; border-color: transparent; color: #fff; }
 
 /* data usage: three totals and the days as stacked columns (download, upload on top) */
 .du-stats { flex: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(6px, 2cqmin, 12px); }
 .du-stat {
-  min-width: 0; padding: clamp(6px, 2cqmin, 10px) clamp(8px, 2.4cqmin, 12px); border-radius: clamp(8px, 2.4cqmin, 12px);
-  background: rgba(255, 255, 255, 0.035); border: 1px solid var(--line);
+  min-width: 0; padding: clamp(6px, 2cqmin, 10px) clamp(8px, 2.4cqmin, 12px); border-radius: clamp(6px, 2cqmin, 10px);
+  background: rgba(255, 255, 255, 0.03); border: 1px solid var(--line);
 }
-.du-big { font-size: clamp(16px, 7cqmin, 32px); font-weight: 650; letter-spacing: -0.02em; white-space: nowrap; line-height: 1.15; }
+.du-big { font-size: clamp(16px, 7cqmin, 32px); font-weight: 600; font-stretch: 80%; letter-spacing: -0.01em; white-space: nowrap; line-height: 1.15; }
 .du-sub { font-size: clamp(9.5px, 2.8cqmin, 12.5px); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .du-chart { flex: 1; min-height: 0; display: flex; align-items: stretch; gap: clamp(2px, 1cqmin, 6px); }
 .du-col { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; }
-.du-stack { flex: none; display: flex; flex-direction: column; min-height: 0; border-radius: 4px 4px 2px 2px; overflow: hidden; }
+.du-stack { flex: none; display: flex; flex-direction: column; min-height: 0; border-radius: 3px 3px 1px 1px; overflow: hidden; }
 .du-stack > i { display: block; flex: 0 1 0; min-height: 0; }
 .du-up { background: var(--up); opacity: .85; }
 .du-down { background: var(--net); }
@@ -228,22 +417,24 @@ body[data-theme="rokebox"] #dots.pagebar .dot.on {
 
 /* power timer: the action, the presets (tap twice), and a countdown ring while it runs */
 .pt-seg {
-  flex: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 3px; border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06); border: 1px solid var(--line);
+  flex: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 3px; border-radius: 9px;
+  background: #090b0e; border: 1px solid #050608; box-shadow: inset 0 1px 3px #000;
 }
 .pt-seg button {
   font: inherit; font-size: clamp(10.5px, 3.1cqmin, 13.5px); font-weight: 600; color: var(--muted); white-space: nowrap;
-  padding: clamp(5px, 1.8cqmin, 8px) 4px; border: 0; border-radius: 999px; background: transparent;
+  padding: clamp(5px, 1.8cqmin, 8px) 4px; border: 0; border-radius: 6px; background: transparent;
 }
-.pt-seg button.on { color: var(--text); background: linear-gradient(135deg, rgba(var(--ambient), 0.45), rgba(var(--rk-violet, 139, 92, 246), 0.4)); }
+.pt-seg button.on { color: var(--text); background: linear-gradient(180deg, #30353d, #23272d); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09), 0 1px 0 #000; }
 .pt-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: clamp(6px, 2cqmin, 10px); }
 .pt-preset {
   font: inherit; color: var(--text); display: flex; flex-direction: column; align-items: center; justify-content: center;
-  border-radius: clamp(8px, 2.6cqmin, 14px); border: 1px solid var(--line); background: rgba(255, 255, 255, 0.05);
+  border-radius: clamp(7px, 2.4cqmin, 12px); border: 1px solid #111317; background: linear-gradient(180deg, #30353d, #23272d);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09), 0 2px 0 #0c0e11;
 }
-.pt-preset b { font-size: clamp(16px, 7cqmin, 30px); font-weight: 650; line-height: 1; }
+.pt-preset:active { transform: translateY(2px); box-shadow: none; }
+.pt-preset b { font-size: clamp(16px, 7cqmin, 30px); font-weight: 600; font-stretch: 80%; line-height: 1; }
 .pt-preset small { font-size: clamp(9px, 2.6cqmin, 11.5px); color: var(--muted); }
-.pt-preset.armed { background: linear-gradient(135deg, #ef4444, #f43f5e); border-color: transparent; box-shadow: 0 0 18px rgba(239, 68, 68, 0.45); }
+.pt-preset.armed { background: linear-gradient(180deg, #f05252, #d93636); border-color: #5c1010; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 2px 0 #5c1010, 0 0 18px rgba(239, 68, 68, 0.45); }
 .pt-preset.armed small { color: rgba(255, 255, 255, 0.85); }
 .pt-hint { flex: none; white-space: normal; text-align: center; }
 .pt-hint.armed { color: #fda4af; font-weight: 600; }
@@ -252,11 +443,11 @@ body[data-theme="rokebox"] #dots.pagebar .dot.on {
 .pt-ring { --p: 1; position: relative; display: flex; align-items: center; justify-content: center; aspect-ratio: 1; height: min(56cqh, 64cqw); }
 .pt-ring::before {
   content: ""; position: absolute; inset: 0; border-radius: 50%;
-  background: conic-gradient(var(--ring, var(--accent, #fb7185)) calc(var(--p) * 360deg), rgba(255, 255, 255, 0.08) 0);
+  background: conic-gradient(var(--ring, var(--accent, #fb7185)) calc(var(--p) * 360deg), #1b1f25 0);
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 9px), #000 calc(100% - 8px));
   mask: radial-gradient(farthest-side, transparent calc(100% - 9px), #000 calc(100% - 8px));
 }
-.pt-ring b { position: relative; font-size: clamp(18px, 11cqmin, 44px); font-weight: 650; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.pt-ring b { position: relative; font-size: clamp(18px, 11cqmin, 44px); font-weight: 600; font-stretch: 80%; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
 .pt-sleep { --ring: #60a5fa; }
 .pt-shutdown { --ring: #ef4444; }
 .pt-restart { --ring: #f59e0b; }
@@ -266,4 +457,112 @@ body[data-theme="rokebox"] #dots.pagebar .dot.on {
   .du-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .du-stat:nth-child(2) { display: none; }
   .pt-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ---------------------------------------------------------------- control: windows, keyboard, screen, quick actions */
+.w-windows, .w-keyboard, .w-screen, .w-quickactions {
+  display: flex; flex-direction: column; gap: clamp(6px, 2cqmin, 10px); padding: clamp(8px, 3cqmin, 14px);
+}
+/* a key: raised from the plate, down under the finger */
+.rc-key, .rc-mini, .rc-qk, .gm-close {
+  font: inherit; color: var(--text); cursor: pointer; touch-action: manipulation;
+  border: 1px solid #111317; border-radius: 8px;
+  background: linear-gradient(180deg, var(--rk-key-hi, #30353d), var(--rk-key-lo, #23272d));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 0 var(--rk-key-edge, #0c0e11);
+  transition: transform .08s, box-shadow .08s, background-color .15s;
+}
+:is(.rc-key, .rc-mini, .rc-qk, .gm-close):active, .rc-key.down { transform: translateY(2px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04); }
+:is(.rc-key, .rc-mini, .rc-qk, .gm-close):focus-visible { outline: 2px solid var(--accent, #fb7185); outline-offset: 2px; }
+:is(.rc-key, .rc-mini, .rc-qk, .gm-close).armed {
+  color: #fff; border-color: #5c1010; background: linear-gradient(180deg, #f05252, #d93636);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 2px 0 #5c1010;
+}
+.rc-key.lit { color: #140b0d; background: var(--accent, #fb7185); border-color: rgba(0, 0, 0, 0.5); }
+.rc-key:disabled { opacity: .5; }
+.rc-key .ico, .rc-mini .ico { width: 1.1em; height: 1.1em; }
+.rc-note {
+  flex: none; padding: 6px 10px; border-radius: 8px; font-size: clamp(10.5px, 3cqmin, 12.5px); line-height: 1.35; color: #fde68a;
+  background: rgba(245, 158, 11, 0.09); border: 1px solid rgba(245, 158, 11, 0.28);
+}
+.rc-note b { font-weight: 700; }
+.rc-err { padding: 4px 2px; font-size: clamp(10.5px, 3cqmin, 12.5px); color: #fca5a5; }
+
+/* windows: a row per window, the one in front lit */
+.rc-wins { display: flex; flex-direction: column; gap: 4px; }
+.rc-win { display: flex; align-items: center; gap: 4px; min-width: 0; padding: 3px; border-radius: 9px; border: 1px solid transparent; }
+.rc-win.on { background: rgba(255, 255, 255, 0.04); border-color: var(--line); box-shadow: inset 3px 0 0 var(--accent, #fb7185); }
+.rc-win.min .rc-win-t { opacity: .6; }
+.rc-win-main {
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: 9px; padding: 4px 6px; text-align: start;
+  font: inherit; color: var(--text); background: none; border: 0; border-radius: 7px; cursor: pointer;
+}
+.rc-win-main:active { background: rgba(255, 255, 255, 0.06); }
+.rc-ic { flex: none; width: clamp(18px, 6cqmin, 26px); height: clamp(18px, 6cqmin, 26px); object-fit: contain; display: grid; place-items: center; font-size: clamp(14px, 4.6cqmin, 20px); }
+.rc-win-t { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.rc-win-t b { font-size: clamp(11.5px, 3.4cqmin, 14.5px); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rc-win-t small { font-size: clamp(9.5px, 2.8cqmin, 12px); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rc-mini { flex: none; display: grid; place-items: center; min-width: clamp(30px, 9cqmin, 40px); height: clamp(30px, 9cqmin, 38px); padding: 0 6px; font-size: clamp(11px, 3.2cqmin, 14px); font-weight: 700; }
+.rc-win.off .rc-mini { opacity: .45; }
+.rc-mini.rc-x:not(.armed) { color: #fca5a5; }
+
+/* keyboard: a field cut into the window, then the keys */
+.rc-type { flex: none; display: flex; gap: 6px; }
+.rc-input {
+  flex: 1; min-width: 0; padding: 8px 12px; border-radius: 8px; font: inherit; font-size: clamp(13px, 3.6cqmin, 16px); color: var(--text);
+  background: #06080a; border: 1px solid #000; box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.8), 0 1px 0 rgba(255, 255, 255, 0.06);
+  -webkit-user-select: text; user-select: text;
+}
+.rc-input:focus { outline: none; border-color: var(--accent, #fb7185); }
+.rc-input::placeholder { color: var(--dim); }
+.rc-send { display: flex; align-items: center; gap: 6px; padding: 0 14px; font-weight: 700; color: #140b0d; background: var(--accent, #fb7185); border-color: rgba(0, 0, 0, 0.5); }
+.rc-keys {
+  flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; align-content: start;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(clamp(48px, 13cqw, 74px), 1fr)); grid-auto-rows: clamp(30px, 10.5cqh, 42px); gap: 6px;
+}
+.rc-keys::-webkit-scrollbar { display: none; }
+.rc-keys .rc-key {
+  min-width: 0; padding: 0 3px; font-size: clamp(10px, 2.9cqmin, 13px); font-weight: 600; font-stretch: 86%; line-height: 1.1;
+  overflow: hidden; text-overflow: ellipsis; /* two words wrap; one long word narrows instead of breaking */
+}
+/* a key that is only a symbol (arrows, page keys, media): drawn larger, the glyphs are small in the text face */
+.rc-keys .rc-key.sym { font-size: clamp(15px, 5cqmin, 22px); font-weight: 700; }
+.rc-keys .rc-key.wide { grid-column: span 2; color: #140b0d; background: var(--accent, #fb7185); border-color: rgba(0, 0, 0, 0.5); }
+.rc-keys .rc-key.danger:not(.armed) { color: #fca5a5; }
+
+/* screen: the picture in its window, a bar of keys under it */
+.w-screen { padding: clamp(6px, 2cqmin, 10px); }
+.rc-stage {
+  position: relative; flex: 1; min-height: 0; border-radius: 8px; overflow: hidden; background: #000;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05); touch-action: manipulation; -webkit-user-select: none; user-select: none;
+}
+.rc-stage.clickable { cursor: crosshair; }
+.rc-shot { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+.rc-tap { position: absolute; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; border: 3px solid var(--accent, #fb7185); opacity: 0; pointer-events: none; transform: scale(.4); transition: opacity .35s, transform .35s; }
+.rc-tap.on { opacity: 1; transform: scale(1); }
+.rc-tap.right { border-color: #60a5fa; }
+.rc-msg:empty { display: none; }
+.rc-off { margin: auto; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; max-width: 46ch; }
+.w-screen .rc-msg { flex: 1; display: flex; }
+.w-screen .rc-stage:not([hidden]) + .rc-msg { flex: none; }
+.rc-bar { flex: none; display: flex; align-items: center; gap: 6px; min-width: 0; }
+.rc-bar:empty { display: none; }
+.rc-seg { display: flex; gap: 4px; }
+.rc-key.sm { min-width: 34px; height: 30px; padding: 0 9px; font-size: 12.5px; font-weight: 700; display: grid; place-items: center; }
+.rc-hint { flex: 1; min-width: 0; font-size: clamp(10px, 2.8cqmin, 12px); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* quick actions: groups of square keys with an icon and a short name */
+.rc-qa { display: flex; flex-direction: column; gap: clamp(6px, 2cqmin, 10px); }
+.rc-qa-sec { display: flex; flex-direction: column; gap: 5px; }
+.rc-qa-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(clamp(58px, 17cqw, 90px), 1fr)); gap: 6px; }
+.rc-qk { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-width: 0; padding: 6px 3px; }
+.rc-qk.off { opacity: .55; }
+.rc-qk-ic { font-size: clamp(15px, 5cqmin, 22px); line-height: 1; }
+.rc-qk-l { max-width: 100%; font-size: clamp(9.5px, 2.8cqmin, 12px); font-weight: 600; font-stretch: 88%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Gaming: close the game, a key the size of a chip */
+.gm-close { padding: 1px 10px; border-radius: 5px; font-size: clamp(10px, 2.9cqmin, 13px); line-height: 1.5; font-weight: 700; color: #fca5a5; }
+.gm-close.force:not(.armed) { color: #fff; background: linear-gradient(180deg, #b91c1c, #991b1b); border-color: #450a0a; }
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.rc-key, .rc-mini, .rc-qk, .gm-close), .rc-tap { transition: none; }
 }

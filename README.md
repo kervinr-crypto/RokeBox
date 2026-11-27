@@ -36,22 +36,31 @@ Estadísticas del PC, sesiones de IA, música y controles táctiles por USB o Wi
 </p>
 
 RokeBox es un fork de [PhoneBox](https://github.com/ersinkoc/phonebox), de Ersin KOÇ (licencia MIT). Une una
-**app Android** a pantalla completa con un pequeño **agente de escritorio**: **142 widgets**, **33 templates**
+**app Android** a pantalla completa con un pequeño **agente de escritorio**: **146 widgets**, **36 templates**
 (plantillas), varias páginas y un editor visual en el navegador. Tiene su propio identificador de app, puertos y
 configuración, así que se puede instalar y usar junto a PhoneBox.
 
 ## Instalación (Windows)
 
-1. Descarga del [último release](https://github.com/kervinr-crypto/RokeBox/releases/latest)
-   `RokeBoxAgent-<versión>-win-x64.zip` y `RokeBox-<versión>.apk`.
-2. Descomprime el zip y ejecuta `RokeBoxAgent.exe`. El agente no está firmado, así que SmartScreen puede avisar.
-3. En el teléfono, activa **Opciones de desarrollador › Depuración USB**, conéctalo y acepta la autorización.
-4. Instala la app: `adb install RokeBox-<versión>.apk` (o copia el APK al teléfono y ábrelo).
-5. Abre los ajustes en <http://127.0.0.1:8775> (o doble clic en el icono de la bandeja) y elige una plantilla
+1. En el teléfono, activa **Opciones de desarrollador › Depuración USB** y conéctalo al PC con el cable.
+2. En el PC, abre PowerShell (sin "Ejecutar como administrador") y ejecuta:
+
+   ```powershell
+   irm https://raw.githubusercontent.com/kervinr-crypto/RokeBox/main/setup.ps1 | iex
+   ```
+
+   Descarga el último release, comprueba su suma SHA-256, instala adb si falta, instala el agente en
+   `%LOCALAPPDATA%\RokeBox\app` y pone la app en el teléfono (acepta en él la autorización de depuración USB).
+   Instala RokeBox al lado de PhoneBox: no lo cierra ni lo cambia.
+3. Los ajustes se abren en <http://127.0.0.1:8775> (o con doble clic en el icono de la bandeja): elige una plantilla
    en **Pages**.
 
+A mano: descarga del [último release](https://github.com/kervinr-crypto/RokeBox/releases/latest)
+`RokeBoxAgent-<versión>-win-x64.zip` y `RokeBox-<versión>.apk`, ejecuta `RokeBoxAgent.exe` e instala la app con
+`adb install RokeBox-<versión>.apk`. El agente no está firmado, así que SmartScreen puede avisar.
+
 Con el teléfono conectado, el agente actualiza la app y a sí mismo desde los releases de este repositorio.
-Los scripts `setup.ps1` y `setup.sh` todavía instalan PhoneBox original: no los uses para RokeBox.
+`setup.sh` (Linux y macOS) todavía instala PhoneBox original: no lo uses para RokeBox.
 
 | | PhoneBox | RokeBox |
 |---|---|---|

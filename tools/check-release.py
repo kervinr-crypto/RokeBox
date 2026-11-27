@@ -23,9 +23,10 @@ sys.dont_write_bytecode=True
 spec=importlib.util.spec_from_file_location('pages_build',root/'tools/pages/build.py');build=importlib.util.module_from_spec(spec);spec.loader.exec_module(build)
 site=build.landing_html()
 assert f'**{len(widgets)} widgets**' in readme and f'**{len(templates)} templates**' in readme,'README catalog counts differ'
-assert f'{len(widgets)} widgets, {len(templates)} templates' in site and f'RokeBox {version}' in site,'Demo catalog counts or version differ'
+# RokeBox: the landing page is in Spanish
+assert f'{len(widgets)} widgets, {len(templates)} plantillas' in site and f'RokeBox {version}' in site,'Demo catalog counts or version differ'
 # the landing page takes its numbers from the sources; a number typed by hand would go stale
-assert not re.search(r'\d+ (widgets|templates)',(root/'tools/pages/index.html').read_text(encoding='utf-8')),'Hard-coded catalog count in the landing page'
+assert not re.search(r'\d+ (widgets|templates|plantillas)',(root/'tools/pages/index.html').read_text(encoding='utf-8')),'Hard-coded catalog count in the landing page'
 demo=(root/'tools/pages/demo.js').read_text(encoding='utf-8')
 pages=json.loads(re.search(r'const PAGES = (\[[^\]]*\])',demo)[1].replace("'",'"'))
 assert sorted(pages)==sorted(t['id'] for t in templates),'The demo does not show every template exactly once'

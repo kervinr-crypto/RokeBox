@@ -1,4 +1,4 @@
-# Renders the PhoneBox icon (same design as the Android launcher icon) as a multi-size .ico.
+# Renders the RokeBox icon (same design as the Android launcher icon) as a multi-size .ico.
 # Usage: pwsh tools/make-icon.ps1  ->  agent/PhoneBox.Agent/phonebox.ico
 Add-Type -AssemblyName System.Drawing
 $outDir = Join-Path $PSScriptRoot '..\agent\PhoneBox.Agent'
@@ -22,20 +22,33 @@ function New-IconPng([int]$size) {
     $g.Clear([System.Drawing.Color]::Transparent)
     $s = $size / 256.0
 
-    # background
-    $g.FillPath((New-Brush '#0F1318'), (New-RoundRect 0 0 ($size - 1) ($size - 1) (56 * $s)))
-    # screen frame
-    $pen = New-Object System.Drawing.Pen ([System.Drawing.ColorTranslator]::FromHtml('#E8ECF1')), ([Math]::Max(1.5, 11 * $s))
-    $g.DrawPath($pen, (New-RoundRect (44 * $s) (62 * $s) (168 * $s) (116 * $s) (16 * $s)))
-    # bars
-    $g.FillRectangle((New-Brush '#2DD4BF'), 70 * $s, 136 * $s, 20 * $s, 24 * $s)
-    $g.FillRectangle((New-Brush '#76B900'), 100 * $s, 108 * $s, 20 * $s, 52 * $s)
-    $g.FillRectangle((New-Brush '#A78BFA'), 130 * $s, 124 * $s, 20 * $s, 36 * $s)
-    # clock dot
-    $g.FillEllipse((New-Brush '#F59E0B'), 164 * $s, 92 * $s, 28 * $s, 28 * $s)
-    # stand
-    $g.FillRectangle((New-Brush '#E8ECF1'), 118 * $s, 178 * $s, 20 * $s, 18 * $s)
-    $g.FillRectangle((New-Brush '#E8ECF1'), 88 * $s, 196 * $s, 80 * $s, 12 * $s)
+    # RokeBox mark (the same as the Android launcher icon and the web pages): a graphite plate, a display window cut
+    # into it with a white R and a rose lamp, and the panel's page scale under it with the current page lit.
+    $g.FillPath((New-Brush '#1F232A'), (New-RoundRect 0 0 ($size - 1) ($size - 1) (60 * $s)))
+    $edge = New-Object System.Drawing.Pen ([System.Drawing.ColorTranslator]::FromHtml('#0C0E11')), ([Math]::Max(1, 6 * $s))
+    $g.DrawPath($edge, (New-RoundRect (3 * $s) (3 * $s) ($size - 1 - 6 * $s) ($size - 1 - 6 * $s) (57 * $s)))
+    $g.FillPath((New-Brush '#090B0E'), (New-RoundRect (44 * $s) (44 * $s) (168 * $s) (124 * $s) (24 * $s)))
+    $white = [System.Drawing.ColorTranslator]::FromHtml('#EEF1F4')
+    $g.FillRectangle((New-Object System.Drawing.SolidBrush $white), 84 * $s, 68 * $s, 18.4 * $s, 76 * $s)
+    $stroke = New-Object System.Drawing.Pen $white, (18.4 * $s)
+    $bowl = New-Object System.Drawing.Drawing2D.GraphicsPath
+    $bowl.AddLine(93.2 * $s, 76.8 * $s, 123.6 * $s, 76.8 * $s)
+    $bowl.AddArc(105.2 * $s, 76.8 * $s, 36.8 * $s, 36.8 * $s, -90, 180)
+    $bowl.AddLine(123.6 * $s, 113.6 * $s, 93.2 * $s, 113.6 * $s)
+    $g.DrawPath($stroke, $bowl)
+    $stroke.StartCap = 'Round'; $stroke.EndCap = 'Round'
+    $g.DrawLine($stroke, 120.8 * $s, 120 * $s, 145.6 * $s, 146.4 * $s)
+    $g.FillEllipse((New-Brush '#FB7185'), 172.4 * $s, 62.4 * $s, 19.2 * $s, 19.2 * $s)
+    if ($size -ge 32) {
+        $lip = New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb(32, 255, 255, 255)), ([Math]::Max(1, 4 * $s))
+        $g.DrawLine($lip, 56 * $s, 170 * $s, 200 * $s, 170 * $s)
+        $tick = New-Object System.Drawing.Pen ([System.Drawing.ColorTranslator]::FromHtml('#5C636E')), (7.2 * $s)
+        $tick.StartCap = 'Round'; $tick.EndCap = 'Round'
+        foreach ($x in 88, 108, 148, 168) { $g.DrawLine($tick, $x * $s, 196 * $s, $x * $s, 212 * $s) }
+        $lit = New-Object System.Drawing.Pen ([System.Drawing.ColorTranslator]::FromHtml('#FB7185')), (8.8 * $s)
+        $lit.StartCap = 'Round'; $lit.EndCap = 'Round'
+        $g.DrawLine($lit, 128 * $s, 190 * $s, 128 * $s, 218 * $s)
+    }
 
     $g.Dispose()
     $ms = New-Object System.IO.MemoryStream

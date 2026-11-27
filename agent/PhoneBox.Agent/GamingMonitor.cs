@@ -155,6 +155,49 @@ public sealed partial class GamingMonitor(ConfigStore config, SteamLibrary steam
 
     private IReadOnlyList<string> Adapters() => config.Get().Ping.Adapters;
 
+    public const string CloseOff = "Turn on \"Let the phone close the game\" in this widget's settings";
+
+    /// <summary>Whether the asking Gaming widget, on an enabled page of this phone, lets the phone close the game.</summary>
+    public bool CloseAllowed(string? deviceId, string? widget) =>
+        PanelWidgets.Find(config.Get(), deviceId, widget, "gaming")?.Bool("allowClose") == true;
+
+    /// <summary>
+    /// Closes the Steam game being played, for the asking widget with "Let the phone close the game" on (off by default).
+    /// Normally its windows are asked to close, as their X button does, so the game can save; <paramref name="force"/>
+    /// ends its processes, for a game that stopped answering (unsaved progress is lost). Only the processes under the
+    /// game's own install folder: never Steam or anything else.
+    /// </summary>
+    public (int Status, string? Error, int Count) CloseGame(string? deviceId, string? widget, bool force)
+    {
+        if (PanelWidgets.Find(config.Get(), deviceId, widget, "gaming") is not { } w)
+            return (404, "this Gaming widget isn't on an enabled page of this phone", 0);
+        if (w.Bool("allowClose") != true) return (403, CloseOff, 0);
+        if (steam.View().Running is not { } id) return (409, "no game is running", 0);
+        IReadOnlyList<int> pids;
+        lock (_gate)
+        {
+            var info = Manifest(id);
+            pids = info is null ? [] : FindProcesses is { } find ? find(info.InstallPath) : _procs.Find(info.InstallPath);
+        }
+        if (pids.Count == 0) return (409, "the game's processes were not found", 0);
+        var done = 0;
+        foreach (var pid in pids)
+        {
+            try
+            {
+                using var p = Process.GetProcessById(pid);
+                if (force) { p.Kill(); done++; }
+                else if (p.CloseMainWindow()) done++;
+            }
+            catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or System.ComponentModel.Win32Exception) { }
+        }
+        if (done == 0)
+            return (409, force ? "Windows did not let the agent end the game (it may run as administrator)"
+                : "the game has no window that can be asked to close: use Force close", 0);
+        log.LogInformation("gaming: {How} the game from the phone ({N} processes)", force ? "ended" : "asked to close", done);
+        return (200, null, done);
+    }
+
     private ManifestInfo? Manifest(string id)
     {
         if (_manifest is { } m && m.Id == id) return m.Info;

@@ -1,0 +1,251 @@
+/* RokeBox: the look of the agent's settings page (agent/PhoneBox.Agent/settings.html loads it after its own styles,
+   from the panel's files: ../panel/roke-settings.css). RokeBox's own file, so merges from PhoneBox never touch it.
+
+   The same "Chassis" language as the panel's RokeBox theme: the page is a faceplate, sections are plates fastened to
+   it, fields are cut into the plates, and buttons are keys that stand up from them and go down when pressed.
+   Aluminium in light mode, graphite in dark mode; Mona Sans with condensed figures and expanded headings. */
+
+@font-face {
+  font-family: "Mona Sans"; font-style: normal; font-weight: 200 900; font-stretch: 75% 125%; font-display: swap;
+  src: url("roke-mona-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Mona Sans"; font-style: normal; font-weight: 200 900; font-stretch: 75% 125%; font-display: swap;
+  src: url("roke-mona-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ---------------------------------------------------------------- tokens: aluminium */
+:root {
+  --bg: #dfe2e6; --panel: #f3f4f6; --panel-2: #e8eaee; --line: #c9ced5; --text: #14171c; --muted: #555d68;
+  --accent: #cc2f57; --accent-ink: #ffffff; --danger: #c62828; --ok: #16803c; --warn: #b45309;
+  --shadow: none;
+  --rk-field: #ffffff;
+  --rk-field-line: #b9bfc8;
+  --rk-key-hi: #fbfbfc; --rk-key-lo: #e7e9ed; --rk-key-edge: #aeb4bd; --rk-key-shine: rgba(255, 255, 255, .9);
+  --rk-plate-shadow: inset 0 1px 0 rgba(255, 255, 255, .85), 0 1px 0 rgba(0, 0, 0, .06), 0 2px 6px -2px rgba(30, 36, 44, .14);
+  --rk-inset: inset 0 1px 2px rgba(20, 24, 30, .14);
+  --rk-acc-hi: #e14a70; --rk-acc-lo: #c0284f; --rk-acc-edge: #8f1c3a;
+}
+@media (prefers-color-scheme: dark) {
+  /* graphite */
+  :root {
+    --bg: #15171b; --panel: #1e2126; --panel-2: #262a30; --line: #30353c; --text: #ecf0f3; --muted: #98a1ad;
+    --accent: #fb7185; --accent-ink: #2b0a12; --danger: #f87171; --ok: #4ade80; --warn: #fbbf24;
+    --rk-field: #0d0f12;
+    --rk-field-line: #060709;
+    --rk-key-hi: #30353d; --rk-key-lo: #24282e; --rk-key-edge: #0c0e11; --rk-key-shine: rgba(255, 255, 255, .08);
+    --rk-plate-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 1px 0 rgba(0, 0, 0, .5), 0 8px 20px -12px rgba(0, 0, 0, .7);
+    --rk-inset: inset 0 2px 5px rgba(0, 0, 0, .55);
+    --rk-acc-hi: #fd8a9b; --rk-acc-lo: #f45f78; --rk-acc-edge: #7a1b2c;
+  }
+}
+
+/* ---------------------------------------------------------------- the plate and the type */
+body {
+  font-family: "Mona Sans", "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='.12'/%3E%3C/svg%3E"),
+    var(--bg);
+}
+h2 { font-size: 28px; font-weight: 760; font-stretch: 118%; letter-spacing: -.015em; line-height: 1.1; margin-bottom: 8px; text-wrap: balance; }
+.card h3 { font-size: 15px; font-weight: 700; font-stretch: 112%; letter-spacing: 0; }
+.lead { font-size: 13.5px; color: var(--muted); }
+.field label { font-weight: 600; font-stretch: 104%; color: var(--muted); }
+.opt-section, .pal-cat { text-transform: none; letter-spacing: 0; font-size: 12.5px; font-stretch: 112%; color: var(--text); }
+code, .cmdline, textarea.json, table.items td.val { font-family: "Cascadia Mono", Consolas, ui-monospace, monospace; }
+code { background: var(--rk-field); border: 1px solid var(--rk-field-line); box-shadow: var(--rk-inset); border-radius: 5px; }
+input[type=number], .pt-num, .pt-n, dd { font-variant-numeric: tabular-nums; }
+a { color: var(--accent); text-underline-offset: 2px; }
+
+/* ---------------------------------------------------------------- header: the name plate */
+header {
+  background: color-mix(in srgb, var(--panel) 90%, transparent);
+  border-bottom: 1px solid var(--line);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .04), 0 1px 0 rgba(0, 0, 0, .04);
+}
+header img { border-radius: 7px; }
+header h1 { font-size: 19px; font-weight: 820; font-stretch: 125%; letter-spacing: -.01em; }
+header .ver { font-variant-numeric: tabular-nums; font-stretch: 90%; }
+.pill { border-radius: 6px; background: var(--rk-field); border-color: var(--rk-field-line); box-shadow: var(--rk-inset); font-weight: 600; font-stretch: 104%; }
+.pill i { box-shadow: inset 0 1px 1px rgba(0, 0, 0, .35); }
+.pill.on i { box-shadow: 0 0 7px var(--ok); }
+#langSel { background: var(--rk-field) !important; border-color: var(--rk-field-line) !important; box-shadow: var(--rk-inset); border-radius: 7px !important; }
+
+/* ---------------------------------------------------------------- navigation: a graphite rail down the left edge, in both modes,
+   carrying the name, the sections (an engraved index, the current one lit) and the phone's lamp at the foot */
+nav { gap: 2px; }
+nav a {
+  position: relative; border-radius: 8px; padding: 10px 12px 10px 16px; font-weight: 600; font-stretch: 108%;
+}
+nav a::after {
+  content: ""; position: absolute; left: 5px; top: 50%; width: 3px; height: 0; border-radius: 2px; background: #fb7185;
+  transform: translateY(-50%); transition: height .15s var(--ease);
+}
+nav a.on::after { height: 18px; box-shadow: 0 0 8px rgba(251, 113, 133, .6); }
+@media (min-width: 801px) {
+  :root { --rk-rail: 228px; }
+  nav#nav {
+    /* align-self: the nav is a child of the .layout grid, where "start" would shrink even a fixed box to its content */
+    position: fixed; z-index: 11; left: 0; top: 0; bottom: 0; align-self: stretch; width: var(--rk-rail); padding: 84px 14px 76px;
+    background:
+      linear-gradient(90deg, transparent calc(100% - 1px), rgba(0, 0, 0, .6) 0),
+      linear-gradient(180deg, #23272d, #16181c);
+    box-shadow: inset -1px 0 0 rgba(255, 255, 255, .05);
+    overflow-y: auto; color-scheme: dark;
+  }
+  nav#nav a { color: #a3abb6; border: 0; }
+  nav#nav a:hover { color: #eef1f4; background: rgba(255, 255, 255, .04); }
+  nav#nav a.on {
+    color: #f3f5f7; background: linear-gradient(180deg, #0c0e11, #111317); font-weight: 650;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, .6), 0 1px 0 rgba(255, 255, 255, .06);
+  }
+  nav#nav a.on::before { color: #fb7185; }
+  /* no backdrop blur here: it would make the header the containing block of the name and the lamp placed on the rail,
+     and the header stacks over the rail so they show */
+  header { z-index: 12; margin-left: var(--rk-rail); padding-left: 32px; backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--bg); }
+  /* the name sits at the top of the rail, the phone's lamp at its foot */
+  header > img { position: fixed; z-index: 12; left: 22px; top: 24px; width: 30px; height: 30px; }
+  header > h1 { position: fixed; z-index: 12; left: 62px; top: 24px; color: #f3f5f7; line-height: 30px; }
+  header > .ver { position: fixed; z-index: 12; left: 62px; top: 52px; color: #7d8691; font-size: 11.5px; }
+  header > #phone {
+    position: fixed; z-index: 12; left: 14px; bottom: 18px; max-width: calc(var(--rk-rail) - 28px);
+    padding: 8px 12px; color: #d7dce2; background: #0c0e11; border-color: #000; box-shadow: inset 0 2px 5px rgba(0, 0, 0, .6), 0 1px 0 rgba(255, 255, 255, .06);
+  }
+  .layout { grid-template-columns: minmax(0, 1fr); max-width: 1240px; margin: 0 auto 0 var(--rk-rail); padding: 28px 36px 48px; }
+}
+
+/* ---------------------------------------------------------------- plates */
+.card {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--rk-plate-shadow);
+}
+.modal-box { background: var(--panel); border-color: var(--line); border-radius: 14px; box-shadow: var(--rk-plate-shadow), 0 30px 80px -20px rgba(0, 0, 0, .55); }
+.modal { background: rgba(10, 12, 15, .55); }
+
+/* ---------------------------------------------------------------- fields: cut into the plate */
+input[type=text], input[type=number], input[type=time], input[type=search], input[type=url], input[type=password], input[type=email], select, textarea {
+  background: var(--rk-field); border: 1px solid var(--rk-field-line); border-radius: 7px; box-shadow: var(--rk-inset); color: var(--text);
+}
+select { background-color: var(--rk-field); }
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+  border-color: var(--accent); box-shadow: var(--rk-inset), 0 0 0 3px color-mix(in srgb, var(--accent) 24%, transparent);
+}
+input[type=range] { accent-color: var(--accent); }
+input[type=color] { background: var(--rk-field); border-color: var(--rk-field-line); box-shadow: var(--rk-inset); }
+::placeholder { color: color-mix(in srgb, var(--muted) 75%, transparent); }
+
+/* ---------------------------------------------------------------- keys */
+.btn, .icon-btn {
+  background: linear-gradient(180deg, var(--rk-key-hi), var(--rk-key-lo));
+  border: 1px solid var(--rk-key-edge); border-radius: 8px; color: var(--text); font-weight: 600; font-stretch: 104%;
+  box-shadow: inset 0 1px 0 var(--rk-key-shine), 0 1px 0 var(--rk-key-edge);
+}
+.btn:hover:not(:disabled), .icon-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, var(--rk-key-hi), color-mix(in srgb, var(--rk-key-lo) 85%, var(--accent)));
+  border-color: var(--rk-key-edge);
+}
+.btn:active:not(:disabled), .icon-btn:active:not(:disabled) { transform: translateY(1px); box-shadow: inset 0 1px 2px rgba(0, 0, 0, .2); }
+.btn.primary {
+  background: linear-gradient(180deg, var(--rk-acc-hi), var(--rk-acc-lo)); color: var(--accent-ink);
+  border: 1px solid var(--rk-acc-edge); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 1px 0 var(--rk-acc-edge);
+}
+.btn.primary:hover:not(:disabled) { background: linear-gradient(180deg, var(--rk-acc-hi), var(--rk-acc-hi)); }
+.btn.primary:disabled { opacity: 1; background: var(--panel-2); color: var(--muted); border-color: var(--line); box-shadow: none; }
+.btn:disabled:not(.primary), .icon-btn:disabled { opacity: .45; box-shadow: none; }
+.btn.danger { color: var(--danger); }
+.btn.busy::after { border-color: currentColor; border-right-color: transparent; }
+.btn.busy { color: transparent !important; }
+.upd-top { background: color-mix(in srgb, var(--accent) 14%, var(--panel)); }
+#save { border-radius: 8px; }
+.is-dirty #save::before { border-radius: 9px; }
+/* the page toolbar's quiet buttons stay flat until hovered */
+#peHead .card > .row + .row .btn.sm { box-shadow: none; }
+#peHead .card > .row + .row .btn.sm:has(.ico.m) { background: linear-gradient(180deg, var(--rk-key-hi), var(--rk-key-lo)); border-color: var(--rk-key-edge); box-shadow: inset 0 1px 0 var(--rk-key-shine), 0 1px 0 var(--rk-key-edge); }
+
+/* segmented controls: a slot with the chosen key standing in it */
+.seg { background: var(--rk-field); border: 1px solid var(--rk-field-line); border-radius: 9px; padding: 2px; gap: 2px; box-shadow: var(--rk-inset); }
+.seg button { background: transparent; border-radius: 7px; font-weight: 600; font-stretch: 104%; color: var(--muted); }
+.seg button:hover:not(.on) { background: color-mix(in srgb, var(--panel-2) 70%, transparent); color: var(--text); }
+.seg button.on {
+  background: linear-gradient(180deg, var(--rk-acc-hi), var(--rk-acc-lo)); color: var(--accent-ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 1px 0 var(--rk-acc-edge);
+}
+
+/* switches: a slot and a key that slides in it */
+.switch span { background: var(--rk-field); border: 1px solid var(--rk-field-line); box-shadow: var(--rk-inset); }
+.switch span::after { top: 2px; left: 2px; background: linear-gradient(180deg, #ffffff, #dde1e6); box-shadow: 0 1px 2px rgba(0, 0, 0, .35), inset 0 -1px 0 rgba(0, 0, 0, .08); }
+.switch input:checked + span { background: var(--accent); border-color: var(--rk-acc-edge); box-shadow: inset 0 1px 3px rgba(0, 0, 0, .3); }
+.switch input:checked + span::after { left: 2px; transform: translateX(18px); }
+.check input { accent-color: var(--accent); }
+
+/* ---------------------------------------------------------------- pages editor */
+.ptab { border-radius: 8px; font-stretch: 104%; }
+.ptab.on { background: var(--panel); border-color: var(--line); box-shadow: var(--rk-plate-shadow), inset 3px 0 0 var(--accent); }
+.ptab.on .pt-num { color: var(--accent); }
+.pt-n { background: var(--rk-field); border: 1px solid var(--rk-field-line); border-radius: 5px; }
+/* the phone in the editor: a graphite device with the panel's own faceplate behind the widget blocks */
+.phone {
+  background: linear-gradient(180deg, #2a2e35, #1b1e23); border: 1px solid #0b0c0f; border-radius: 26px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 2px 0 #0b0c0f, 0 24px 50px -24px rgba(0, 0, 0, .6);
+}
+.canvas .cell { background: rgba(255, 255, 255, .025); border-radius: 5px; }
+.wb {
+  background: linear-gradient(180deg, #07080b, #0c0e11 30%); border: 1px solid #000; border-radius: 9px; color: #e9edf1;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, .7), 0 1px 0 rgba(255, 255, 255, .07);
+}
+.wb.sel { border-color: var(--accent); box-shadow: inset 0 2px 6px rgba(0, 0, 0, .7), 0 0 0 3px color-mix(in srgb, var(--accent) 38%, transparent); }
+.wb:hover:not(.sel) { border-color: color-mix(in srgb, var(--accent) 55%, #000); }
+.wb b { font-stretch: 108%; }
+.rz { background: linear-gradient(135deg, transparent 50%, var(--accent) 50%); border-bottom-right-radius: 8px; }
+.preview { border-radius: 12px; }
+.pal { border-radius: 8px; }
+.pal:hover { background: var(--panel-2); border-color: var(--line); }
+.pal b { font-stretch: 104%; }
+.tpl { background: var(--panel-2); border-radius: 10px; }
+.tpl:hover { border-color: var(--accent); }
+.mini { background: #15171b; border-radius: 8px; box-shadow: inset 0 2px 5px rgba(0, 0, 0, .6); }
+.mini span { background: linear-gradient(180deg, #2a2e35, #20242a); border-radius: 3px; }
+.stack-row { background: var(--rk-field); border-color: var(--rk-field-line); border-radius: 8px; }
+
+/* ---------------------------------------------------------------- shortcut keys: the panel's raised keys, with their light pipe */
+.key {
+  border-radius: 12px; border: 1px solid #0c0e11; color: #eef1f4;
+  background:
+    linear-gradient(var(--k), var(--k)) 50% 0 / 34% 3px no-repeat,
+    linear-gradient(180deg, #30353d, #23272d);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .09), 0 2px 0 #0c0e11, 0 8px 14px -8px rgba(0, 0, 0, .6);
+}
+.key .ki { color: color-mix(in srgb, var(--k) 32%, #f2f4f7); }
+.key.sel { border-color: var(--accent); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .09), 0 2px 0 #0c0e11, 0 0 0 3px color-mix(in srgb, var(--accent) 40%, transparent); }
+.key:hover:not(.sel):not(.add) { border-color: #0c0e11; filter: brightness(1.08); }
+.key.add { background: transparent; color: var(--muted); border: 2px dashed var(--line); box-shadow: none; }
+.key.add:hover { border-color: var(--accent); color: var(--text); }
+
+/* ---------------------------------------------------------------- rules, lists */
+.rule .day { border-radius: 6px; background: var(--rk-field); border-color: var(--rk-field-line); }
+.rule .day.on { background: var(--accent); border-color: var(--rk-acc-edge); color: var(--accent-ink); }
+.rule .live { color: var(--accent); }
+.results { border-color: var(--rk-field-line); }
+.results button { background: var(--rk-field); }
+.results button:hover { background: var(--panel-2); }
+
+/* ---------------------------------------------------------------- toast: a small display with a lamp */
+.toast {
+  background: #0b0d10; color: #eef1f4; border: 1px solid #000; border-radius: 10px; font-weight: 600; font-stretch: 104%;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 18px 40px -12px rgba(0, 0, 0, .6);
+}
+.toast::before { content: ""; width: 8px; height: 8px; background: #4ade80; box-shadow: 0 0 8px #4ade80; }
+.toast.err { background: #0b0d10; color: #fecaca; }
+.toast.err::before { content: ""; background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+
+@media (max-width: 800px) {
+  nav a { padding-left: 14px; }
+  nav a::after { left: 50%; top: auto; bottom: 3px; width: 0; height: 3px; transform: translateX(-50%); transition: width .15s var(--ease); }
+  nav a.on::after { width: 18px; height: 3px; }
+  h2 { font-size: 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  nav a::after { transition: none; }
+}

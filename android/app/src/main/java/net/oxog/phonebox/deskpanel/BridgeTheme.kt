@@ -9,14 +9,16 @@ class BridgeTheme(context: Context) {
     private val density = context.resources.displayMetrics.density
     val dark = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
 
-    val page = if (dark) 0xFF101114.toInt() else 0xFFF3F4F6.toInt()
-    val card = if (dark) 0xFF1B1D22.toInt() else 0xFFFFFFFF.toInt()
-    val cardStroke = if (dark) 0xFF2A2D34.toInt() else 0xFFE4E6EA.toInt()
-    val text = if (dark) 0xFFF1F2F4.toInt() else 0xFF15171A.toInt()
-    val muted = if (dark) 0xFF9BA1AB.toInt() else 0xFF5C6370.toInt()
-    val accent = 0xFF2F6FED.toInt()
-    /** The accent as text on a card: the blue reads at only 3.7:1 on the dark card, a lighter one at 7:1 (4.5:1 is the minimum). */
-    val accentText = if (dark) 0xFF7EA6FF.toInt() else accent
+    // RokeBox: graphite in dark mode and aluminium in light mode, like the panel's faceplate and the settings page
+    val page = if (dark) 0xFF16191E.toInt() else 0xFFE3E5E9.toInt()
+    val card = if (dark) 0xFF20242A.toInt() else 0xFFF4F5F7.toInt()
+    val cardStroke = if (dark) 0xFF2E333A.toInt() else 0xFFC9CED5.toInt()
+    val text = if (dark) 0xFFEEF1F4.toInt() else 0xFF14171C.toInt()
+    val muted = if (dark) 0xFF9AA2AD.toInt() else 0xFF555D68.toInt()
+    /** RokeBox's rose, deep enough for the white label of a primary button (4.6:1). */
+    val accent = 0xFFD6365E.toInt()
+    /** The accent as text on a card: a lighter rose on the dark card (7:1), a deeper one on the light card (5:1). */
+    val accentText = if (dark) 0xFFFD8A9B.toInt() else 0xFFB8264C.toInt()
     val good = 0xFF2E9B57.toInt()
     val wait = 0xFFE0A100.toInt()
     val bad = 0xFFD9534F.toInt()

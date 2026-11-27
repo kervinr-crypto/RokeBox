@@ -15,6 +15,35 @@
     ['900090', 'Quiet Summit', 2600, 'ready', null, 60], ['900100', 'Iron Meadow', null, 'ready', null, 95]];
   const now = () => Date.now();
   let demoPowerTimer = null; // RokeBox: the Power timer widget's made-up timer
+  // RokeBox: the demo's open windows and theme, changed by the Windows and Quick actions widgets
+  let demoDark = true;
+  let demoWindows = [
+    { id: 1001, title: 'Harbor Lights', app: 'Harbor Lights', process: '', minimized: false, maximized: true, active: true },
+    { id: 1002, title: 'rokebox – roke.css – Visual Studio Code', app: 'Visual Studio Code', process: '', minimized: false, maximized: true, active: false },
+    { id: 1003, title: 'Spotify Premium', app: 'Spotify', process: '', minimized: false, maximized: false, active: false },
+    { id: 1004, title: 'Discord | #general | RokeBox', app: 'Discord', process: '', minimized: false, maximized: false, active: false },
+    { id: 1005, title: 'Downloads', app: 'Windows Explorer', process: '', minimized: true, maximized: false, active: false },
+    { id: 1006, title: 'PowerShell', app: 'Windows Terminal', process: '', minimized: true, maximized: false, active: false },
+  ];
+  /** A made-up desktop for the Computer screen widget: the windows above on a wallpaper, and the taskbar. */
+  const demoScreen = (monitor) => {
+    const [w, hh] = monitor === 1 ? [1920, 1080] : [2560, 1440];
+    const shown = demoWindows.filter((x) => !x.minimized).slice(0, 3).reverse();
+    const boxes = shown.map((x, i) => {
+      const bx = 120 + i * 260, by = 90 + i * 140, bw = w * 0.55, bh = hh * 0.55;
+      return `<g><rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="14" fill="#1f232a" stroke="#0c0e11" stroke-width="3"/>`
+        + `<rect x="${bx}" y="${by}" width="${bw}" height="64" rx="14" fill="#2b3038"/>`
+        + `<text x="${bx + 28}" y="${by + 42}" font-family="Segoe UI, sans-serif" font-size="28" fill="#eef1f4">${x.title.replace(/[<&]/g, '')}</text>`
+        + `<rect x="${bx + 40}" y="${by + 110}" width="${bw * 0.6}" height="22" rx="6" fill="#3a404a"/>`
+        + `<rect x="${bx + 40}" y="${by + 150}" width="${bw * 0.45}" height="22" rx="6" fill="#3a404a"/>`
+        + `<rect x="${bx + 40}" y="${by + 190}" width="${bw * 0.7}" height="22" rx="6" fill="#3a404a"/></g>`;
+    }).join('');
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${hh}" width="${w}" height="${hh}">`
+      + `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#16324a"/><stop offset="1" stop-color="#3a1a3e"/></linearGradient></defs>`
+      + `<rect width="${w}" height="${hh}" fill="${demoDark ? 'url(#g)' : '#cfd8e3'}"/>${boxes}`
+      + `<rect y="${hh - 72}" width="${w}" height="72" fill="${demoDark ? '#101318' : '#eef1f4'}" opacity=".96"/>`
+      + `<circle cx="${w * 0.62}" cy="${hh * 0.48}" r="26" fill="none" stroke="#000" stroke-width="10"/><circle cx="${w * 0.62}" cy="${hh * 0.48}" r="26" fill="none" stroke="#fb7185" stroke-width="6"/></svg>`;
+  };
   const rnd = (a, b) => a + Math.random() * (b - a);
   const wave = (period, lo, hi, phase = 0, noise = 0) =>
     lo + (hi - lo) * (0.5 + 0.5 * Math.sin((2 * Math.PI * (now() - START)) / 1000 / period + phase)) + rnd(-noise, noise);
@@ -26,7 +55,7 @@
     ['screenoff', 'Screen Off', '🌙', '#8b5cf6'], ['lock', 'Lock', '🔒', '#ef4444'], ['settings', 'Settings', '⚙️', '#94a3b8'],
   ].map(([id, label, icon, color]) => ({ id, label, icon, color, cmd: id === 'mute' ? 'builtin:mute' : 'demo', args: null, toggle: false }));
   const PAGES = ['home', 'dashboard', 'ai', 'work', 'system', 'procs', 'deck', 'music', 'status', 'ambient', 'world', 'daily', 'markets', 'feeds', 'focus', 'calm', 'clock', 'automation', 'planner', 'nightstand', 'weekend', 'focuswork',
-    'codexbar', 'devops', 'audio-deck', 'stream-deck', 'meeting-deck', 'development-deck', 'music-deck', 'system-deck', 'gaming', 'pc-info', 'pc-control'];
+    'codexbar', 'devops', 'audio-deck', 'stream-deck', 'meeting-deck', 'development-deck', 'music-deck', 'system-deck', 'gaming', 'pc-info', 'pc-control', 'remote', 'remote-input', 'quick'];
 
   let catalog = null;
   async function loadCatalog() {
@@ -80,7 +109,9 @@
         const t = byId[id], seen = {};
         return { appearance: null, id, title: t.title, icon: t.icon, enabled: true, idleSec: null, widgets: t.widgets.map((w) => {
           const n = (seen[w.type] = (seen[w.type] || 0) + 1);
-          const control = w.type === 'docker' || /^obs(-|$)/.test(w.type) ? { control: true } : {};
+          // the demo shows its control widgets switched on (RokeBox's off by default on a real computer)
+          const control = w.type === 'docker' || /^obs(-|$)/.test(w.type) || ['windows', 'keyboard', 'quickactions'].includes(w.type) ? { control: true }
+            : w.type === 'screen' ? { view: true, click: true } : w.type === 'gaming' ? { allowClose: true } : {};
           return { ...w, id: n === 1 ? w.type : `${w.type}-${n}`, options: { ...(w.options || {}), ...control } };
         }) };
       }),
@@ -793,6 +824,58 @@
       if (path === '/api/rk/powertimer/cancel' && method === 'POST') {
         demoPowerTimer = null;
         return json({ enabled: on('powertimer'), allowed: true, action: null, endsAt: null });
+      }
+      // RokeBox: control of the computer (RokeControl.cs), with the asking widget's own switches like the agent
+      const opt = (type) => panelWidget(c, q.get('widget'), type)?.options || null;
+      const off = (text) => json({ error: text }, 403);
+      if (path === '/api/rk/windows') {
+        const o = opt('windows');
+        if (!o) return json({ error: 'widget' }, 404);
+        return json({ supported: true, control: o.control === true, windows: demoWindows });
+      }
+      if (path === '/api/rk/windows/act' && method === 'POST') {
+        const o = opt('windows');
+        if (!o?.control) return off('Turn on "Let the phone switch, minimize and close windows" in this widget\'s settings');
+        const id = Number(q.get('id'));
+        const win = demoWindows.find((x) => x.id === id);
+        if (!win) return json({ error: 'that window is gone' }, 404);
+        const action = q.get('action');
+        if (action === 'close') demoWindows = demoWindows.filter((x) => x !== win);
+        else if (action === 'minimize') { win.minimized = true; win.active = false; }
+        else if (action === 'maximize') { win.maximized = !win.maximized; win.minimized = false; }
+        else if (action === 'focus') { demoWindows.forEach((x) => { x.active = false; }); win.active = true; win.minimized = false; demoWindows = [win, ...demoWindows.filter((x) => x !== win)]; }
+        return json({ ok: true });
+      }
+      if (path === '/api/rk/keys' && method === 'POST') {
+        return opt('keyboard')?.control ? json({ ok: true }) : off('Turn on "Type and press keys on the computer" in this widget\'s settings');
+      }
+      if (path === '/api/rk/screen/info') {
+        const o = opt('screen');
+        if (!o) return json({ error: 'widget' }, 404);
+        return json({ supported: true, view: o.view === true, click: o.view === true && o.click === true,
+          monitors: o.view ? [{ index: 0, width: 2560, height: 1440, primary: true }, { index: 1, width: 1920, height: 1080, primary: false }] : [] });
+      }
+      if (path === '/api/rk/screen') {
+        if (!opt('screen')?.view) return off('Turn on "Let the phone see this computer\'s screen" in this widget\'s settings');
+        return new Response(demoScreen(Number(q.get('monitor')) || 0), { headers: { 'Content-Type': 'image/svg+xml' } });
+      }
+      if (path === '/api/rk/screen/click' && method === 'POST') {
+        return opt('screen')?.click ? json({ ok: true }) : off('Turn on "Click where the picture is tapped" in this widget\'s settings');
+      }
+      if (path === '/api/rk/quick') {
+        const o = opt('quickactions');
+        if (!o) return json({ error: 'widget' }, 404);
+        if (method === 'POST') {
+          if (!o.control) return off('Turn on "Let the phone run these actions" in this widget\'s settings');
+          if (q.get('action') === 'theme-dark') demoDark = true;
+          if (q.get('action') === 'theme-light') demoDark = false;
+          return json({ ok: true });
+        }
+        return json({ supported: true, control: o.control === true, dark: demoDark });
+      }
+      if (path === '/api/rk/gaming/allowed') return json({ close: opt('gaming')?.allowClose === true });
+      if (path === '/api/rk/gaming/close' && method === 'POST') {
+        return opt('gaming')?.allowClose ? json({ ok: true, count: 3 }) : off('Turn on "Let the phone close the game" in this widget\'s settings');
       }
       return json({ error: 'not found' }, 404);
     }

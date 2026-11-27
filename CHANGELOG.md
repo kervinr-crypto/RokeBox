@@ -1,5 +1,43 @@
 # Changelog
 
+## 0.9.30.3 — 2026-11-27
+
+RokeBox's own release: a new look everywhere, more control of the computer from the phone, and a setup that installs
+RokeBox.
+
+- **Control of the computer** (Windows; each switch is off until you turn it on in that widget's settings):
+  - **Windows** widget: the open windows, the one in front first, with their program's icon; tap one to bring it to
+    the front, or minimize, maximize or close it (close asks the window, as its X button does; tap twice).
+  - **Keyboard** widget: type on the phone into the app in front, and keys from a fixed list (arrows, Enter, Esc,
+    Tab, Backspace, copy, paste, undo, Alt+Tab, the context menu, F5, F11, media keys; Alt+F4 after a second tap).
+    Arrows and Backspace repeat while held. Never a free key combination from the phone.
+  - **Computer screen** widget: a picture of a monitor every few seconds (only while its page is on screen), with a
+    ring at the pointer; with its second switch, tap to click there, hold for a right-click, "2×" for a double-click.
+  - **Quick actions** widget: display mode (this screen, duplicate, extend, second screen; tap twice), light or dark
+    theme, show the desktop, screenshot, snip, File Explorer, Task Manager, Settings and Xbox Game Bar's last 30 s,
+    recording and overlay.
+  - **Gaming** widget: Close game (asks its windows to close) and, for a game that hangs, Force close.
+  - Templates **Remote** (screen and windows), **Keyboard & mouse** and **Quick settings** (quick actions, power plan,
+    sound output). Texts in English, Spanish and Portuguese.
+
+- **New panel look, "Chassis"** (the RokeBox theme, the default): the phone reads as a piece of desk hardware. The
+  background is a graphite faceplate, every widget is a display window recessed into it, and what you can press
+  (shortcut keys, Big buttons, play, presets, the permission prompt's answers) stands up from the plate as a key and
+  goes down under the finger. Colour is data: the plate and the text stay neutral, readings keep their colours, a
+  shortcut's colour is a light along the top of its key. Page dots became an engraved scale of ticks with the current
+  page lit, and the page name shows as a label strip. Mona Sans (SIL OFL) ships with the app: condensed figures for
+  readings and the clock, expanded labels without letter-spaced capitals. The other themes are unchanged.
+- **New settings page look**: a graphite rail down the left with the name, the sections and the phone's lamp; plates,
+  fields cut into them and keys, in aluminium (light mode) or graphite (dark mode).
+- **New web pages**: the landing page (in Spanish, with the live panel, what it does and the install steps) and the
+  Wi-Fi pairing page, which now follows the phone's language (Spanish, Portuguese or English).
+- **New icon**: the faceplate with a display window, an "R", a rose lamp and the page scale, on the phone, the
+  Windows agent and the web pages. The Phone bridge screens and the panel's loading background use the same colours.
+- **Setup installs RokeBox**: `irm https://raw.githubusercontent.com/kervinr-crypto/RokeBox/main/setup.ps1 | iex`
+  downloads RokeBox's releases (four-part versions), checks their SHA-256 sums (they carry no GitHub attestation),
+  installs to `%LOCALAPPDATA%\RokeBox`, puts the RokeBox app on the phone and starts it with its real activity name.
+  It stops only RokeBox's agent: PhoneBox keeps running, and the uninstall hint no longer points at PhoneBox's script.
+
 ## 0.9.30.2 — 2026-11-26
 
 RokeBox's own release: more about the computer and more control over it.

@@ -17,7 +17,7 @@ cambia a propósito.
 | | PhoneBox | RokeBox |
 |---|---|---|
 | Id de la app Android | `net.oxog.phonebox.deskpanel` | `com.syroke.rokebox` |
-| Nombre e icono | PhoneBox, barras de colores | RokeBox, "R" rosa sobre violeta |
+| Nombre e icono | PhoneBox, barras de colores | RokeBox: placa de grafito con una pantalla, una "R", una luz rosa y la escala de páginas |
 | Puerto de ajustes del PC | 8765 | 8775 |
 | Puerto del túnel USB en el teléfono | 8765 | 8775 |
 | Puerto Wi-Fi | 8766 | 8776 |
@@ -26,7 +26,9 @@ cambia a propósito.
 | Actualizaciones | releases de `ersinkoc/phonebox` | releases de `kervinr-crypto/RokeBox` |
 | Enlace de emparejamiento Wi-Fi | `https://ersinkoc.github.io/phonebox/pair/#…` | `https://kervinr-crypto.github.io/RokeBox/pair/#…` |
 | Variables de firma del APK | `PHONEBOX_STORE_FILE`, … | `ROKEBOX_STORE_FILE`, … |
-| Tema por defecto | `default` (turquesa) | `rokebox` (aurora violeta y rosa, tarjetas de cristal) |
+| Tema por defecto | `default` (turquesa) | `rokebox`, diseño "Chasis" (ver más abajo) |
+| Aspecto de la página de ajustes y de la web | el de PhoneBox | el mismo diseño "Chasis" (`roke-settings.css`, `tools/pages/`) |
+| Instalador `setup.ps1` | instala PhoneBox | instala RokeBox al lado de PhoneBox, sin tocarlo |
 | Ciudad del clima por defecto | Tallinn (la del autor) | ninguna: el panel pide elegirla en Ajustes › Clima |
 | Widget y plantilla **Gaming** | no existe | el juego de Steam en curso y lo que consume |
 | Widgets **Ficha del PC**, **Estado del PC**, **Consumo de datos**, **Temporizador de energía** | no existen | ver más abajo |
@@ -34,11 +36,42 @@ cambia a propósito.
 
 Pendiente de adaptar:
 
-- **Instaladores** `setup.ps1` / `setup.sh` e instalador de Windows: siguen instalando PhoneBox.
-- **Tests de interfaz** (`tools/ui-tests`, Playwright): varios esperan textos con "PhoneBox".
+- **Instaladores** `setup.sh` (Linux/macOS) e instalador de Windows (Inno Setup): siguen instalando PhoneBox.
+  `setup.ps1` ya instala RokeBox.
+- **Tests de interfaz** (`tools/ui-tests`, Playwright): algunos esperan textos con "PhoneBox" (los de la portada y
+  el emparejamiento ya están adaptados).
 - **Linux, macOS e iOS:** los releases de RokeBox solo incluyen Windows x64; los identificadores de bundle de macOS
   e iOS siguen siendo los de PhoneBox.
 - Algunos textos que el agente genera en C# (errores de Discord, cabeceras User-Agent) siguen diciendo PhoneBox.
+
+## Diseño "Chasis"
+
+El aspecto propio de RokeBox (desde 0.9.30.3), hecho siguiendo la skill `frontend-design` de
+[anthropics/skills](https://github.com/anthropics/skills) y revisado con las
+[Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines) de
+[vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills). La idea: el teléfono es una pieza de hardware
+de escritorio.
+
+- **Las pantallas se hunden, los controles suben.** El fondo es una placa de grafito con grano; cada widget es una
+  ventana negra hundida en ella; lo que se pulsa (atajos, botón grande, play, preajustes, Control Deck, las respuestas
+  al aviso de permiso) es una tecla en relieve que baja al tocarla.
+- **El color es dato.** La placa y el texto son neutros. El color sale de las lecturas (CPU, GPU, RAM, red), de la
+  portada del disco y de una sola marca encendida (la página actual, el botón de play), en el color de acento.
+- **La anchura marca la jerarquía.** Mona Sans (licencia SIL OFL, `www/roke-mona-*.woff2` y `roke-mona-OFL.txt`):
+  cifras condensadas para el reloj y las lecturas, etiquetas expandidas sin mayúsculas espaciadas.
+- **Navegación:** los puntos de página son una escala grabada de marcas, la actual encendida; el nombre de la página
+  aparece como una etiqueta pegada en la placa.
+
+| Dónde | Archivo |
+|---|---|
+| Panel (tema `rokebox`, el resto de temas no cambia) | `android/app/src/main/assets/www/roke.css` |
+| Página de ajustes del agente (riel de grafito, placas, campos hundidos, teclas; aluminio en modo claro) | `www/roke-settings.css`, cargado desde `settings.html` como `../panel/roke-settings.css` |
+| Portada y emparejamiento Wi-Fi (GitHub Pages) | `tools/pages/index.html`, `tools/pages/pair.html` |
+| Icono | `res/drawable/ic_launcher_fg.xml` (Android), `tools/make-icon.ps1` → `phonebox.ico` (Windows) |
+| Pantallas nativas (Phone bridge, fondo mientras carga) | `BridgeTheme.kt`, `res/values*/themes.xml` |
+
+El panel arranca ya con `data-theme="rokebox"` en `index.html`, así no muestra otro aspecto mientras llega la
+configuración. Para ver el aspecto anterior de PhoneBox basta con elegir otro tema en Ajustes › Pantalla.
 
 ## Pestaña Gaming
 
@@ -76,6 +109,30 @@ widget, y el **temporizador** exige los controles de energía del Control Deck a
 botones de apagado). Los dos piden un segundo toque para confirmar. Apagar o reiniciar cierra los programas abiertos.
 
 El consumo de datos empieza a contar cuando añades el widget y solo mientras está en una página activa.
+
+## Control del PC desde el teléfono
+
+Desde 0.9.30.3. Se suman a lo que ya traía PhoneBox (Control Deck: audio, salidas, planes de energía, escritorios
+virtuales, atajos, trackpad, dictado, procesos…). Plantillas **Remote** (pantalla y ventanas), **Keyboard & mouse**
+(teclado y trackpad) y **Quick settings** (acciones rápidas, plan de energía, salida de sonido). Código:
+`agent/PhoneBox.Agent/RokeControl.cs`, `www/widgets/roke-control.js`, textos en `www/locale-zz-roke.js` (inglés,
+español, portugués).
+
+| Widget | Qué hace | Interruptor (en los ajustes del widget, apagado por defecto) |
+|---|---|---|
+| `windows` Ventanas | lista las ventanas abiertas (como Alt+Tab) con el icono de su programa; tocar = traer al frente; minimizar, maximizar/restaurar, cerrar (`WM_CLOSE`, como su X; dos toques) | "Let the phone switch, minimize and close windows" (la lista se ve sin él) |
+| `keyboard` Teclado | escribe texto (una línea; los saltos de línea no son Enter) y pulsa teclas de una **lista cerrada**; las flechas y el borrado se repiten al mantener | "Type and press keys on the computer" |
+| `screen` Pantalla del PC | JPEG de un monitor cada N s (1–60) solo mientras la página está en pantalla, con un anillo en el puntero; tocar = clic, mantener = clic derecho, "2×" = doble clic | dos: "Let the phone see this computer's screen" y "Click where the picture is tapped" |
+| `quickactions` Acciones rápidas | modo de pantalla (`DisplaySwitch.exe`; dos toques), tema claro/oscuro (registro del usuario), escritorio, captura, recorte, Explorador, Administrador de tareas, Configuración, Xbox Game Bar | "Let the phone run these actions" |
+| `gaming` (botón) | Cerrar juego (pide a sus ventanas que se cierren) y, si no responde, Forzar cierre (termina sus procesos; se pierde lo no guardado) | "Let the phone close the game" |
+
+Reglas de seguridad, como el dictado y "start games" de la biblioteca de Steam: el agente solo actúa para el widget
+que el teléfono nombra, en una página activa de ese teléfono y con **su propio** interruptor encendido; el teléfono
+no puede encender un interruptor (se hace en el PC). Nada se escribe en una app que se ejecute como administrador
+(Windows lo bloquearía en silencio). Solo se actúa sobre ventanas de la lista, solo teclas y acciones de las listas
+fijas y solo clics dentro de la imagen. Entre dos capturas pasan al menos 400 ms. No se registran textos, títulos de
+ventana ni imágenes. Las rutas son `/api/rk/*`, así que funcionan por USB y por Wi-Fi. Todo es solo Windows salvo el
+teclado (Windows, Linux y macOS).
 
 ## Convivencia con PhoneBox
 
@@ -177,10 +234,9 @@ Por orden de impacto:
    los 12 archivos de idioma más `i18n.js` en cada arranque. En un teléfono modesto (por ejemplo un Galaxy A10s) ese
    análisis de JavaScript retrasa la apertura del panel. Cargarlos bajo demanda acortaría el arranque.
 2. **Adaptar los tests de interfaz** a los textos de RokeBox y añadirlos al CI.
-3. **Instalador propio** (`setup.ps1`) que descargue los releases de RokeBox.
-4. **Widgets propios** para tus otros proyectos mediante la API push (`/api/push/<clave>`) o el widget Custom HTML,
+3. **Widgets propios** para tus otros proyectos mediante la API push (`/api/push/<clave>`) o el widget Custom HTML,
    sin tocar el núcleo.
-5. **Español como idioma de referencia** y revisión de los textos en español.
-6. **Releases para Linux** (el agente ya compila para `linux-x64` y `linux-arm64`).
-7. **FPS en la pestaña Gaming** (con PresentMon) y soporte de otras tiendas.
-8. **Minificar los assets JS** en la compilación (manteniendo la sintaxis compatible con Chromium 83).
+4. **Español como idioma de referencia** y revisión de los textos en español.
+5. **Releases para Linux** (el agente ya compila para `linux-x64` y `linux-arm64`).
+6. **FPS en la pestaña Gaming** (con PresentMon) y soporte de otras tiendas.
+7. **Minificar los assets JS** en la compilación (manteniendo la sintaxis compatible con Chromium 83).

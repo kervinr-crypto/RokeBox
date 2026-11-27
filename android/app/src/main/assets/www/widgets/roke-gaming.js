@@ -1,7 +1,8 @@
-import { API, D, LOCALE, api, fmtDur, fmtRate, h, t } from '../main.js';
+import { API, D, LOCALE, api, fmtDur, fmtRate, h, haptic, t, toast } from '../main.js';
 import { W } from '../registry.js';
 import { every } from './helpers.js';
 import { gameInitials } from './steam-library.js';
+import { rkPost } from './roke-control.js';
 
 // ---------------------------------------------------------------- RokeBox: Gaming
 // The Steam game being played and what its own processes use (CPU, GPU, video memory, RAM, disk), its size on disk,
@@ -84,12 +85,33 @@ function metric(cls, label) {
 
 W.gaming = {
   needs: ['tick', 'state'],
-  create(box) {
+  create(box, { page, w }) {
     let data = null, failed = false, shownId = null, colors = null;
     const load = every(2000, async () => {
       try { data = await api('/gaming', 'GET', 6000); failed = false; return true; }
       catch (_) { failed = true; return false; }
     });
+    // Close the game (off unless this widget allows it in its settings): a first tap arms the key, a second asks the
+    // game's windows to close; when it has none that can be asked (it hangs), the key offers Force close instead.
+    const wq = 'widget=' + encodeURIComponent(`${page.id}/${w.id}`);
+    let canClose = false, closeArmed = 0, closeBusy = false, force = false;
+    const loadAllowed = every(60_000, async () => {
+      try { canClose = !!(await api('/rk/gaming/allowed?' + wq, 'GET', 6000)).close; return true; }
+      catch (_) { return false; }
+    }, 15_000);
+    async function closeGame() {
+      if (closeBusy) return;
+      if (closeArmed < Date.now()) { closeArmed = Date.now() + 4000; haptic(); render(); setTimeout(render, 4050); return; }
+      closeArmed = 0; closeBusy = true; haptic();
+      try {
+        await rkPost(`/rk/gaming/close?${wq}${force ? '&force=true' : ''}`);
+        toast(t(force ? 'w.rc.game.ended' : 'w.rc.game.closing'));
+        force = false;
+      } catch (e) {
+        if (!force && e.status === 409 && /Force close/.test(e.message)) { force = true; toast(t('w.rc.game.noWindow'), 'warn'); }
+        else toast(e.message, 'err');
+      } finally { closeBusy = false; render(); }
+    }
 
     // ---- playing: cover, title, chips, four metric tiles and a footer
     const art = h('div', 'gm-art');
@@ -151,10 +173,19 @@ W.gaming = {
       const pc = (D.state && D.state.pc) || {};
       status.replaceChildren(h('i', 'gm-live'), t('w.gaming.playing'),
         g.startedAt ? h('span', 'gm-dim', ' · ' + t('w.gaming.since', { dur: fmtDur(Date.now() - g.startedAt) })) : null);
+      let closeKey = null;
+      if (canClose) {
+        const armed = closeArmed > Date.now();
+        closeKey = h('button', 'gm-close' + (armed ? ' armed' : '') + (force ? ' force' : ''),
+          armed ? t('w.rc.kb.again') : t(force ? 'w.rc.game.force' : 'w.rc.game.close'));
+        closeKey.type = 'button';
+        closeKey.addEventListener('click', closeGame);
+      }
       chips.replaceChildren(
         chip('Steam', 'gm-chip-steam'),
         g.sizeGb != null ? chip(t('w.gaming.size', { gb: num(g.sizeGb, 1) })) : null,
-        g.drive ? chip(g.driveFreeGb != null ? t('w.gaming.free', { drive: g.drive, gb: num(g.driveFreeGb, 0) }) : g.drive) : null);
+        g.drive ? chip(g.driveFreeGb != null ? t('w.gaming.free', { drive: g.drive, gb: num(g.driveFreeGb, 0) }) : g.drive) : null,
+        closeKey);
 
       // CPU: the game's share of the processor; the PC's under it
       m.cpu.val.textContent = num(g.cpu, 0);
@@ -198,7 +229,7 @@ W.gaming = {
     let lastSample = null;
     function render() {
       const g = data && data.game;
-      if (!g) { shownId = null; renderIdle(); return; }
+      if (!g) { shownId = null; force = false; renderIdle(); return; }
       // the sparklines take one point per answer from the agent, not one per screen update
       const sampled = data !== lastSample;
       lastSample = data;
@@ -207,7 +238,7 @@ W.gaming = {
 
     return {
       update(kind) {
-        if (kind === 'tick') load();
+        if (kind === 'tick') { load(); loadAllowed(); }
         render();
       },
     };

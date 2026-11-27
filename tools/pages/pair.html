@@ -1,76 +1,164 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex">
-<title>Pair RokeBox</title>
+<meta name="theme-color" content="#1d2127">
+<title>Emparejar RokeBox</title>
 <link rel="icon" href="../favicon.ico">
 <style>
-:root { --bg: #07090d; --panel: #10141b; --line: #232a35; --text: #eef2f6; --muted: #8a94a3; --accent: #2dd4bf; --warn: #f59e0b; color-scheme: dark; }
+@font-face {
+  font-family: "Mona Sans"; font-style: normal; font-weight: 200 900; font-stretch: 75% 125%; font-display: swap;
+  src: url("../panel/roke-mona-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* the same faceplate as the panel: plates, a display window for the check code, keys to press */
+:root { --ink: #eef1f4; --ink-2: #a2aab5; --signal: #fb7185; --warn: #fbbf24; color-scheme: dark; }
 * { box-sizing: border-box; margin: 0; }
-body { background: var(--bg); color: var(--text); font: 16px/1.5 "Segoe UI", system-ui, -apple-system, sans-serif; min-height: 100vh; }
-.wrap { max-width: 520px; margin: 0 auto; padding: 32px 16px; }
-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-header img { width: 32px; height: 32px; }
-h1 { font-size: 20px; }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px; margin-bottom: 14px; }
-.card h2 { font-size: 17px; margin-bottom: 6px; }
-.muted { color: var(--muted); font-size: 14px; }
-.btn { display: block; text-align: center; text-decoration: none; font-weight: 600; border-radius: 12px; padding: 14px; margin-top: 14px; }
-.primary { background: var(--accent); color: #062b26; }
-.secondary { border: 1px solid var(--line); color: var(--text); }
+body {
+  min-height: 100vh; color: var(--ink); font: 16px/1.55 "Mona Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: radial-gradient(80% 40% at 30% 0%, rgba(255, 255, 255, .07), transparent 70%), linear-gradient(180deg, #2a2e35, #1d2127 22rem, #15171b);
+}
+.wrap { max-width: 520px; margin: 0 auto; padding: 28px 16px 40px; }
+header { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+header svg { width: 40px; height: 40px; flex: none; }
+h1 { font-size: 22px; font-weight: 820; font-stretch: 122%; letter-spacing: -.01em; }
+.card {
+  padding: 20px; margin-bottom: 14px; border-radius: 14px; border: 1px solid #0c0e11;
+  background: linear-gradient(180deg, #262a31, #1d2026); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), 0 2px 0 #0c0e11;
+}
+.card h2 { font-size: 18px; font-weight: 720; font-stretch: 112%; line-height: 1.3; margin-bottom: 8px; }
+.muted { color: var(--ink-2); font-size: 15px; }
+.muted + .muted { margin-top: 10px; }
 .warn { color: var(--warn); }
-code { font-size: 13px; }
+a { color: var(--ink); text-decoration-color: var(--signal); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; border-radius: 6px; }
+/* the check code sits in a little display, big enough to compare with the computer's window at a glance */
+.check {
+  display: block; margin: 14px 0 4px; padding: 12px 16px; border-radius: 10px; text-align: center;
+  background: #090b0e; border: 1px solid #000; box-shadow: inset 0 2px 7px rgba(0, 0, 0, .8), 0 1px 0 rgba(255, 255, 255, .06);
+  font-size: 34px; font-weight: 500; font-stretch: 78%; letter-spacing: .12em; font-variant-numeric: tabular-nums;
+}
+.btn {
+  display: flex; align-items: center; justify-content: center; min-height: 52px; margin-top: 16px; padding: 0 18px;
+  text-decoration: none; font-weight: 700; font-stretch: 108%; border-radius: 11px; touch-action: manipulation;
+}
+.primary {
+  color: #2b0a12; border: 1px solid #6e1626; background: linear-gradient(180deg, #fd8a9b, #f45f78);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 3px 0 #6e1626;
+}
+.secondary {
+  color: var(--ink); border: 1px solid #111317; background: linear-gradient(180deg, #31363e, #24282e);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .09), 0 3px 0 #0c0e11;
+}
+.btn:active { transform: translateY(2px); box-shadow: none; }
+ul.muted { margin: 10px 0 0 20px; padding: 0; }
+ul.muted li + li { margin-top: 6px; }
+code { font-family: "Cascadia Mono", Consolas, ui-monospace, monospace; font-size: 13px; }
+.foot { color: #6b737e; font-size: 13.5px; margin-top: 18px; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header><img src="../favicon.ico" alt=""><h1>Pair RokeBox</h1></header>
+  <header>
+    <svg viewBox="0 0 64 64" aria-hidden="true">
+      <rect x="1" y="1" width="62" height="62" rx="15" fill="#1f232a" stroke="#0c0e11" stroke-width="2"/>
+      <rect x="11" y="11" width="42" height="31" rx="6" fill="#090b0e"/>
+      <path d="M21 17h4.6v19H21z" fill="#eef1f4"/>
+      <path d="M23.3 19.2h7.6a4.6 4.6 0 0 1 0 9.2h-7.6" fill="none" stroke="#eef1f4" stroke-width="4.6"/>
+      <path d="M30.2 30l6.2 6.6" stroke="#eef1f4" stroke-width="4.6" stroke-linecap="round"/>
+      <circle cx="45.5" cy="18" r="2.4" fill="#fb7185"/>
+      <path d="M22 49v4M27 49v4M37 49v4M42 49v4" stroke="#5c636e" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M32 47.5v7" stroke="#fb7185" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <h1 data-t="title">Emparejar RokeBox</h1>
+  </header>
 
   <div class="card" id="ok" hidden>
-    <h2>Pair this phone with a computer?</h2>
-    <p class="muted">“<span id="pc"></span>” at <span id="hosts"></span>. Check that the computer's pairing window shows the code
-      <b id="check"></b>, and continue only if you started pairing there.</p>
-    <a class="btn primary" id="open" href="#">Open in RokeBox</a>
-    <p class="muted" id="plainWrap" hidden style="margin-top:10px">Did a store open instead? Some browsers send app links there;
-      <a id="plain" href="#" style="color:var(--accent)">open the pairing link directly</a>. If Android then asks which app to
-      open it with, choose RokeBox: another app that accepts these links would get the pairing code.</p>
-    <p class="muted" style="margin-top:10px">The pairing code works once, for 5 minutes. If it expired, start pairing again on the computer.</p>
+    <h2 data-t="okTitle">¿Emparejar este teléfono con un ordenador?</h2>
+    <p class="muted"><span data-t="okFrom">Ordenador:</span> “<span id="pc"></span>”, <span id="hosts"></span>.</p>
+    <p class="muted" data-t="okCheck">Comprueba que la ventana de emparejamiento del ordenador muestra este código, y sigue solo si empezaste el emparejamiento allí:</p>
+    <b class="check" id="check" translate="no"></b>
+    <a class="btn primary" id="open" href="#" data-t="open">Abrir en RokeBox</a>
+    <p class="muted" id="plainWrap" hidden style="margin-top:12px"><span data-t="plain1">¿Se abrió una tienda de apps? Algunos navegadores envían ahí los enlaces de apps;</span>
+      <a id="plain" href="#" data-t="plain2">abre el enlace de emparejamiento directamente</a>. <span data-t="plain3">Si Android pregunta con qué app abrirlo, elige RokeBox: otra app que acepte estos enlaces recibiría el código.</span></p>
+    <p class="muted" style="margin-top:12px" data-t="once">El código sirve una vez y durante 5 minutos. Si caducó, empieza de nuevo el emparejamiento en el ordenador.</p>
   </div>
 
   <div class="card" id="bad" hidden>
-    <h2 class="warn">This pairing link is incomplete</h2>
-    <p class="muted">Scan the QR code again from RokeBox on the computer: Settings › General › Wi-Fi &amp; Tailscale › Pair a phone over Wi-Fi.</p>
+    <h2 class="warn" data-t="badTitle">Este enlace de emparejamiento está incompleto</h2>
+    <p class="muted" data-t="badText">Vuelve a escanear el código QR desde RokeBox en el ordenador: Ajustes › General › Wi-Fi y Tailscale › Emparejar un teléfono por Wi-Fi.</p>
   </div>
 
   <div class="card" id="cannotOpen" hidden>
-    <h2 class="warn">The RokeBox app didn't open</h2>
-    <p class="muted">If RokeBox isn't installed yet, use the download button below, then scan the QR code again.
-      If it's already installed, try one of these options:</p>
-    <ul class="muted" style="margin:8px 0 0 18px;padding:0">
-      <li>scan the code with the phone's camera, or open the pairing page in Chrome, which hands app links to the app
-        reliably;</li>
-      <li>or use the direct pairing link the pairing page shows under <b>Open in RokeBox</b>;</li>
-      <li>or skip Wi-Fi pairing: plug the phone in once over USB and the agent pairs it there.</li>
+    <h2 class="warn" data-t="noOpenTitle">La app RokeBox no se abrió</h2>
+    <p class="muted" data-t="noOpenText">Si RokeBox aún no está instalada, descárgala con el botón de abajo y vuelve a escanear el código QR. Si ya está instalada, prueba una de estas opciones:</p>
+    <ul class="muted">
+      <li data-t="noOpen1">escanea el código con la cámara del teléfono, o abre la página de emparejamiento en Chrome, que entrega los enlaces a la app de forma fiable;</li>
+      <li data-t="noOpen2">usa el enlace directo que la página de emparejamiento muestra debajo de «Abrir en RokeBox»;</li>
+      <li data-t="noOpen3">o sáltate el Wi-Fi: conecta el teléfono una vez por USB y el agente lo empareja ahí.</li>
     </ul>
-    <p class="muted" style="margin-top:10px">The pairing code works once, for 5 minutes; start pairing again if it
-      expired.</p>
+    <p class="muted" data-t="once">El código sirve una vez y durante 5 minutos. Si caducó, empieza de nuevo el emparejamiento en el ordenador.</p>
   </div>
 
   <div class="card">
-    <h2>No RokeBox app yet?</h2>
-    <p class="muted">Install it first (Android 5.0 or later), then scan the QR code again.</p>
-    <a class="btn secondary" href="https://github.com/kervinr-crypto/RokeBox/releases/latest">Download the app</a>
+    <h2 data-t="noAppTitle">¿Aún no tienes la app?</h2>
+    <p class="muted" data-t="noAppText">Instálala primero (Android 5.0 o posterior) y vuelve a escanear el código QR.</p>
+    <a class="btn secondary" href="https://github.com/kervinr-crypto/RokeBox/releases/latest" data-t="download">Descargar la app</a>
   </div>
 
-  <p class="muted">This page runs only in your browser. The pairing details are in the part of the link after <code>#</code>,
-    which browsers never send to a server, and the page removes them from your history.
-    <a href="https://github.com/kervinr-crypto/RokeBox/blob/main/PRIVACY.md" style="color:var(--accent)">Privacy policy</a></p>
+  <p class="foot"><span data-t="privacy">Esta página funciona solo en tu navegador. Los datos de emparejamiento van en la parte del enlace después de <code>#</code>, que los navegadores nunca envían a un servidor, y la página los borra de tu historial.</span>
+    <a href="https://github.com/kervinr-crypto/RokeBox/blob/main/PRIVACY.md" data-t="policy">Política de privacidad</a></p>
 </div>
 <script>
 (() => {
+  // The page speaks the phone's language when it has it: Spanish (as written above), Portuguese or English.
+  const words = {
+    pt: {
+      title: 'Parear o RokeBox', okTitle: 'Parear este telefone com um computador?', okFrom: 'Computador:',
+      okCheck: 'Confira se a janela de pareamento do computador mostra este código, e continue só se você começou o pareamento lá:',
+      open: 'Abrir no RokeBox', plain1: 'Abriu uma loja de apps? Alguns navegadores mandam os links de apps para lá;',
+      plain2: 'abra o link de pareamento diretamente', plain3: 'Se o Android perguntar com qual app abrir, escolha o RokeBox: outro app que aceite esses links receberia o código.',
+      once: 'O código vale uma vez, por 5 minutos. Se expirou, comece o pareamento de novo no computador.',
+      badTitle: 'Este link de pareamento está incompleto',
+      badText: 'Escaneie o código QR de novo no RokeBox do computador: Configurações › Geral › Wi-Fi e Tailscale › Parear um telefone por Wi-Fi.',
+      noOpenTitle: 'O app RokeBox não abriu',
+      noOpenText: 'Se o RokeBox ainda não está instalado, baixe com o botão abaixo e escaneie o código QR de novo. Se já está instalado, tente uma destas opções:',
+      noOpen1: 'escaneie o código com a câmera do telefone, ou abra a página de pareamento no Chrome, que entrega os links ao app de forma confiável;',
+      noOpen2: 'use o link direto que a página de pareamento mostra abaixo de “Abrir no RokeBox”;',
+      noOpen3: 'ou pule o Wi-Fi: conecte o telefone uma vez por USB e o agente faz o pareamento ali.',
+      noAppTitle: 'Ainda não tem o app?', noAppText: 'Instale primeiro (Android 5.0 ou posterior) e escaneie o código QR de novo.', download: 'Baixar o app',
+      privacy: 'Esta página funciona só no seu navegador. Os dados de pareamento vão na parte do link depois do #, que os navegadores nunca enviam a um servidor, e a página os apaga do seu histórico.',
+      policy: 'Política de privacidade',
+    },
+    en: {
+      title: 'Pair RokeBox', okTitle: 'Pair this phone with a computer?', okFrom: 'Computer:',
+      okCheck: "Check that the computer's pairing window shows this code, and continue only if you started pairing there:",
+      open: 'Open in RokeBox', plain1: 'Did a store open instead? Some browsers send app links there;',
+      plain2: 'open the pairing link directly', plain3: 'If Android then asks which app to open it with, choose RokeBox: another app that accepts these links would get the pairing code.',
+      once: 'The pairing code works once, for 5 minutes. If it expired, start pairing again on the computer.',
+      badTitle: 'This pairing link is incomplete',
+      badText: 'Scan the QR code again from RokeBox on the computer: Settings › General › Wi-Fi & Tailscale › Pair a phone over Wi-Fi.',
+      noOpenTitle: "The RokeBox app didn't open",
+      noOpenText: "If RokeBox isn't installed yet, use the download button below, then scan the QR code again. If it's already installed, try one of these options:",
+      noOpen1: 'scan the code with the phone\'s camera, or open the pairing page in Chrome, which hands app links to the app reliably;',
+      noOpen2: 'use the direct pairing link the pairing page shows under “Open in RokeBox”;',
+      noOpen3: 'or skip Wi-Fi pairing: plug the phone in once over USB and the agent pairs it there.',
+      noAppTitle: 'No RokeBox app yet?', noAppText: 'Install it first (Android 5.0 or later), then scan the QR code again.', download: 'Download the app',
+      privacy: 'This page runs only in your browser. The pairing details are in the part of the link after #, which browsers never send to a server, and the page removes them from your history.',
+      policy: 'Privacy policy',
+    },
+  };
+  const langs = (navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || 'es']).map((l) => String(l).toLowerCase());
+  const pick = langs.map((l) => l.slice(0, 2)).find((l) => l === 'es' || l === 'pt' || l === 'en') || 'en';
+  if (words[pick]) {
+    document.documentElement.lang = pick;
+    for (const el of document.querySelectorAll('[data-t]')) if (words[pick][el.dataset.t]) el.textContent = words[pick][el.dataset.t];
+    document.title = words[pick].title;
+  }
+
   const raw = location.hash.slice(1);
   const cannotOpen = new URLSearchParams(location.search).get('cannot-open') === '1';
   // Keep the one-time code and fallback flag out of the address bar and browser history.
@@ -94,8 +182,8 @@ code { font-size: 13px; }
   if (!ok) { document.getElementById('bad').hidden = false; return; }
   p.set('h', hosts.join(','));
   p.set('port', String(port));
-  document.getElementById('pc').textContent = (p.get('pc') || 'your computer').slice(0, 64);
-  document.getElementById('hosts').textContent = hosts.join(', ') + ' (port ' + port + ')';
+  document.getElementById('pc').textContent = (p.get('pc') || '?').slice(0, 64);
+  document.getElementById('hosts').textContent = hosts.join(', ') + ' (' + ({ es: 'puerto', pt: 'porta' }[pick] || 'port') + ' ' + port + ')';
   document.getElementById('check').textContent = (p.get('fp').slice(0, 4) + ' ' + p.get('fp').slice(4, 8)).toUpperCase();
   // Chrome on Android opens intent:// links in the app or follows the fallback if it cannot open the app;
   // other browsers get the plain rokebox:// link. The intent names the package, so no other app that claims the

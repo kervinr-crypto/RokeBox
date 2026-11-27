@@ -150,6 +150,11 @@ builder.Services.AddSingleton<PcHealth>();
 builder.Services.AddSingleton<PowerTimer>();
 builder.Services.AddSingleton<DataUsageMonitor>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<DataUsageMonitor>());
+// RokeBox: control of the computer from the phone (RokeControl.cs): windows, keyboard, screen, quick actions
+builder.Services.AddSingleton<WindowControl>();
+builder.Services.AddSingleton<RemoteKeys>();
+builder.Services.AddSingleton<ScreenView>();
+builder.Services.AddSingleton<QuickActions>();
 builder.Services.AddSingleton(sp => new LyricsService(sp.GetRequiredService<ConfigStore>(), sp.GetRequiredService<ILogger<LyricsService>>()));
 AddMonitor<BatteryMonitor>(builder.Services);
 AddMonitor<RuleEngine>(builder.Services);
@@ -835,6 +840,57 @@ app.MapPost("/api/rk/powertimer", (string? action, int? minutes, string? widget,
 app.MapPost("/api/rk/powertimer/cancel", (string? widget, HttpRequest req, PowerTimer timer) =>
     timer.Cancel(req.Headers["X-PhoneBox-Device"].ToString(), widget) is { } refused
         ? Results.BadRequest(new { error = refused }) : Results.Json(timer.View()));
+// RokeBox: control of the computer (RokeControl.cs), for the asking widget only and with its own switch on (off by
+// default); parameters in the query string, as the phone sends POSTs without a body.
+app.MapPost("/api/rk/gaming/close", (string? widget, bool? force, HttpRequest req, GamingMonitor gaming) =>
+{
+    var (status, error, count) = gaming.CloseGame(req.Headers["X-PhoneBox-Device"].ToString(), widget, force == true);
+    return error is null ? Results.Json(new { ok = true, count }) : Results.Json(new { error }, statusCode: status);
+});
+app.MapGet("/api/rk/gaming/allowed", (string? widget, HttpRequest req, GamingMonitor gaming) =>
+    Results.Json(new { close = gaming.CloseAllowed(req.Headers["X-PhoneBox-Device"].ToString(), widget) }));
+app.MapGet("/api/rk/windows", (string? widget, HttpRequest req, WindowControl windows) =>
+{
+    var (status, body) = windows.View(req.Headers["X-PhoneBox-Device"].ToString(), widget);
+    return Results.Json(body, statusCode: status);
+});
+app.MapPost("/api/rk/windows/act", (string? widget, long? id, string? action, HttpRequest req, WindowControl windows) =>
+{
+    var (status, error) = windows.Act(req.Headers["X-PhoneBox-Device"].ToString(), widget, id, action);
+    return error is null ? Results.Ok(new { ok = true }) : Results.Json(new { error }, statusCode: status);
+});
+app.MapPost("/api/rk/keys", async (string? widget, string? text, string? key, HttpRequest req, RemoteKeys keys, CancellationToken ct) =>
+{
+    var (status, error) = await keys.SendAsync(req.Headers["X-PhoneBox-Device"].ToString(), widget, text, key, ct);
+    return error is null ? Results.Ok(new { ok = true }) : Results.Json(new { error }, statusCode: status);
+});
+app.MapGet("/api/rk/screen/info", (string? widget, HttpRequest req, ScreenView screen) =>
+{
+    var (status, body) = screen.Info(req.Headers["X-PhoneBox-Device"].ToString(), widget);
+    return Results.Json(body, statusCode: status);
+});
+app.MapGet("/api/rk/screen", (string? widget, int? monitor, int? width, HttpRequest req, HttpResponse res, ScreenView screen) =>
+{
+    var (status, jpeg, error) = screen.Capture(req.Headers["X-PhoneBox-Device"].ToString(), widget, monitor, width);
+    if (jpeg is null) return Results.Json(new { error }, statusCode: status);
+    res.Headers.CacheControl = "no-store";
+    return Results.File(jpeg, "image/jpeg");
+});
+app.MapPost("/api/rk/screen/click", (string? widget, int? monitor, double? x, double? y, string? button, HttpRequest req, ScreenView screen) =>
+{
+    var (status, error) = screen.Click(req.Headers["X-PhoneBox-Device"].ToString(), widget, monitor, x, y, button);
+    return error is null ? Results.Ok(new { ok = true }) : Results.Json(new { error }, statusCode: status);
+});
+app.MapGet("/api/rk/quick", (string? widget, HttpRequest req, QuickActions quick) =>
+{
+    var (status, body) = quick.State(req.Headers["X-PhoneBox-Device"].ToString(), widget);
+    return Results.Json(body, statusCode: status);
+});
+app.MapPost("/api/rk/quick", (string? widget, string? action, HttpRequest req, QuickActions quick) =>
+{
+    var (status, error) = quick.Run(req.Headers["X-PhoneBox-Device"].ToString(), widget, action);
+    return error is null ? Results.Ok(new { ok = true }) : Results.Json(new { error }, statusCode: status);
+});
 // The installed games (id and name) for the widget's favorites picker in settings. Not in Lan.cs: the computer only.
 app.MapGet("/api/steam/games", (SteamLibrary library) => Results.Json(library.Installed()));
 // A cover from Steam's appcache/librarycache, for an installed app id only (SteamLibrary.FindCover checks the path).

@@ -439,7 +439,7 @@ class MainActivity : Activity(), SensorEventListener {
             })
             return
         }
-        web.setBackgroundColor(0xFF000000.toInt())
+        web.setBackgroundColor(0xFF1C2026.toInt()) // RokeBox: the faceplate colour, no black flash before the panel paints
         setContentView(web)
 
         with(web.settings) {

@@ -56,3 +56,5 @@ tools/ui-tests/test-results/
 
 *.log
 *.txt
+# RokeBox: the panel font's licence (SIL OFL) ships with the font
+!android/app/src/main/assets/www/roke-mona-OFL.txt

@@ -21,6 +21,7 @@ import './widgets/steam-library.js';
 import './widgets/lyrics.js';
 import './widgets/roke-gaming.js';
 import './widgets/roke-system.js';
+import './widgets/roke-control.js';
 
 // RokeBox desk panel. Pages are grids of widgets, designed in the agent's settings page.
 // A phone is 12 × 6. A tablet keeps the 12 columns and adds rows, so the page holds more widgets.
